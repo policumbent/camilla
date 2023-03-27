@@ -13,9 +13,9 @@
 class HR4988 {
     
     private:
-        uint8_t enable_pin;
-        uint8_t sleep_pin;
-        uint8_t reset_pin;
+        uint8_t enable_pin;     // negated pin
+        uint8_t sleep_pin;      // negated pin
+        uint8_t reset_pin;      // negated pin
 
         uint8_t step_pin;
         uint8_t direction_pin;
@@ -36,15 +36,21 @@ class HR4988 {
         const uint8_t delay_on = 1;
         int delay_off;
 
-        int direction = HIGH;
-        int microstepping = FULL_STEP_MODE;
-        float rpm = 10;
+        int direction;
+        int microstepping;
+        float rpm;
+        int position;
 
     public:
         HR4988 (uint8_t enable_pin, uint8_t sleep_pin, uint8_t reset_pin,
                 uint8_t step_pin, uint8_t direction_pin,
                 uint8_t ms1_pin, uint8_t ms2_pin, uint8_t ms3_pin,
                 int steps_per_turn = 200, float deg_per_full_step = 1.8);
-        void setup();
-        
+
+        void setup ();
+        void set_speed (float speed);
+        void change_direction ();
+        void change_direction (int dir);
+        void set_microstepping (int mode);
+        void step ();
 };
