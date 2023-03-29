@@ -28,10 +28,10 @@ class HR4988 {
         uint8_t steps_per_turn;
         float deg_per_full_step;
 
-        uint8_t enable = 1;
-        uint8_t reset = 0;
-        uint8_t _sleep = 0;
-        uint8_t _on = 0;
+        uint8_t enable;
+        uint8_t reset;
+        uint8_t _sleep;
+        uint8_t _on;
 
         const uint8_t delay_on = 1;
         int delay_off;
@@ -52,10 +52,15 @@ class HR4988 {
         void change_direction ();
         void change_direction (int dir);
         void set_microstepping (int mode);
-        void step ();
+        void step();
 
         void on();
         void off();
         void sleep();
         void awake();
+
+        int is_on();
+        int is_sleep();
+
+        void print_status();
 };

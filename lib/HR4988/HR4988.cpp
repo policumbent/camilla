@@ -4,7 +4,7 @@ HR4988 :: HR4988 (
     uint8_t enable_pin, uint8_t sleep_pin, uint8_t reset_pin,
     uint8_t step_pin, uint8_t direction_pin,
     uint8_t ms1_pin, uint8_t ms2_pin, uint8_t ms3_pin,
-    int steps_per_turn = 200, float deg_per_full_step = 1.8 )
+    int steps_per_turn, float deg_per_full_step )
 {
     this->enable_pin = enable_pin;
     this->sleep_pin = sleep_pin;
@@ -134,4 +134,25 @@ void HR4988 :: sleep() {
 void HR4988 :: awake() {
     _sleep = 0;
     digitalWrite(sleep_pin, !_sleep);
+}
+
+
+int HR4988 :: is_on() {
+    return _on;
+}
+
+
+int HR4988 :: is_sleep() {
+    return _sleep;
+}
+
+
+void HR4988 :: print_status() {
+    if (!Serial)
+        return;
+        
+    char str[100];
+    sprintf(str, "RPM: %.2f\tDirection: %d\tMicrostepping: %d\tSleep: %d\tOn: %d\tDelay off: %d",
+            rpm, direction, microstepping, _sleep, _on, delay_off);
+    Serial.println(str);
 }

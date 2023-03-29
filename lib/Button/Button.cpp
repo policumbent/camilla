@@ -20,7 +20,7 @@ void Button :: setup () {
 
 
 void IRAM_ATTR Button :: interrupt_service_routine() {
-    int t_begin;
+    volatile int t_begin;
     
     detachInterrupt(pin);
 
@@ -36,13 +36,15 @@ void IRAM_ATTR Button :: interrupt_service_routine() {
 }
 
 
-void Button :: manage_button() {
+int Button :: read_attach_interrupt() {
     if (!button_pressed)
-        return;
+        return 0;
 
     if (digitalRead(pin) == pressed_state)
-        return;
+        return 1;
 
     attachInterrupt(pin, external_isr, interrupt_mode);
     button_pressed--;
+
+    return button_pressed;
 }
