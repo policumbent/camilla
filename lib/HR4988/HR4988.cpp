@@ -34,12 +34,12 @@ void HR4988 :: setup () {
     pinMode(ms3_pin, OUTPUT);
 
     enable = 1;
-    sleep_ = 0;
+    _sleep = 0;
     reset = 0;
-    on = 1;
+    _on = 1;
     digitalWrite(enable_pin, !enable);
     digitalWrite(reset_pin, !reset);
-    digitalWrite(sleep_pin, !sleep_);
+    digitalWrite(sleep_pin, !_sleep);
 
     direction = 0;
     microstepping = FULL_STEP_MODE;
@@ -105,7 +105,7 @@ void HR4988 :: set_microstepping (int mode) {
 
 
 void HR4988 :: step () {
-    if (!on)
+    if (!_on)
         return;
 
     digitalWrite(step_pin, HIGH);
@@ -114,3 +114,24 @@ void HR4988 :: step () {
     delayMicroseconds(delay_off);
 }
 
+
+void HR4988 :: on() {
+    _on = 1;
+}
+
+
+void HR4988 :: off() {
+    _on = 0;
+}
+
+
+void HR4988 :: sleep() {
+    _sleep = 1;
+    digitalWrite(sleep_pin, !_sleep);
+}
+
+
+void HR4988 :: awake() {
+    _sleep = 0;
+    digitalWrite(sleep_pin, !_sleep);
+}
