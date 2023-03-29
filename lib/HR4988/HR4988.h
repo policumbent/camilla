@@ -46,8 +46,8 @@ class HR4988 {
                 uint8_t step_pin, uint8_t direction_pin,
                 uint8_t ms1_pin, uint8_t ms2_pin, uint8_t ms3_pin,
                 int steps_per_turn = 200, float deg_per_full_step = 1.8);
-
-        void setup ();
+        void setup();
+        
         void set_speed (float speed);
         void change_direction ();
         void change_direction (int dir);
