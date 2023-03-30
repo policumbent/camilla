@@ -22,6 +22,8 @@ const int steps_per_turn = 200;
 const float deg_per_full_step = 1.8;
 float rpm;
 
+int limit_reached = 0;
+
 void IRAM_ATTR limit_switch_isr();
 
 
@@ -31,9 +33,9 @@ HR4988 stepper_motor = HR4988 (
     MS1_PIN, MS2_PIN, MS3_PIN,
     steps_per_turn, deg_per_full_step
 );
-Button limit_switch = Button (
+/*Button limit_switch = Button (
     LIMIT_SWITCH_PIN, INPUT_PULLUP, FALLING, LOW, limit_switch_isr
-);
+);*/
 
 
 void setup() {
@@ -44,6 +46,9 @@ void setup() {
     rpm = 180;
     stepper_motor.set_speed(rpm);
     stepper_motor.off();
+
+    pinMode(LIMIT_SWITCH_PIN, INPUT_PULLUP);
+    attachInterrupt(LIMIT_SWITCH_PIN, limit_switch_isr, FALLING);
 }
 
 
@@ -78,7 +83,7 @@ void loop() {
         stepper_motor.print_status();
     }
 
-    if (limit_switch.read_attach_interrupt()) {
+    /*if (limit_switch.read_attach_interrupt()) {
         Serial.println("Limit reached");
 
         stepper_motor.change_direction();
@@ -87,10 +92,44 @@ void loop() {
 
         while (limit_switch.read_attach_interrupt())
             stepper_motor.step();
+    }*/
+
+    if (limit_reached) {
+
+        Serial.println("Limit reached");
+
+        stepper_motor.change_direction();
+        stepper_motor.set_microstepping(FULL_STEP_MODE);
+        stepper_motor.set_speed(300);
+        stepper_motor.on();
+
+        while (!digitalRead(LIMIT_SWITCH_PIN)) {
+            stepper_motor.step();
+        }
+
+        stepper_motor.change_direction();
+
+        attachInterrupt(LIMIT_SWITCH_PIN, limit_switch_isr, FALLING);
+        limit_reached--;
     }
 }
 
 
 void IRAM_ATTR limit_switch_isr() {
-    limit_switch.interrupt_service_routine();
+    /*limit_switch.interrupt_service_routine();*/
+    int t_begin;
+    
+    detachInterrupt(LIMIT_SWITCH_PIN);
+
+    t_begin = millis();
+    while (millis() - t_begin < 50);
+
+    if (digitalRead(LIMIT_SWITCH_PIN)) {
+        attachInterrupt(LIMIT_SWITCH_PIN, limit_switch_isr, FALLING);
+        return;
+    }
+
+    stepper_motor.off();
+
+    limit_reached++; 
 }
