@@ -33,9 +33,6 @@ HR4988 stepper_motor = HR4988 (
     MS1_PIN, MS2_PIN, MS3_PIN,
     steps_per_turn, deg_per_full_step
 );
-/*Button limit_switch = Button (
-    LIMIT_SWITCH_PIN, INPUT_PULLUP, FALLING, LOW, limit_switch_isr
-);*/
 
 
 void setup() {
@@ -83,17 +80,6 @@ void loop() {
         stepper_motor.print_status();
     }
 
-    /*if (limit_switch.read_attach_interrupt()) {
-        Serial.println("Limit reached");
-
-        stepper_motor.change_direction();
-        stepper_motor.set_speed(300);
-        stepper_motor.set_microstepping(FULL_STEP_MODE);
-
-        while (limit_switch.read_attach_interrupt())
-            stepper_motor.step();
-    }*/
-
     if (limit_reached) {
 
         Serial.println("Limit reached");
@@ -116,7 +102,6 @@ void loop() {
 
 
 void IRAM_ATTR limit_switch_isr() {
-    /*limit_switch.interrupt_service_routine();*/
     int t_begin;
     
     detachInterrupt(LIMIT_SWITCH_PIN);

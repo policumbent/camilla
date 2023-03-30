@@ -1,50 +1,40 @@
 #include "Button.h"
 
-Button :: Button (uint8_t pin, uint8_t pin_mode, uint8_t interrupt_mode, uint8_t pressed_state, void(* isr)()) {
-    this->pin = pin;
-    this->pin_mode = pin_mode;
-    this->interrupt_mode = interrupt_mode;
-    this->pressed_state = pressed_state;
-    this->external_isr = isr;
 
-    setup();
+void button_setup (button_parameters *bp) {
+    pinMode(bp->pin, bp->pin_mode);
+    attachInterrupt(bp->pin, bp->external_isr, bp->interrupt_mode);
+
+    *(bp->is_pressed) = 0;
 }
 
 
-void Button :: setup () {
-    pinMode(pin, pin_mode);
-    attachInterrupt(pin, external_isr, interrupt_mode);
-
-    button_pressed = 0;
-}
-
-
-void IRAM_ATTR Button :: interrupt_service_routine() {
+void IRAM_ATTR button_interrupt_service_routine (button_parameters *bp) {
     volatile int t_begin;
     
-    detachInterrupt(pin);
+    detachInterrupt(bp->pin);
 
     t_begin = millis();
     while (millis() - t_begin < debouncing_time);
 
-    if (digitalRead(pin) != pressed_state) {
-        attachInterrupt(pin, external_isr, interrupt_mode);
+    if (digitalRead(bp->pin) != bp->pressed_state) {
+        attachInterrupt(bp->pin, bp->external_isr, bp->interrupt_mode);
         return;
     }
 
-    button_pressed++; 
+    *(bp->is_pressed)++; 
 }
 
 
-int Button :: read_attach_interrupt() {
-    if (!button_pressed)
+int read_attach_interrupt (button_parameters *bp) {
+    if (!*(bp->is_pressed))
         return 0;
 
-    if (digitalRead(pin) == pressed_state)
+    if (digitalRead(bp->pin) == *(bp->is_pressed))
         return 1;
 
-    attachInterrupt(pin, external_isr, interrupt_mode);
-    button_pressed--;
+    attachInterrupt(bp->pin, bp->external_isr, bp->interrupt_mode);
+    *(bp->is_pressed)--;
 
-    return button_pressed;
+    return *(bp->is_pressed);
 }
