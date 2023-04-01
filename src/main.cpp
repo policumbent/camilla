@@ -123,3 +123,106 @@ void IRAM_ATTR limit_switch_isr() {
         stepper_motor.off();
     }
 }
+
+
+
+
+
+/* EXAMAPLE OF MULTI-TASK CODE */
+
+/*
+SemaphoreHandle_t xSemaphore;
+void createSemaphore() {
+    xSemaphore = xSemaphoreCreateMutex();
+    xSemaphoreGive(xSemaphore);
+}
+
+// Lock the variable indefinietly. ( wait for it to be accessible )
+void lockVariable() {
+    xSemaphoreTake(xSemaphore, portMAX_DELAY);
+}
+
+// give back the semaphore.
+void unlockVariable() {
+    xSemaphoreGive(xSemaphore);
+}
+
+TaskHandle_t Task1;
+TaskHandle_t Task2;
+void Task1code (void *pvParameters);
+void Task2code (void *pvParameters);
+
+char c;
+uint8_t flag = 0;
+
+void setup() {
+    Serial.begin(9600); 
+    delay(1000);
+    Serial.println("Hello!");
+    createSemaphore();
+    //create a task that will be executed in the Task1code() function, with priority 1 and executed on core 0
+    xTaskCreatePinnedToCore(
+                    Task1code,   // Task function
+                    "Task1",     // name of task 
+                    10000,       // Stack size of task 
+                    NULL,        // parameter of the task 
+                    1,           // priority of the task 
+                    &Task1,      // Task handle to keep track of created task 
+                    0);          // pin task to core 0
+    delay(500); 
+
+    //create a task that will be executed in the Task2code() function, with priority 1 and executed on core 1
+    xTaskCreatePinnedToCore(
+                    Task2code,   // Task function
+                    "Task2",     // name of task 
+                    10000,       // Stack size of task 
+                    NULL,        // parameter of the task 
+                    2,           // priority of the task 
+                    &Task2,      // Task handle to keep track of created task 
+                    1);          // pin task to core 1 
+    delay(500);
+}
+
+
+void Task1code (void *pvParameters) {
+    Serial.print("Task1 running on core ");
+    Serial.println(xPortGetCoreID());
+    
+    while (1) {
+
+        lockVariable();
+        if (Serial.available()) {
+            c = Serial.read();
+            Serial.print("Character received by Task1: ");
+            Serial.println(c);
+            flag = 1;
+        }
+        unlockVariable();
+        
+        vTaskDelay(100);
+    }
+}
+
+
+void Task2code (void *pvParameters) {
+    delay(500);
+    Serial.print("Task2 running on core ");
+    Serial.println(xPortGetCoreID());
+
+    while (1) {
+        lockVariable();
+        if (flag) {
+            Serial.print("Character read by Task2: ");
+            Serial.println(c);
+            flag = 0;
+        }
+        unlockVariable();
+
+        vTaskDelay(100);
+    }
+
+}
+
+
+void loop() {}
+*/
