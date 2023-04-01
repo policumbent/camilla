@@ -44,7 +44,7 @@ void HR4988 :: setup () {
     direction = 0;
     microstepping = FULL_STEP_MODE;
     rpm = 120.0;
-    change_direction(direction);
+    set_direction(direction);
     set_microstepping(microstepping);
     set_speed(rpm);
 }
@@ -67,7 +67,7 @@ void HR4988 :: change_direction () {
 }
 
 
-void HR4988 :: change_direction (int dir) {
+void HR4988 :: set_direction (uint8_t dir) {
     if (direction == dir)
         return;
     
@@ -75,7 +75,7 @@ void HR4988 :: change_direction (int dir) {
 }
 
 
-void HR4988 :: set_microstepping (int mode) {
+void HR4988 :: set_microstepping (uint8_t mode) {
     uint8_t ms1, ms2, ms3;
 
     if (microstepping == mode)
@@ -102,6 +102,23 @@ void HR4988 :: set_microstepping (int mode) {
     microstepping = mode;
     set_speed(rpm);
 }
+
+
+uint8_t HR4988 :: get_direction() {
+    return direction;
+}
+
+
+float HR4988 :: get_speed() {
+    return rpm;
+}
+
+
+uint8_t HR4988 :: get_microstepping() {
+    return microstepping;
+}
+
+
 
 
 void HR4988 :: step () {

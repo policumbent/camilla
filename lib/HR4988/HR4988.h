@@ -36,8 +36,8 @@ class HR4988 {
         const uint8_t delay_on = 1;
         int delay_off;
 
-        int direction;
-        int microstepping;
+        uint8_t direction;
+        uint8_t microstepping;
         float rpm;
         int position;
 
@@ -50,9 +50,13 @@ class HR4988 {
         
         void set_speed (float speed);
         void change_direction ();
-        void change_direction (int dir);
-        void set_microstepping (int mode);
+        void set_direction (uint8_t dir);
+        void set_microstepping (uint8_t mode);
         void step();
+
+        uint8_t get_direction();
+        float get_speed();
+        uint8_t get_microstepping();
 
         void on();
         void off();

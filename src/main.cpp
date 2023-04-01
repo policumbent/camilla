@@ -2,6 +2,7 @@
 
 #include "HR4988.h"
 #include "Button.h"
+#include "Potentiometer.h"
 
 
 #define ENABLE_PIN 18
@@ -16,6 +17,8 @@
 #define MS3_PIN 32
 
 #define LIMIT_SWITCH_PIN 23
+
+#define POTENTIOMETER_PIN 34
 
 
 const int steps_per_turn = 200;
@@ -39,6 +42,9 @@ HR4988 stepper_motor = HR4988 (
 button_parameters limit_switch_parameters = {
     LIMIT_SWITCH_PIN, INPUT_PULLUP, LOW, limit_switch_isr, FALLING
 };
+Potentiometer potentiometer = Potentiometer (
+    POTENTIOMETER_PIN
+);
 
 
 void setup() {
@@ -93,6 +99,7 @@ void loop() {
             case '4': stepper_motor.set_microstepping(QUARTER_STEP_MODE); break;
             case '8': stepper_motor.set_microstepping(EIGHT_STEP_MODE); break;
             case '6': stepper_motor.set_microstepping(SIXTEENTH_STEP_MODE); break;
+            case 'p': potentiometer.calibration(stepper_motor); break;
             default: break;
         }
         char str[100];
