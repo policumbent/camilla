@@ -20,7 +20,10 @@
 
 const int steps_per_turn = 200;
 const float deg_per_full_step = 1.8;
+
 float rpm;
+int steps_per_activation;
+int current_steps = 0;
 
 uint8_t limit_reached = 0;
 
@@ -43,6 +46,7 @@ void setup() {
     while (!Serial);
     Serial.println("Serial initialized correctly");
 
+    steps_per_activation = steps_per_turn;
     rpm = 180;
     stepper_motor.set_speed(rpm);
     stepper_motor.off();
@@ -56,6 +60,11 @@ void loop() {
     
     if (stepper_motor.is_on()) {
         stepper_motor.step();
+        current_steps++;
+
+        if (current_steps >= steps_per_activation) {
+            stepper_motor.off();
+        }
     }
 
     if (Serial.available()) {
@@ -63,9 +72,16 @@ void loop() {
         c = Serial.read();
         //delay(1000);
         switch (c) {
-            case 'o': (stepper_motor.is_on()) ? stepper_motor.off() : stepper_motor.on(); break;
+            case 'o': (stepper_motor.is_on()) ? stepper_motor.off() : stepper_motor.on();
+                current_steps = 0; break;
             case 's': (stepper_motor.is_sleep()) ? stepper_motor.awake() : stepper_motor.sleep(); break;
             case 'c': stepper_motor.change_direction(); break;
+            case '^': steps_per_activation += 1; break;
+            case 'i': steps_per_activation += 10; break;
+            case 'I': steps_per_activation += 100; break;
+            case 'v': steps_per_activation -= 1; break;
+            case 'd': steps_per_activation -= 10; break;
+            case 'D': steps_per_activation -= 100; break;
             case '*': rpm += 100; stepper_motor.set_speed(rpm); break;
             case '/': rpm -= 100; stepper_motor.set_speed(rpm); break;
             case '+': rpm += 10; stepper_motor.set_speed(rpm); break;
@@ -79,6 +95,9 @@ void loop() {
             case '6': stepper_motor.set_microstepping(SIXTEENTH_STEP_MODE); break;
             default: break;
         }
+        char str[100];
+        sprintf(str, "Steps per activation: %d\t", steps_per_activation);
+        Serial.print(str);
         stepper_motor.print_status();
     }
 
