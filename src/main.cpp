@@ -4,6 +4,8 @@
 #include "Button.h"
 #include "Potentiometer.h"
 
+#define DELAY_WAIT_SEMAPHORE 10
+
 
 #define ENABLE_PIN 18
 #define SLEEP_PIN 21
@@ -32,6 +34,9 @@ uint8_t limit_reached = 0;
 
 void IRAM_ATTR limit_switch_isr();
 
+char message[100];
+uint8_t print = 0;
+
 
 HR4988 stepper_motor = HR4988 (
     ENABLE_PIN, SLEEP_PIN, RESET_PIN,
@@ -47,10 +52,19 @@ Potentiometer potentiometer = Potentiometer (
 );
 
 
+SemaphoreHandle_t semaphore;
+
+TaskHandle_t task_core_1;
+TaskHandle_t task_core_0;
+
+void function_core_1 (void *parameters);
+void function_core_0 (void *parameters);
+
+
 void setup() {
     Serial.begin(9600);
     while (!Serial);
-    Serial.println("Serial initialized correctly");
+    Serial.println("Serial initialized");
 
     steps_per_activation = steps_per_turn;
     rpm = 180;
@@ -58,178 +72,119 @@ void setup() {
     stepper_motor.off();
 
     button_setup(&limit_switch_parameters);
+
+    semaphore = xSemaphoreCreateBinary();
+    xSemaphoreGive(semaphore);
+
+    xTaskCreatePinnedToCore(function_core_1, "Core_1", 10000, NULL, 0, &task_core_1, 1);
+    delay(500);
+    xTaskCreatePinnedToCore(function_core_0, "Core_0", 10000, NULL, 0, &task_core_0, 0);
+    delay(500);
+}
+
+
+void function_core_1 (void *parameters) {
+
+    Serial.print("Task 1 initialized running on core: ");
+    Serial.println(xPortGetCoreID());
+
+
+    while (1) {
+
+        if (stepper_motor.is_on()) {
+            stepper_motor.step();
+            current_steps++;
+
+            if (current_steps >= steps_per_activation) {
+                stepper_motor.off();
+            }
+        }
+
+        if (Serial.available()) {
+            char c;
+            c = Serial.read();
+
+            switch (c) {
+                case 'o': (stepper_motor.is_on()) ? stepper_motor.off() : stepper_motor.on();
+                    current_steps = 0; break;
+                case 's': (stepper_motor.is_sleep()) ? stepper_motor.awake() : stepper_motor.sleep(); break;
+                case 'c': stepper_motor.change_direction(); break;
+                case '^': steps_per_activation += 1; break;
+                case 'i': steps_per_activation += 10; break;
+                case 'I': steps_per_activation += 100; break;
+                case 'v': steps_per_activation -= 1; break;
+                case 'd': steps_per_activation -= 10; break;
+                case 'D': steps_per_activation -= 100; break;
+                case '*': rpm += 100; stepper_motor.set_speed(rpm); break;
+                case '/': rpm -= 100; stepper_motor.set_speed(rpm); break;
+                case '+': rpm += 10; stepper_motor.set_speed(rpm); break;
+                case '-': rpm -= 10; stepper_motor.set_speed(rpm); break;
+                case ',': rpm += 1; stepper_motor.set_speed(rpm); break;
+                case '.': rpm -= 1; stepper_motor.set_speed(rpm); break;
+                case '1': stepper_motor.set_microstepping(FULL_STEP_MODE); break;
+                case '2': stepper_motor.set_microstepping(HALF_STEP_MODE); break;
+                case '4': stepper_motor.set_microstepping(QUARTER_STEP_MODE); break;
+                case '8': stepper_motor.set_microstepping(EIGHT_STEP_MODE); break;
+                case '6': stepper_motor.set_microstepping(SIXTEENTH_STEP_MODE); break;
+                case 'p': potentiometer.calibration(stepper_motor); break;
+                default: break;
+            }
+            if (xSemaphoreTake(semaphore, DELAY_WAIT_SEMAPHORE)) {
+                sprintf(message, "Steps per activation: %d\t", steps_per_activation);
+                print = 1;
+                xSemaphoreGive(semaphore);
+            }
+        }
+
+        if (limit_reached) {
+            Serial.println("Limit reached");
+            Serial.print("The isr has runned on core: ");
+            Serial.println(limit_reached - 1);
+
+            stepper_motor.change_direction();
+            stepper_motor.set_microstepping(FULL_STEP_MODE);
+            stepper_motor.set_speed(300);
+            stepper_motor.on();
+
+            while (limit_reached = button_read_attach_interrupt(&limit_switch_parameters)) {
+                stepper_motor.step();
+            }
+
+            stepper_motor.change_direction();
+        }
+
+    }
+}
+
+
+void function_core_0 (void *parameters) {
+
+    Serial.print("Task 0 initialized running on core: ");
+    Serial.println(xPortGetCoreID());
+
+
+    while (1) {
+    
+        if (print && xSemaphoreTake(semaphore, portMAX_DELAY)) {
+            Serial.print(message);
+            stepper_motor.print_status();
+            print = 0;
+            xSemaphoreGive(semaphore);
+        }
+        delay(100);
+
+    }
 }
 
 
 void loop() {
-    int i;
-    
-    if (stepper_motor.is_on()) {
-        stepper_motor.step();
-        current_steps++;
-
-        if (current_steps >= steps_per_activation) {
-            stepper_motor.off();
-        }
-    }
-
-    if (Serial.available()) {
-        char c;
-        c = Serial.read();
-        //delay(1000);
-        switch (c) {
-            case 'o': (stepper_motor.is_on()) ? stepper_motor.off() : stepper_motor.on();
-                current_steps = 0; break;
-            case 's': (stepper_motor.is_sleep()) ? stepper_motor.awake() : stepper_motor.sleep(); break;
-            case 'c': stepper_motor.change_direction(); break;
-            case '^': steps_per_activation += 1; break;
-            case 'i': steps_per_activation += 10; break;
-            case 'I': steps_per_activation += 100; break;
-            case 'v': steps_per_activation -= 1; break;
-            case 'd': steps_per_activation -= 10; break;
-            case 'D': steps_per_activation -= 100; break;
-            case '*': rpm += 100; stepper_motor.set_speed(rpm); break;
-            case '/': rpm -= 100; stepper_motor.set_speed(rpm); break;
-            case '+': rpm += 10; stepper_motor.set_speed(rpm); break;
-            case '-': rpm -= 10; stepper_motor.set_speed(rpm); break;
-            case ',': rpm += 1; stepper_motor.set_speed(rpm); break;
-            case '.': rpm -= 1; stepper_motor.set_speed(rpm); break;
-            case '1': stepper_motor.set_microstepping(FULL_STEP_MODE); break;
-            case '2': stepper_motor.set_microstepping(HALF_STEP_MODE); break;
-            case '4': stepper_motor.set_microstepping(QUARTER_STEP_MODE); break;
-            case '8': stepper_motor.set_microstepping(EIGHT_STEP_MODE); break;
-            case '6': stepper_motor.set_microstepping(SIXTEENTH_STEP_MODE); break;
-            case 'p': potentiometer.calibration(stepper_motor); break;
-            default: break;
-        }
-        char str[100];
-        sprintf(str, "Steps per activation: %d\t", steps_per_activation);
-        Serial.print(str);
-        stepper_motor.print_status();
-    }
-
-    if (limit_reached) {
-        Serial.println("Limit reached");
-
-        stepper_motor.change_direction();
-        stepper_motor.set_microstepping(FULL_STEP_MODE);
-        stepper_motor.set_speed(300);
-        stepper_motor.on();
-
-        while (limit_reached = button_read_attach_interrupt(&limit_switch_parameters)) {
-            stepper_motor.step();
-        }
-
-        stepper_motor.change_direction();
-    }
+    delay(10000);
 }
 
 
 void IRAM_ATTR limit_switch_isr() {
     if (limit_reached = button_interrupt_service_routine(&limit_switch_parameters)) {
         stepper_motor.off();
+        limit_reached = xPortGetCoreID() + 1;
     }
 }
-
-
-
-
-
-/* EXAMAPLE OF MULTI-TASK CODE */
-
-/*
-SemaphoreHandle_t xSemaphore;
-void createSemaphore() {
-    xSemaphore = xSemaphoreCreateMutex();
-    xSemaphoreGive(xSemaphore);
-}
-
-// Lock the variable indefinietly. ( wait for it to be accessible )
-void lockVariable() {
-    xSemaphoreTake(xSemaphore, portMAX_DELAY);
-}
-
-// give back the semaphore.
-void unlockVariable() {
-    xSemaphoreGive(xSemaphore);
-}
-
-TaskHandle_t Task1;
-TaskHandle_t Task2;
-void Task1code (void *pvParameters);
-void Task2code (void *pvParameters);
-
-char c;
-uint8_t flag = 0;
-
-void setup() {
-    Serial.begin(9600); 
-    delay(1000);
-    Serial.println("Hello!");
-    createSemaphore();
-    //create a task that will be executed in the Task1code() function, with priority 1 and executed on core 0
-    xTaskCreatePinnedToCore(
-                    Task1code,   // Task function
-                    "Task1",     // name of task 
-                    10000,       // Stack size of task 
-                    NULL,        // parameter of the task 
-                    1,           // priority of the task 
-                    &Task1,      // Task handle to keep track of created task 
-                    0);          // pin task to core 0
-    delay(500); 
-
-    //create a task that will be executed in the Task2code() function, with priority 1 and executed on core 1
-    xTaskCreatePinnedToCore(
-                    Task2code,   // Task function
-                    "Task2",     // name of task 
-                    10000,       // Stack size of task 
-                    NULL,        // parameter of the task 
-                    2,           // priority of the task 
-                    &Task2,      // Task handle to keep track of created task 
-                    1);          // pin task to core 1 
-    delay(500);
-}
-
-
-void Task1code (void *pvParameters) {
-    Serial.print("Task1 running on core ");
-    Serial.println(xPortGetCoreID());
-    
-    while (1) {
-
-        lockVariable();
-        if (Serial.available()) {
-            c = Serial.read();
-            Serial.print("Character received by Task1: ");
-            Serial.println(c);
-            flag = 1;
-        }
-        unlockVariable();
-        
-        vTaskDelay(100);
-    }
-}
-
-
-void Task2code (void *pvParameters) {
-    delay(500);
-    Serial.print("Task2 running on core ");
-    Serial.println(xPortGetCoreID());
-
-    while (1) {
-        lockVariable();
-        if (flag) {
-            Serial.print("Character read by Task2: ");
-            Serial.println(c);
-            flag = 0;
-        }
-        unlockVariable();
-
-        vTaskDelay(100);
-    }
-
-}
-
-
-void loop() {}
-*/
