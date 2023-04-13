@@ -4,11 +4,13 @@
 #include "Button.h"
 
 
-#define ENABLE_PIN 18
-#define SLEEP_PIN 21
-#define RESET_PIN 19
+#define NUM_GEARS 12
 
-#define STEP_PIN 12
+#define ENABLE_PIN 18
+#define SLEEP_PIN  21
+#define RESET_PIN  19
+
+#define STEP_PIN      12
 #define DIRECTION_PIN 14
 
 #define MS1_PIN 25
@@ -21,14 +23,12 @@
 const int steps_per_turn = 200;
 const float deg_per_full_step = 1.8;
 
-float rpm;
-int steps_per_activation;
-int current_steps = 0;
+int position_step = 0;
 
 uint8_t limit_reached = 0;
-
 void IRAM_ATTR limit_switch_isr();
 
+int gears[NUM_GEARS] = {200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000, 2200, 2400};    // random
 
 HR4988 stepper_motor = HR4988 (
     ENABLE_PIN, SLEEP_PIN, RESET_PIN,
@@ -46,13 +46,39 @@ void function_core_1 (void *parameters) {
     Serial.print("Task 1 initialized running on core: ");
     Serial.println(xPortGetCoreID());
 
-    steps_per_activation = steps_per_turn;
-    rpm = 180;
-    stepper_motor.set_speed(rpm);
-    stepper_motor.off();
+    stepper_motor.on();
 
     button_setup(&limit_switch_parameters);
 
+    // load gear from flash into gears array
+    stepper_motor.set_direction(CCW);   // TODO: to be checked
+    stepper_motor.set_microstepping(SIXTEENTH_STEP_MODE);
+    stepper_motor.set_speed(20);
+    while (!limit_reached) {
+        stepper_motor.step();
+    }
+    // move to 1st gear
+    limit_reached = button_read_attach_interrupt(&limit_switch_parameters);
+
+
+    while (1) {
+
+
+
+    }
+}
+
+
+void IRAM_ATTR limit_switch_isr() {
+    if (limit_reached = button_interrupt_service_routine(&limit_switch_parameters)) {
+        stepper_motor.off();
+        limit_reached = xPortGetCoreID() + 1;
+    }
+}
+
+
+
+/*  TEST CODE
 
     while (1) {
 
@@ -94,6 +120,7 @@ void function_core_1 (void *parameters) {
                 default: break;
             }
             if (xSemaphoreTake(semaphore, DELAY_WAIT_SEMAPHORE)) {
+                stepper_motor.print_status();
                 sprintf(message, "Steps per activation: %d\t", steps_per_activation);
                 print = 1;
                 xSemaphoreGive(semaphore);
@@ -117,12 +144,5 @@ void function_core_1 (void *parameters) {
             stepper_motor.change_direction();
         }
     }
-}
 
-
-void IRAM_ATTR limit_switch_isr() {
-    if (limit_reached = button_interrupt_service_routine(&limit_switch_parameters)) {
-        stepper_motor.off();
-        limit_reached = xPortGetCoreID() + 1;
-    }
-}
+*/

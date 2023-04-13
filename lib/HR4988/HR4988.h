@@ -3,11 +3,14 @@
 
 #define RPM_TO_DELAY_OFF(rpm) ((int) ((((float) deg_per_full_step / (float) microstepping) * 60.0e6) / (360.0 * rpm) - (float) delay_on))
 
-#define FULL_STEP_MODE 1
-#define HALF_STEP_MODE 2
-#define QUARTER_STEP_MODE 4
-#define EIGHT_STEP_MODE 8
+#define FULL_STEP_MODE      1
+#define HALF_STEP_MODE      2
+#define QUARTER_STEP_MODE   4
+#define EIGHT_STEP_MODE     8
 #define SIXTEENTH_STEP_MODE 16
+
+#define CW  0   // TODO: to be checked
+#define CCW 1   // TODO: to be checked
 
 
 class HR4988 {

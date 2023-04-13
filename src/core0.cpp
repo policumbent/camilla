@@ -10,7 +10,6 @@ void function_core_0 (void *parameters) {
     
         if (print && xSemaphoreTake(semaphore, portMAX_DELAY)) {
             Serial.print(message);
-            stepper_motor.print_status();
             print = 0;
             xSemaphoreGive(semaphore);
         }
