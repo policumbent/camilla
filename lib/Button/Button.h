@@ -1,8 +1,7 @@
 #pragma once
 #include <Arduino.h>
 
-
-const int debouncing_time = 50;
+#define DEBOUNCING_TIME (int)50
 
 struct button_parameters {
     uint8_t pin;
@@ -12,6 +11,15 @@ struct button_parameters {
     uint8_t interrupt_mode;
 };
 
+
+/*
+ * sets up the button
+ * @param *bp: pointer to button_parameters structure
+ */
 void button_setup (button_parameters *bp);
+
+
 int IRAM_ATTR button_interrupt_service_routine (button_parameters *bp);
+
+
 int button_read_attach_interrupt (button_parameters *bp);

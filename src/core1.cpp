@@ -4,18 +4,19 @@
 #include "Button.h"
 
 
-#define NUM_GEARS 12
+#define NUM_GEARS        12     // for Phoenix
 
-#define ENABLE_PIN 18
-#define SLEEP_PIN  21
-#define RESET_PIN  19
+#define ENABLE_PIN       18
+#define SLEEP_PIN        21
+#define RESET_PIN        19
 
-#define STEP_PIN      12
-#define DIRECTION_PIN 14
+#define STEP_PIN         12
+#define DIRECTION_PIN    14
 
-#define MS1_PIN 25
-#define MS2_PIN 33
-#define MS3_PIN 32
+// microstepping pins
+#define MS1_PIN          25
+#define MS2_PIN          33
+#define MS3_PIN          32
 
 #define LIMIT_SWITCH_PIN 23
 
@@ -34,6 +35,7 @@ HR4988 stepper_motor = HR4988 (
     MS1_PIN, MS2_PIN, MS3_PIN,
     steps_per_turn, deg_per_full_step
 );
+
 button_parameters limit_switch_parameters = {
     LIMIT_SWITCH_PIN, INPUT_PULLUP, LOW, limit_switch_isr, FALLING
 };
@@ -41,14 +43,14 @@ button_parameters limit_switch_parameters = {
 
 void function_core_1 (void *parameters) {
 
-    Serial.print("Task 1 initialized running on core: ");
-    Serial.println(xPortGetCoreID());
+    Serial.print("Task 1 initialized running on core: "); // debugging purposes
+    Serial.println(xPortGetCoreID());                     // debugging purposes
 
     stepper_motor.on();
 
     button_setup(&limit_switch_parameters);
 
-    // load gear from flash into gears array
+    // TODO: load gear from flash into gears array
     stepper_motor.set_direction(CCW);   // TODO: to be checked
     stepper_motor.set_microstepping(SIXTEENTH_STEP_MODE);
     stepper_motor.set_speed(20);
@@ -56,7 +58,7 @@ void function_core_1 (void *parameters) {
         stepper_motor.step();
     }
     stepper_motor.set_position(0);
-    // move to 1st gear
+    // TODO: move to 1st gear
     limit_reached = button_read_attach_interrupt(&limit_switch_parameters);
 
 
@@ -71,7 +73,7 @@ void function_core_1 (void *parameters) {
 void IRAM_ATTR limit_switch_isr() {
     if (limit_reached = button_interrupt_service_routine(&limit_switch_parameters)) {
         stepper_motor.off();
-        limit_reached = xPortGetCoreID() + 1;
+        limit_reached = xPortGetCoreID() + 1;   // debugging purposes
     }
 }
 
