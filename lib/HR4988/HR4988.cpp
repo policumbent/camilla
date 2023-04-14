@@ -50,6 +50,18 @@ void HR4988 :: setup () {
 }
 
 
+void HR4988 :: set_position(int position) {
+    this->position = position;
+}
+
+
+int HR4988 :: get_position() {
+    return position;
+}
+
+
+
+
 void HR4988 :: set_speed (float speed) {
     int new_delay;
 

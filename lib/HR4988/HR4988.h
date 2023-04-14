@@ -51,6 +51,9 @@ class HR4988 {
                 int steps_per_turn = 200, float deg_per_full_step = 1.8);
         void setup();
         
+        void set_position(int position);
+        int get_position();
+
         void set_speed (float speed);
         void change_direction ();
         void set_direction (uint8_t dir);

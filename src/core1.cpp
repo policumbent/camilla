@@ -23,8 +23,6 @@
 const int steps_per_turn = 200;
 const float deg_per_full_step = 1.8;
 
-int position_step = 0;
-
 uint8_t limit_reached = 0;
 void IRAM_ATTR limit_switch_isr();
 
@@ -57,6 +55,7 @@ void function_core_1 (void *parameters) {
     while (!limit_reached) {
         stepper_motor.step();
     }
+    stepper_motor.set_position(0);
     // move to 1st gear
     limit_reached = button_read_attach_interrupt(&limit_switch_parameters);
 
