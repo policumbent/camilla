@@ -42,6 +42,7 @@ void HR4988 :: setup () {
 
     direction = 0;
     microstepping = FULL_STEP_MODE;
+    position_change = POSITION_CHANGE_FULL_MODE;
     rpm = 120.0;
     set_direction(direction);
     set_microstepping(microstepping);
@@ -55,7 +56,7 @@ void HR4988 :: step () {
     digitalWrite(step_pin, LOW);
     delayMicroseconds(delay_off);
 
-    (!direction) ? position_sixteenth += microstepping : position_sixteenth -= microstepping;
+    (!direction) ? position_sixteenth += position_change : position_sixteenth -= position_change;
 }
 
 
@@ -73,6 +74,18 @@ void HR4988 :: set_speed (float speed) {
     rpm = speed;
     delay_off = RPM_TO_DELAY_OFF(rpm);
     delay_off = (delay_off < 1000000) ? delay_off : 1000000;
+
+    if (rpm <= 120) {
+        set_microstepping(SIXTEENTH_STEP_MODE);
+    } else if (rpm <= 160) {
+        set_microstepping(EIGHT_STEP_MODE);
+    } else if (rpm <= 240) {
+        set_microstepping(HALF_STEP_MODE);
+    } else if (rpm <= 300) {
+        set_microstepping(QUARTER_STEP_MODE);
+    } else {
+        set_microstepping(FULL_STEP_MODE);
+    }
 }
 
 
@@ -107,17 +120,24 @@ void HR4988 :: set_microstepping (uint8_t mode) {
     if (microstepping == mode)
         return;
 
+    microstepping = mode;
+
     switch (mode) {
         case FULL_STEP_MODE:
-            ms1 = 0; ms2 = 0; ms3 = 0; break;
+            ms1 = 0; ms2 = 0; ms3 = 0;
+            position_change = POSITION_CHANGE_FULL_MODE; break;
         case HALF_STEP_MODE:
-            ms1 = 1; ms2 = 0; ms3 = 0; break;
+            ms1 = 1; ms2 = 0; ms3 = 0;
+            position_change = POSITION_CHANGE_HALF_MODE; break;
         case QUARTER_STEP_MODE:
-            ms1 = 0; ms2 = 1; ms3 = 0; break;
+            ms1 = 0; ms2 = 1; ms3 = 0;
+            position_change = POSITION_CHANGE_QUARTER_MODE; break;
         case EIGHT_STEP_MODE:
-            ms1 = 1; ms2 = 1; ms3 = 0; break;
+            ms1 = 1; ms2 = 1; ms3 = 0;
+            position_change = POSITION_CHANGE_EIGHT_MODE; break;
         case SIXTEENTH_STEP_MODE:
-            ms1 = 1; ms2 = 1; ms3 = 1; break;
+            ms1 = 1; ms2 = 1; ms3 = 1;
+            position_change = POSITION_CHANGE_SIXTEENTH_MODE; break;
         default: break;
     }
 
@@ -125,7 +145,6 @@ void HR4988 :: set_microstepping (uint8_t mode) {
     digitalWrite(ms2_pin, ms2);
     digitalWrite(ms3_pin, ms3);
     
-    microstepping = mode;
     set_speed(rpm);
 }
 
@@ -188,7 +207,7 @@ void HR4988 :: debug_serial_control() {
                 case '4': set_microstepping(QUARTER_STEP_MODE); break;
                 case '8': set_microstepping(EIGHT_STEP_MODE); break;
                 case '6': set_microstepping(SIXTEENTH_STEP_MODE); break;
-                case 'e': end = 1;
+                case 'e': end = 1; break;
                 default: break;
             }
             print_status();

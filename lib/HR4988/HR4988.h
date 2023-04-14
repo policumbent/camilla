@@ -3,12 +3,17 @@
 
 #define RPM_TO_DELAY_OFF(rpm) ((int) ((((float) deg_per_full_step / (float) microstepping) * 60.0e6) / (360.0 * rpm) - (float) delay_on))
 
-// Defined as number of sixteenth of step, since position is saved in sixteenth
-#define FULL_STEP_MODE      16
-#define HALF_STEP_MODE      8
+#define FULL_STEP_MODE      1
+#define HALF_STEP_MODE      2
 #define QUARTER_STEP_MODE   4
-#define EIGHT_STEP_MODE     2
-#define SIXTEENTH_STEP_MODE 1
+#define EIGHT_STEP_MODE     8
+#define SIXTEENTH_STEP_MODE 16
+
+#define POSITION_CHANGE_FULL_MODE      16
+#define POSITION_CHANGE_HALF_MODE      8
+#define POSITION_CHANGE_QUARTER_MODE   4
+#define POSITION_CHANGE_EIGHT_MODE     2
+#define POSITION_CHANGE_SIXTEENTH_MODE 1
 
 // Rotation seeing the rotating pole from up
 #define CW  0
@@ -44,6 +49,7 @@ class HR4988 {
 
         uint8_t direction;
         uint8_t microstepping;
+        uint8_t position_change;
         float rpm;
         long long int position_sixteenth;
 
