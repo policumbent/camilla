@@ -1,6 +1,16 @@
 #include "main.h"
 
 
+char message[100];
+uint8_t print;
+
+
+SemaphoreHandle_t semaphore;
+
+TaskHandle_t task_core_1;
+TaskHandle_t task_core_0;
+
+
 void setup() {
     Serial.begin(9600);
     while (!Serial);
