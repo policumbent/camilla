@@ -24,17 +24,18 @@
 const int steps_per_turn = 200;
 const float deg_per_full_step = 1.8;
 
-uint8_t limit_reached = 0;
-void IRAM_ATTR limit_switch_isr();
-
-int gears[NUM_GEARS] = {200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000, 2200, 2400};    // random
-
 HR4988 stepper_motor = HR4988 (
     ENABLE_PIN, SLEEP_PIN, RESET_PIN,
     STEP_PIN, DIRECTION_PIN,
     MS1_PIN, MS2_PIN, MS3_PIN,
     steps_per_turn, deg_per_full_step
 );
+
+int gears[NUM_GEARS] = {200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000, 2200, 2400};    // random
+
+
+uint8_t limit_reached = 0;
+void IRAM_ATTR limit_switch_isr();
 
 button_parameters limit_switch_parameters = {
     LIMIT_SWITCH_PIN, INPUT_PULLUP, LOW, limit_switch_isr, FALLING
