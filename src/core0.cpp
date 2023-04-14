@@ -10,11 +10,6 @@ void function_core_0 (void *parameters) {
 
     while (1) {
     
-        if (print && xSemaphoreTake(semaphore, portMAX_DELAY)) {
-            Serial.print(message);
-            print = 0;
-            xSemaphoreGive(semaphore);
-        }
         delay(100);
 
     }

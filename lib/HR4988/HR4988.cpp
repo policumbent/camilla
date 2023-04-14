@@ -54,26 +54,25 @@ void HR4988 :: step () {
     delayMicroseconds(delay_on);
     digitalWrite(step_pin, LOW);
     delayMicroseconds(delay_off);
+
+    (!direction) ? position_sixteenth += microstepping : position_sixteenth -= microstepping;
 }
 
 
-void HR4988 :: set_position(int position) {
-    this->position = position;
+void HR4988 :: set_position(long long int position) {
+    this->position_sixteenth = position;
 }
 
 
-int HR4988 :: get_position() {
-    return position;
+long long int HR4988 :: get_position() {
+    return position_sixteenth;
 }
 
 
 void HR4988 :: set_speed (float speed) {
-    int new_delay;
-
     rpm = speed;
-    new_delay = RPM_TO_DELAY_OFF(rpm);
-    new_delay = (new_delay < 1000000) ? (new_delay):(1000000);
-    delay_off = new_delay;
+    delay_off = RPM_TO_DELAY_OFF(rpm);
+    delay_off = (delay_off < 1000000) ? delay_off : 1000000;
 }
 
 
@@ -85,7 +84,7 @@ float HR4988 :: get_speed() {
 void HR4988 :: change_direction () {
     direction = 1 - direction;
     digitalWrite(direction_pin, direction);
-    delayMicroseconds(10000);
+    delayMicroseconds(DELAY_CHANGE_DIRECTION);
 }
 
 
@@ -153,12 +152,57 @@ int HR4988 :: is_sleep() {
 }
 
 
+void HR4988 :: debug_serial_control() {
+    uint8_t end = 0;
+    int steps_per_activation = steps_per_turn / 4;
+
+    Serial.println("Debug from serial initialized (read switch case from HR4988.cpp)");
+
+    while (!end) {
+        
+        for (int i=0; i<steps_per_activation; i++) {
+            step();
+        }
+
+        if (Serial.available()) {
+            char c;
+            c = Serial.read();
+
+            switch (c) {
+                case 's': (is_sleep()) ? awake() : sleep(); break;
+                case 'c': change_direction(); break;
+                case '^': steps_per_activation += 1; break;
+                case 'i': steps_per_activation += 10; break;
+                case 'I': steps_per_activation += 100; break;
+                case 'v': steps_per_activation -= 1; break;
+                case 'd': steps_per_activation -= 10; break;
+                case 'D': steps_per_activation -= 100; break;
+                case '*': rpm += 100; set_speed(rpm); break;
+                case '/': rpm -= 100; set_speed(rpm); break;
+                case '+': rpm += 10; set_speed(rpm); break;
+                case '-': rpm -= 10; set_speed(rpm); break;
+                case ',': rpm += 1; set_speed(rpm); break;
+                case '.': rpm -= 1; set_speed(rpm); break;
+                case '1': set_microstepping(FULL_STEP_MODE); break;
+                case '2': set_microstepping(HALF_STEP_MODE); break;
+                case '4': set_microstepping(QUARTER_STEP_MODE); break;
+                case '8': set_microstepping(EIGHT_STEP_MODE); break;
+                case '6': set_microstepping(SIXTEENTH_STEP_MODE); break;
+                case 'e': end = 1;
+                default: break;
+            }
+            print_status();
+        }
+    }
+}
+
+
 void HR4988 :: print_status() {
     if (!Serial)
         return;
         
     char str[100];
     sprintf(str, "Position: %d\tRPM: %.2f\tDirection: %d\tMicrostepping: %d\tSleep: %d\tDelay off: %d",
-            position, rpm, direction, microstepping, _sleep, delay_off);
+            position_sixteenth, rpm, direction, microstepping, _sleep, delay_off);
     Serial.println(str);
 }

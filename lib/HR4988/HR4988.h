@@ -3,15 +3,18 @@
 
 #define RPM_TO_DELAY_OFF(rpm) ((int) ((((float) deg_per_full_step / (float) microstepping) * 60.0e6) / (360.0 * rpm) - (float) delay_on))
 
-#define FULL_STEP_MODE      1
-#define HALF_STEP_MODE      2
+// Defined as number of sixteenth of step, since position is saved in sixteenth
+#define FULL_STEP_MODE      16
+#define HALF_STEP_MODE      8
 #define QUARTER_STEP_MODE   4
-#define EIGHT_STEP_MODE     8
-#define SIXTEENTH_STEP_MODE 16
+#define EIGHT_STEP_MODE     2
+#define SIXTEENTH_STEP_MODE 1
 
 // Rotation seeing the rotating pole from up
 #define CW  0
 #define CCW 1
+
+#define DELAY_CHANGE_DIRECTION 1e4
 
 
 class HR4988 {
@@ -42,7 +45,7 @@ class HR4988 {
         uint8_t direction;
         uint8_t microstepping;
         float rpm;
-        int position;
+        long long int position_sixteenth;
 
     public:
         HR4988 (uint8_t enable_pin, uint8_t sleep_pin, uint8_t reset_pin,
@@ -53,8 +56,8 @@ class HR4988 {
         
         void step();
         
-        void set_position(int position);
-        int get_position();
+        void set_position(long long int position);
+        long long int get_position();
 
         void set_speed (float speed);
         float get_speed();
@@ -71,5 +74,6 @@ class HR4988 {
 
         int is_sleep();
 
+        void debug_serial_control();
         void print_status();
 };

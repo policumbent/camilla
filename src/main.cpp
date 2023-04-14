@@ -1,10 +1,6 @@
 #include "main.h"
 
 
-char message[100];
-uint8_t print;
-
-
 SemaphoreHandle_t semaphore;
 
 TaskHandle_t task_core_1;

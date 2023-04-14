@@ -1,7 +1,7 @@
 #include "main.h"
 
 #include "HR4988.h"
-#include "Button.h"
+#include "button.h"
 
 
 #define NUM_GEARS        12     // for Phoenix
@@ -49,8 +49,6 @@ void function_core_1 (void *parameters) {
     Serial.println(xPortGetCoreID());
 #endif
 
-    stepper_motor.on();
-
     button_setup(&limit_switch_parameters);
 
     // TODO: load gear from flash into gears array
@@ -68,22 +66,22 @@ void function_core_1 (void *parameters) {
 #endif
     limit_reached = button_read_attach_interrupt(&limit_switch_parameters);
 
+    stepper_motor.debug_serial_control();
 
     while (1) {
 
-
+        delay(100);
 
     }
 }
 
 
 void IRAM_ATTR limit_switch_isr() {
-    if (limit_reached = button_interrupt_service_routine(&limit_switch_parameters)) {
-        stepper_motor.off();
+    limit_reached = button_interrupt_service_routine(&limit_switch_parameters);
 #if DEBUG_CORES
+    if (limit_reached)
         limit_reached = xPortGetCoreID() + 1;
 #endif
-    }
 }
 
 
