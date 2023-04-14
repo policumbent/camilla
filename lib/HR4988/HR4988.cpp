@@ -36,7 +36,6 @@ void HR4988 :: setup () {
     enable = 1;
     _sleep = 0;
     reset = 0;
-    _on = 1;
     digitalWrite(enable_pin, !enable);
     digitalWrite(reset_pin, !reset);
     digitalWrite(sleep_pin, !_sleep);
@@ -50,6 +49,14 @@ void HR4988 :: setup () {
 }
 
 
+void HR4988 :: step () {
+    digitalWrite(step_pin, HIGH);
+    delayMicroseconds(delay_on);
+    digitalWrite(step_pin, LOW);
+    delayMicroseconds(delay_off);
+}
+
+
 void HR4988 :: set_position(int position) {
     this->position = position;
 }
@@ -60,8 +67,6 @@ int HR4988 :: get_position() {
 }
 
 
-
-
 void HR4988 :: set_speed (float speed) {
     int new_delay;
 
@@ -69,6 +74,11 @@ void HR4988 :: set_speed (float speed) {
     new_delay = RPM_TO_DELAY_OFF(rpm);
     new_delay = (new_delay < 1000000) ? (new_delay):(1000000);
     delay_off = new_delay;
+}
+
+
+float HR4988 :: get_speed() {
+    return rpm;
 }
 
 
@@ -84,6 +94,11 @@ void HR4988 :: set_direction (uint8_t dir) {
         return;
     
     change_direction();
+}
+
+
+uint8_t HR4988 :: get_direction() {
+    return direction;
 }
 
 
@@ -116,41 +131,8 @@ void HR4988 :: set_microstepping (uint8_t mode) {
 }
 
 
-uint8_t HR4988 :: get_direction() {
-    return direction;
-}
-
-
-float HR4988 :: get_speed() {
-    return rpm;
-}
-
-
 uint8_t HR4988 :: get_microstepping() {
     return microstepping;
-}
-
-
-
-
-void HR4988 :: step () {
-    if (!_on)
-        return;
-
-    digitalWrite(step_pin, HIGH);
-    delayMicroseconds(delay_on);
-    digitalWrite(step_pin, LOW);
-    delayMicroseconds(delay_off);
-}
-
-
-void HR4988 :: on() {
-    _on = 1;
-}
-
-
-void HR4988 :: off() {
-    _on = 0;
 }
 
 
@@ -166,11 +148,6 @@ void HR4988 :: awake() {
 }
 
 
-int HR4988 :: is_on() {
-    return _on;
-}
-
-
 int HR4988 :: is_sleep() {
     return _sleep;
 }
@@ -181,7 +158,7 @@ void HR4988 :: print_status() {
         return;
         
     char str[100];
-    sprintf(str, "RPM: %.2f\tDirection: %d\tMicrostepping: %d\tSleep: %d\tOn: %d\tDelay off: %d",
-            rpm, direction, microstepping, _sleep, _on, delay_off);
+    sprintf(str, "Position: %d\tRPM: %.2f\tDirection: %d\tMicrostepping: %d\tSleep: %d\tDelay off: %d",
+            position, rpm, direction, microstepping, _sleep, delay_off);
     Serial.println(str);
 }

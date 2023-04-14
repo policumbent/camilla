@@ -44,8 +44,10 @@ button_parameters limit_switch_parameters = {
 
 void function_core_1 (void *parameters) {
 
-    Serial.print("Task 1 initialized running on core: "); // debugging purposes
-    Serial.println(xPortGetCoreID());                     // debugging purposes
+#if DEBUG_CORES
+    Serial.print("Task 1 initialized running on core: ");
+    Serial.println(xPortGetCoreID());
+#endif
 
     stepper_motor.on();
 
@@ -60,6 +62,10 @@ void function_core_1 (void *parameters) {
     }
     stepper_motor.set_position(0);
     // TODO: move to 1st gear
+#if DEBUG_CORES
+    Serial.print("The limit switch isr has runned on core: ");
+    Serial.println(limit_reached - 1);
+#endif
     limit_reached = button_read_attach_interrupt(&limit_switch_parameters);
 
 
@@ -74,7 +80,9 @@ void function_core_1 (void *parameters) {
 void IRAM_ATTR limit_switch_isr() {
     if (limit_reached = button_interrupt_service_routine(&limit_switch_parameters)) {
         stepper_motor.off();
-        limit_reached = xPortGetCoreID() + 1;   // debugging purposes
+#if DEBUG_CORES
+        limit_reached = xPortGetCoreID() + 1;
+#endif
     }
 }
 

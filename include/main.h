@@ -1,6 +1,9 @@
 #pragma once
 #include <Arduino.h>
 
+#define DEBUG_CORES 1
+
+
 #define DELAY_WAIT_SEMAPHORE 10
 
 

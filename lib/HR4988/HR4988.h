@@ -9,8 +9,9 @@
 #define EIGHT_STEP_MODE     8
 #define SIXTEENTH_STEP_MODE 16
 
-#define CW  0   // TODO: to be checked
-#define CCW 1   // TODO: to be checked
+// Rotation seeing the rotating pole from up
+#define CW  0
+#define CCW 1
 
 
 class HR4988 {
@@ -34,7 +35,6 @@ class HR4988 {
         uint8_t enable;
         uint8_t reset;
         uint8_t _sleep;
-        uint8_t _on;
 
         const uint8_t delay_on = 1;
         int delay_off;
@@ -51,25 +51,24 @@ class HR4988 {
                 int steps_per_turn = 200, float deg_per_full_step = 1.8);
         void setup();
         
+        void step();
+        
         void set_position(int position);
         int get_position();
 
         void set_speed (float speed);
+        float get_speed();
+
         void change_direction ();
         void set_direction (uint8_t dir);
-        void set_microstepping (uint8_t mode);
-        void step();
-
         uint8_t get_direction();
-        float get_speed();
+
+        void set_microstepping (uint8_t mode);
         uint8_t get_microstepping();
 
-        void on();
-        void off();
         void sleep();
         void awake();
 
-        int is_on();
         int is_sleep();
 
         void print_status();
