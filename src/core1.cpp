@@ -2,6 +2,7 @@
 
 #include "HR4988.h"
 #include "button.h"
+#include "memory.h"
 
 
 #define NUM_GEARS        12     // for Phoenix
@@ -42,6 +43,9 @@ button_parameters limit_switch_parameters = {
 };
 
 
+Memory flash = Memory();
+
+
 void function_core_1 (void *parameters) {
 
 #if DEBUG_CORES
@@ -51,7 +55,10 @@ void function_core_1 (void *parameters) {
 
     button_setup(&limit_switch_parameters);
 
-    // TODO: load gear from flash into gears array
+    // For debugging try to load and read gears
+    flash.write_gears(gears, NUM_GEARS);
+    
+    flash.read_gears(gears, NUM_GEARS);
     stepper_motor.set_direction(CCW);   // TODO: to be checked
     stepper_motor.set_microstepping(SIXTEENTH_STEP_MODE);
     stepper_motor.set_speed(20);

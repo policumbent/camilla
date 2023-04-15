@@ -60,12 +60,12 @@ void HR4988 :: step () {
 }
 
 
-void HR4988 :: set_position(long long int position) {
+void HR4988 :: set_position(int position) {
     this->position_sixteenth = position;
 }
 
 
-long long int HR4988 :: get_position() {
+int HR4988 :: get_position() {
     return position_sixteenth;
 }
 

@@ -51,7 +51,7 @@ class HR4988 {
         uint8_t microstepping;
         uint8_t position_change;
         float rpm;
-        long long int position_sixteenth;
+        int position_sixteenth;
 
     public:
         HR4988 (uint8_t enable_pin, uint8_t sleep_pin, uint8_t reset_pin,
@@ -62,8 +62,8 @@ class HR4988 {
         
         void step();
         
-        void set_position(long long int position);
-        long long int get_position();
+        void set_position(int position);
+        int get_position();
 
         void set_speed (float speed);
         float get_speed();
