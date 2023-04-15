@@ -22,6 +22,7 @@
 #define LIMIT_SWITCH_PIN 23
 
 
+
 const int steps_per_turn = 200;
 const float deg_per_full_step = 1.8;
 
@@ -92,6 +93,28 @@ void IRAM_ATTR limit_switch_isr() {
     if (limit_reached)
         limit_reached = xPortGetCoreID() + 1;
 #endif
+}
+
+
+void upshift(uint8_t prev_gear, uint8_t next_gear) {
+    int current_pos = stepper_motor.get_position();
+    int next_pos = gears[next_gear];
+    int prev_pos = gears[prev_gear];
+
+    // assuming that current_pos > gears[prev_gears], otherwise we're screwed
+    while (current_pos < next_pos) {
+        if (current_pos <= (prev_pos + (next_pos - prev_pos)/2)) {
+            stepper_motor.set_speed(
+                MAX_RPM * (current_pos - prev_pos) / ((next_pos - prev_pos)/2)
+            );
+            stepper_motor.step();
+        } else {
+            stepper_motor.set_speed(
+                MAX_RPM * ((next_pos - current_pos) / (next_pos - (prev_pos + (next_pos - prev_pos)/2)))
+            );
+            stepper_motor.step();
+        }
+    }
 }
 
 

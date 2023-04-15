@@ -21,6 +21,8 @@
 
 #define DELAY_CHANGE_DIRECTION 1e4
 
+#define MAX_RPM 500
+
 
 class HR4988 {
     
