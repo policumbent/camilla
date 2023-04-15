@@ -1,8 +1,8 @@
 #include "main.h"
 
 #include "HR4988.h"
-#include "button.h"
-#include "memory.h"
+#include "Button.h"
+#include "Memory.h"
 
 
 #define NUM_GEARS        12     // for Phoenix
@@ -32,7 +32,10 @@ HR4988 stepper_motor = HR4988 (
     steps_per_turn, deg_per_full_step
 );
 
-int gears[NUM_GEARS] = {200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000, 2200, 2400};    // random
+/*
+ * for now, these are random values, consider them to be in sixteenth of step
+ */
+int gears[NUM_GEARS] = {200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000, 2200, 2400};
 
 
 uint8_t limit_reached = 0;
@@ -90,7 +93,6 @@ void IRAM_ATTR limit_switch_isr() {
         limit_reached = xPortGetCoreID() + 1;
 #endif
 }
-
 
 
 /*  TEST CODE

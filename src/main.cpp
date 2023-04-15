@@ -6,6 +6,12 @@ SemaphoreHandle_t semaphore;
 TaskHandle_t task_core_1;
 TaskHandle_t task_core_0;
 
+/*
+ * initialized to 1 for simplicity
+ * TODO: at the end of the calibration phase, go to first gear
+ */
+uint8_t current_gear = 1;
+
 
 void setup() {
     Serial.begin(9600);
