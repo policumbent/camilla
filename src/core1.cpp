@@ -31,7 +31,7 @@ HR4988 stepper_motor = HR4988 (
     ENABLE_PIN, SLEEP_PIN, RESET_PIN,
     STEP_PIN, DIRECTION_PIN,
     MS1_PIN, MS2_PIN, MS3_PIN,
-    steps_per_turn, deg_per_full_step
+    steps_per_turn, deg_per_full_step, +1
 );
 
 /*

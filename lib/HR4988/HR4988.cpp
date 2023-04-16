@@ -4,7 +4,8 @@ HR4988 :: HR4988 (
     uint8_t enable_pin, uint8_t sleep_pin, uint8_t reset_pin,
     uint8_t step_pin, uint8_t direction_pin,
     uint8_t ms1_pin, uint8_t ms2_pin, uint8_t ms3_pin,
-    int steps_per_turn, float deg_per_full_step )
+    int steps_per_turn, float deg_per_full_step,
+    uint8_t cw_direction_sign )
 {
     this->enable_pin = enable_pin;
     this->sleep_pin = sleep_pin;
@@ -16,6 +17,7 @@ HR4988 :: HR4988 (
     this->ms3_pin = ms3_pin;
     this->steps_per_turn = steps_per_turn;
     this->deg_per_full_step = deg_per_full_step;
+    this->cw_direction_sign = cw_direction_sign;
 
     setup();
 }
@@ -96,7 +98,11 @@ void HR4988 :: step() {
     digitalWrite(step_pin, LOW);
     delayMicroseconds(delay_off);
 
-    (!direction) ? position_sixteenth += position_change : position_sixteenth -= position_change;
+    if (direction == CW) {
+        position_sixteenth += cw_direction_sign * position_change;
+    } else {
+        position_sixteenth -= cw_direction_sign * position_change;
+    }
 }
 
 
