@@ -62,8 +62,9 @@ class HR4988 {
                 int steps_per_turn = 200, float deg_per_full_step = 1.8);
         void setup();
         
+        void move(int start_pos, int target_pos);
         void step();
-        
+
         void set_position(int position);
         int get_position();
 

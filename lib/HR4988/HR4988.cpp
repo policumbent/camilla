@@ -50,7 +50,47 @@ void HR4988 :: setup () {
 }
 
 
-void HR4988 :: step () {
+void HR4988 :: move(int start_pos, int target_pos) {
+    uint8_t dir;
+    float speed;
+
+    if (start_pos > target_pos) {
+        dir = CW;       // to be checked
+
+        /*
+          Trapezoidal speed behavior
+            - 1/8 turn accelerating
+            - 1/8 turn decelerating
+            - middle part at constant max speed
+        */
+    }
+    else {
+        dir = CCW;      // to be checked
+
+
+    }
+
+    // TODO: implement logic
+    /*
+    if (position_sixteenth <= (start_pos + (target_pos - start_pos)/2)) {
+        speed = MAX_RPM * (position_sixteenth - start_pos) / ((target_pos - start_pos)/2);
+    } else {
+        speed = MAX_RPM * ((target_pos - position_sixteenth) / (target_pos - (start_pos + (target_pos - start_pos)/2)));
+    }
+    */
+
+    if (direction != dir) {
+        set_direction(dir);
+    }
+    if (rpm != speed) {
+        set_speed(speed);
+    }
+
+    step();
+}
+
+
+void HR4988 :: step() {
     digitalWrite(step_pin, HIGH);
     delayMicroseconds(delay_on);
     digitalWrite(step_pin, LOW);
@@ -71,20 +111,26 @@ int HR4988 :: get_position() {
 
 
 void HR4988 :: set_speed (float speed) {
+    uint8_t ms;
+
     rpm = speed;
     delay_off = RPM_TO_DELAY_OFF(rpm);
     delay_off = (delay_off < 1000000) ? delay_off : 1000000;
 
     if (rpm <= 120) {
-        set_microstepping(SIXTEENTH_STEP_MODE);
+        ms = SIXTEENTH_STEP_MODE;
     } else if (rpm <= 160) {
-        set_microstepping(EIGHT_STEP_MODE);
+        ms = EIGHT_STEP_MODE;
     } else if (rpm <= 240) {
-        set_microstepping(HALF_STEP_MODE);
+        ms = QUARTER_STEP_MODE;     // check vibrations
     } else if (rpm <= 300) {
-        set_microstepping(QUARTER_STEP_MODE);
+        ms = HALF_STEP_MODE;        // check vibrations
     } else {
-        set_microstepping(FULL_STEP_MODE);
+        ms = FULL_STEP_MODE;
+    }
+
+    if (microstepping != ms) {
+        set_microstepping(ms);
     }
 }
 
