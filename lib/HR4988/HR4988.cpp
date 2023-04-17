@@ -57,29 +57,37 @@ void HR4988 :: move(int start_pos, int target_pos) {
     float speed;
 
     if (start_pos > target_pos) {
-        dir = CW;       // to be checked
+        dir = (cw_direction_sign == 1) ? CW : CCW;      // to be checked
 
         /*
           Trapezoidal speed behavior
-            - 1/8 turn accelerating
-            - 1/8 turn decelerating
+            - first part accelerating
             - middle part at constant max speed
+            - end part decelerating
         */
+        if (position_sixteenth < start_pos + ACCELERATION_STEPS) {
+            speed = MIN_MOVE_RPM + ((float) (position_sixteenth - start_pos) / (float) (ACCELERATION_STEPS)) * (MAX_RPM - MIN_MOVE_RPM);
+        }
+        else if (position_sixteenth > target_pos - ACCELERATION_STEPS) {
+            speed = MIN_MOVE_RPM + ((float) (target_pos - position_sixteenth) / (float) (ACCELERATION_STEPS)) * (MAX_RPM - MIN_MOVE_RPM);
+        }
+        else {
+            speed = MAX_RPM;
+        }
     }
     else {
-        dir = CCW;      // to be checked
+        dir = (cw_direction_sign == 1) ? CCW : CW;     // to be checked
 
-
+        if (position_sixteenth > start_pos - ACCELERATION_STEPS) {
+            speed = MIN_MOVE_RPM + ((float) (start_pos - position_sixteenth) / (float) (ACCELERATION_STEPS)) * (MAX_RPM - MIN_MOVE_RPM);
+        }
+        else if (position_sixteenth < target_pos + ACCELERATION_STEPS) {
+            speed = MIN_MOVE_RPM + ((float) (position_sixteenth - target_pos) / (float) (ACCELERATION_STEPS)) * (MAX_RPM - MIN_MOVE_RPM);
+        }
+        else {
+            speed = MAX_RPM;
+        }
     }
-
-    // TODO: implement logic
-    /*
-    if (position_sixteenth <= (start_pos + (target_pos - start_pos)/2)) {
-        speed = MAX_RPM * (position_sixteenth - start_pos) / ((target_pos - start_pos)/2);
-    } else {
-        speed = MAX_RPM * ((target_pos - position_sixteenth) / (target_pos - (start_pos + (target_pos - start_pos)/2)));
-    }
-    */
 
     if (direction != dir) {
         set_direction(dir);
@@ -120,16 +128,16 @@ void HR4988 :: set_speed (float speed) {
     uint8_t ms;
 
     rpm = speed;
-    delay_off = RPM_TO_DELAY_OFF(rpm);
+    delay_off = (int) ((((float) deg_per_full_step / (float) microstepping) * 60.0e6) / (360.0 * rpm) - (float) delay_on);
     delay_off = (delay_off < 1000000) ? delay_off : 1000000;
 
-    if (rpm <= 120) {
+    if (rpm <= SIXTEENTH_MAX_RPM) {
         ms = SIXTEENTH_STEP_MODE;
-    } else if (rpm <= 160) {
+    } else if (rpm <= EIGHT_MODE_MAX_RPM) {
         ms = EIGHT_STEP_MODE;
-    } else if (rpm <= 240) {
+    } else if (rpm <= QUARTER_MODE_MAX_RPM) {
         ms = QUARTER_STEP_MODE;     // check vibrations
-    } else if (rpm <= 300) {
+    } else if (rpm <= HALF_MODE_MAX_RPM) {
         ms = HALF_STEP_MODE;        // check vibrations
     } else {
         ms = FULL_STEP_MODE;

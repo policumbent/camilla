@@ -10,7 +10,7 @@ TaskHandle_t task_core_0;
  * initialized to 1 for simplicity
  * TODO: at the end of the calibration phase, go to first gear
  */
-uint8_t current_gear = 1;
+uint8_t g_current_gear = 1;
 
 
 void setup() {

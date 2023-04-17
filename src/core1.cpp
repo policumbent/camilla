@@ -101,7 +101,7 @@ void IRAM_ATTR limit_switch_isr() {
 
 
 void shift(uint8_t delta) {
-    uint8_t next_gear = current_gear + delta;
+    uint8_t next_gear = g_current_gear + delta;
 
     if (next_gear < 0 || next_gear > NUM_GEARS)
         return;

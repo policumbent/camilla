@@ -1,7 +1,6 @@
 #pragma once
 #include <Arduino.h>
 
-#define RPM_TO_DELAY_OFF(rpm) ((int) ((((float) deg_per_full_step / (float) microstepping) * 60.0e6) / (360.0 * rpm) - (float) delay_on))
 
 #define FULL_STEP_MODE      1
 #define HALF_STEP_MODE      2
@@ -15,13 +14,21 @@
 #define POSITION_CHANGE_EIGHT_MODE     2
 #define POSITION_CHANGE_SIXTEENTH_MODE 1
 
+#define SIXTEENTH_MAX_RPM    120
+#define EIGHT_MODE_MAX_RPM   160
+#define QUARTER_MODE_MAX_RPM 240
+#define HALF_MODE_MAX_RPM    300
+
+#define MIN_MOVE_RPM 100
+#define MAX_RPM 500
+
+#define ACCELERATION_STEPS 800      // 1/4 turn
+
 // Rotation seeing the rotating pole from up
 #define CW  0
 #define CCW 1
 
 #define DELAY_CHANGE_DIRECTION 1e4
-
-#define MAX_RPM 500
 
 
 class HR4988 {
