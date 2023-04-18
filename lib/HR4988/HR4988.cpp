@@ -56,7 +56,7 @@ void HR4988 :: move(int start_pos, int target_pos) {
     uint8_t dir;
     float speed;
 
-    if (start_pos > target_pos) {
+    if (start_pos < target_pos) {
         dir = (cw_direction_sign == 1) ? CW : CCW;      // to be checked
 
         /*

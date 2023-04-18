@@ -41,7 +41,7 @@ HR4988 stepper_motor = HR4988 (
 /*
  * for now, these are random values, consider them to be in sixteenth of step
  */
-int gears[NUM_GEARS] = {3200, 6400, 9600, 12800, 16000, 19200, 22400, 25600, 28800, 32000, 35200, 38400};
+int gears[NUM_GEARS];
 
 
 uint8_t limit_reached = 0;
@@ -73,20 +73,34 @@ Memory flash = Memory();
 
 void function_core_1 (void *parameters) {
 
-#if DEBUG_CORES
-    Serial.print("Task 1 initialized running on core: ");
-    Serial.println(xPortGetCoreID());
-#endif
+    #if DEBUG_CORES
+        Serial.print("Task 1 initialized running on core: ");
+        Serial.println(xPortGetCoreID());
+    #endif
 
     button_setup(&limit_switch_parameters);
 
     button_setup(&shift_up_button_parameters);
     button_setup(&shift_down_button_parameters);
 
-    // For debugging try to load and read gears
-    flash.write_gears(gears, NUM_GEARS);
-    
+    #if DEBUG_MEMORY >= 2
+        for (int i=0; i<NUM_GEARS; i++)
+            gears[i] = steps_per_turn * 16 * (i+1);
+        flash.write_gears(gears, NUM_GEARS);
+        for (int i=0; i<NUM_GEARS; i++)
+            gears[i] = 0;
+    #endif    
+
     flash.read_gears(gears, NUM_GEARS);
+
+    #if DEBUG_MEMORY
+        Serial.println("Gears read from memory");
+        for (int i=0; i<NUM_GEARS; i++) {
+            char str[50];
+            sprintf(str, "Gear: %d \tPosition: %d", i+1, gears[i]);
+            Serial.println(str);
+        }
+    #endif
 
     stepper_motor.set_direction(CCW);   // TODO: to be checked
     stepper_motor.set_speed(100);
@@ -98,19 +112,25 @@ void function_core_1 (void *parameters) {
     g_current_gear = 1;
     shift(0);
     
-#if DEBUG_CORES
-    Serial.print("The limit switch isr has runned on core: ");
-    Serial.println(limit_reached - 1);
-#endif
+    #if DEBUG_CORES
+        Serial.print("The limit switch isr has runned on core: ");
+        Serial.println(limit_reached - 1);
+    #endif
+
     while (limit_reached) {
         limit_reached = button_read_attach_interrupt(&limit_switch_parameters);
     }
 
-    stepper_motor.debug_serial_control();
+    #if DEBUG_MOTOR
+        stepper_motor.debug_serial_control();
+    #endif
 
     while (1) {
 
         if (shift_up_pressed) {
+            #if DEBUG_BUTTONS
+                Serial.println("Shifting up");
+            #endif
             shift(+1);
 
             while (shift_up_pressed) {
@@ -119,6 +139,9 @@ void function_core_1 (void *parameters) {
         }
 
         if (shift_down_pressed) {
+            #if DEBUG_BUTTONS
+                Serial.println("Shifting down");
+            #endif
             shift(-1);
 
             while (shift_down_pressed) {
@@ -134,10 +157,10 @@ void function_core_1 (void *parameters) {
 
 void IRAM_ATTR limit_switch_isr() {
     limit_reached = button_interrupt_service_routine(&limit_switch_parameters);
-#if DEBUG_CORES
-    if (limit_reached)
-        limit_reached = xPortGetCoreID() + 1;
-#endif
+    #if DEBUG_CORES
+        if (limit_reached)
+            limit_reached = xPortGetCoreID() + 1;
+    #endif
 }
 
 
@@ -157,11 +180,11 @@ void shift(uint8_t delta) {
     if (next_gear < 1 || next_gear > NUM_GEARS)
         return;
 
-    int current_pos, start_pos, target_pos;
-    current_pos = start_pos = stepper_motor.get_position();
-    target_pos = gears[next_gear];
+    int start_pos, target_pos;
+    start_pos = stepper_motor.get_position();
+    target_pos = gears[next_gear-1];
 
-    while (current_pos != target_pos) {
+    while (stepper_motor.get_position() != target_pos) {
         // TODO: include encoder feedback and position correction
         stepper_motor.move(start_pos, target_pos);
     }
