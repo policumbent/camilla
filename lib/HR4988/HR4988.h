@@ -22,7 +22,7 @@
 #define MIN_MOVE_RPM 100
 #define MAX_RPM 600
 
-#define ACCELERATION_STEPS 800      // 1/4 turn
+#define MAX_ACCELERATION_STEPS 800      // 1/4 turn
 
 // Rotation seeing the rotating pole from up
 #define CW  0

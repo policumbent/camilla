@@ -55,21 +55,33 @@ void HR4988 :: setup () {
 void HR4988 :: move(int start_pos, int target_pos) {
     uint8_t dir;
     float speed;
+    int accel_steps;
+
+    /*
+        Trapezoidal speed behavior
+        - first part accelerating
+        - middle part at constant max speed
+        - end part decelerating
+        If there is not enough steps to perform MAX_ACCELERATION_STEPS both in acceleration and deceleration,
+            then less steps are taken into account, however speed scaling still refers to max value in
+            order to mantain acceleration value constant and not accelerate faster if there are less steps
+            to be performed
+    */
+
+    if (abs(target_pos - start_pos) < 2 * MAX_ACCELERATION_STEPS) {
+        accel_steps = abs(target_pos - start_pos) / 2;
+    } else {
+        accel_steps = MAX_ACCELERATION_STEPS;
+    }
 
     if (start_pos < target_pos) {
         dir = (cw_direction_sign == 1) ? CW : CCW;      // to be checked
 
-        /*
-          Trapezoidal speed behavior
-            - first part accelerating
-            - middle part at constant max speed
-            - end part decelerating
-        */
-        if (position_sixteenth < start_pos + ACCELERATION_STEPS) {
-            speed = MIN_MOVE_RPM + ((float) (position_sixteenth - start_pos) / (float) (ACCELERATION_STEPS)) * (MAX_RPM - MIN_MOVE_RPM);
+        if (position_sixteenth < start_pos + accel_steps) {
+            speed = MIN_MOVE_RPM + ((float) (position_sixteenth - start_pos) / (float) (MAX_ACCELERATION_STEPS)) * (MAX_RPM - MIN_MOVE_RPM);
         }
-        else if (position_sixteenth > target_pos - ACCELERATION_STEPS) {
-            speed = MIN_MOVE_RPM + ((float) (target_pos - position_sixteenth) / (float) (ACCELERATION_STEPS)) * (MAX_RPM - MIN_MOVE_RPM);
+        else if (position_sixteenth > target_pos - accel_steps) {
+            speed = MIN_MOVE_RPM + ((float) (target_pos - position_sixteenth) / (float) (MAX_ACCELERATION_STEPS)) * (MAX_RPM - MIN_MOVE_RPM);
         }
         else {
             speed = MAX_RPM;
@@ -78,11 +90,11 @@ void HR4988 :: move(int start_pos, int target_pos) {
     else {
         dir = (cw_direction_sign == 1) ? CCW : CW;     // to be checked
 
-        if (position_sixteenth > start_pos - ACCELERATION_STEPS) {
-            speed = MIN_MOVE_RPM + ((float) (start_pos - position_sixteenth) / (float) (ACCELERATION_STEPS)) * (MAX_RPM - MIN_MOVE_RPM);
+        if (position_sixteenth > start_pos - accel_steps) {
+            speed = MIN_MOVE_RPM + ((float) (start_pos - position_sixteenth) / (float) (MAX_ACCELERATION_STEPS)) * (MAX_RPM - MIN_MOVE_RPM);
         }
-        else if (position_sixteenth < target_pos + ACCELERATION_STEPS) {
-            speed = MIN_MOVE_RPM + ((float) (position_sixteenth - target_pos) / (float) (ACCELERATION_STEPS)) * (MAX_RPM - MIN_MOVE_RPM);
+        else if (position_sixteenth < target_pos + accel_steps) {
+            speed = MIN_MOVE_RPM + ((float) (position_sixteenth - target_pos) / (float) (MAX_ACCELERATION_STEPS)) * (MAX_RPM - MIN_MOVE_RPM);
         }
         else {
             speed = MAX_RPM;
