@@ -23,8 +23,8 @@
 
 #define LIMIT_SWITCH_PIN 23
 
-#define SHIFT_UP_BUTTON_PIN   34    // NOT CORRECT
-#define SHIFT_DOWN_BUTTON_PIN 35    // NOT CORRECT
+#define SHIFT_UP_BUTTON_PIN   16    // NOT CORRECT
+#define SHIFT_DOWN_BUTTON_PIN 17    // NOT CORRECT
 
 
 
@@ -65,7 +65,7 @@ button_parameters shift_down_button_parameters = {
 };
 
 
-const char gears_memory_key[] = "gears";
+const char gears_memory_key[] = "gears_key";
 
 Memory flash = Memory();
 
@@ -87,7 +87,7 @@ void function_core_1 (void *parameters) {
 
     #if DEBUG_MEMORY >= 2
         for (int i=0; i<NUM_GEARS; i++)
-            gears[i] = steps_per_turn * 16 * (i+1);
+            gears[i] = 4 * steps_per_turn * 16 * (i+1);
         flash.write_array(gears_memory_key, (void *) gears, NUM_GEARS, sizeof(int));
         for (int i=0; i<NUM_GEARS; i++)
             gears[i] = 0;
@@ -119,9 +119,7 @@ void function_core_1 (void *parameters) {
         Serial.println(limit_reached - 1);
     #endif
 
-    while (limit_reached) {
-        limit_reached = button_read_attach_interrupt(&limit_switch_parameters);
-    }
+    while ((limit_reached = button_read_attach_interrupt(&limit_switch_parameters)));
 
     #if DEBUG_MOTOR
         stepper_motor.debug_serial_control();
@@ -135,9 +133,7 @@ void function_core_1 (void *parameters) {
             #endif
             shift(+1);
 
-            while (shift_up_pressed) {
-                shift_up_pressed = button_read_attach_interrupt(&shift_up_button_parameters);
-            }
+            while ((shift_up_pressed = button_read_attach_interrupt(&shift_up_button_parameters)));
         }
 
         if (shift_down_pressed) {
@@ -146,10 +142,18 @@ void function_core_1 (void *parameters) {
             #endif
             shift(-1);
 
-            while (shift_down_pressed) {
-                shift_down_pressed = button_read_attach_interrupt(&shift_down_button_parameters);
-            }
+            while ((shift_down_pressed = button_read_attach_interrupt(&shift_down_button_parameters)));
         }
+
+        if (limit_reached) {
+            #if DEBUG_LIMIT_SWITCH
+                Serial.println("Limit reached");
+            #endif
+
+            while((limit_reached = button_read_attach_interrupt(&limit_switch_parameters)));
+        }
+
+        
         
         // TODO: signal to core0 the need to pass the gear to CAN-BUS
 

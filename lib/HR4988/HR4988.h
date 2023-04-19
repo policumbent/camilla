@@ -20,7 +20,7 @@
 #define HALF_MODE_MAX_RPM    300
 
 #define MIN_MOVE_RPM 100
-#define MAX_RPM 500
+#define MAX_RPM 600
 
 #define ACCELERATION_STEPS 800      // 1/4 turn
 

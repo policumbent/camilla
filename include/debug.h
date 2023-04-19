@@ -4,3 +4,4 @@
 #define DEBUG_MOTOR 0
 #define DEBUG_MEMORY 1
 #define DEBUG_BUTTONS 1
+#define DEBUG_LIMIT_SWITCH 1
