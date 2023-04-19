@@ -9,8 +9,8 @@
 
 
 #define ENABLE_PIN       18
-#define SLEEP_PIN        21
-#define RESET_PIN        19
+#define SLEEP_PIN        -1     // not connected
+#define RESET_PIN        -1     // not connected
 
 #define STEP_PIN         12
 #define DIRECTION_PIN    14
@@ -23,8 +23,12 @@
 
 #define LIMIT_SWITCH_PIN 23
 
-#define SHIFT_UP_BUTTON_PIN   16    // NOT CORRECT
-#define SHIFT_DOWN_BUTTON_PIN 17    // NOT CORRECT
+#define SHIFT_UP_BUTTON_PIN   16
+#define SHIFT_DOWN_BUTTON_PIN 17
+
+
+#define SCL_MAGNETIC_ENCODER_PIN 22
+#define SDA_MAGNETIC_ENCODER_PIN 21
 
 
 
