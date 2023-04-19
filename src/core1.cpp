@@ -183,8 +183,13 @@ void IRAM_ATTR shift_down_button_isr() {
 void shift(uint8_t delta) {
     uint8_t next_gear = g_current_gear + delta;
 
-    if (next_gear < 1 || next_gear > NUM_GEARS)
+    if (next_gear < 1 || next_gear > NUM_GEARS) {
+        #if DEBUG_GEARS
+            Serial.println("Maximum or minimum gear already reached");
+        #endif
+
         return;
+    }
 
     int start_pos, target_pos;
     start_pos = stepper_motor.get_position();
@@ -196,4 +201,8 @@ void shift(uint8_t delta) {
     }
 
     g_current_gear += delta;
+
+    #if DEBUG_GEARS
+        Serial.print("Gear: "); Serial.println(g_current_gear);
+    #endif
 }

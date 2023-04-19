@@ -5,3 +5,4 @@
 #define DEBUG_MEMORY 1
 #define DEBUG_BUTTONS 1
 #define DEBUG_LIMIT_SWITCH 1
+#define DEBUG_GEARS 1
