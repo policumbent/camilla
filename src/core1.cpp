@@ -65,10 +65,12 @@ button_parameters shift_down_button_parameters = {
 };
 
 
-void shift(uint8_t delta);
-
+const char gears_memory_key[] = "gears";
 
 Memory flash = Memory();
+
+
+void shift(uint8_t delta);
 
 
 void function_core_1 (void *parameters) {
@@ -86,12 +88,12 @@ void function_core_1 (void *parameters) {
     #if DEBUG_MEMORY >= 2
         for (int i=0; i<NUM_GEARS; i++)
             gears[i] = steps_per_turn * 16 * (i+1);
-        flash.write_gears(gears, NUM_GEARS);
+        flash.write_array(gears_memory_key, (void *) gears, NUM_GEARS, sizeof(int));
         for (int i=0; i<NUM_GEARS; i++)
             gears[i] = 0;
     #endif    
 
-    flash.read_gears(gears, NUM_GEARS);
+    flash.read_array(gears_memory_key, (void *) gears, NUM_GEARS, sizeof(int));
 
     #if DEBUG_MEMORY
         Serial.println("Gears read from memory");

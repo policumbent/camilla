@@ -9,11 +9,9 @@ class Memory {
         SemaphoreHandle_t mutex;
         Preferences preferences;
 
-        const char gears_key[10] = "gears_key";     // 10 is the length of the string
-
     public:
         Memory();
 
-        void write_gears(int *gears, int size);
-        void read_gears(int *gears, int size);
+        void write_array(const char *key, void *array, int array_size, int element_size);
+        void read_array(const char *key, void *array, int array_size, int element_size);
 };

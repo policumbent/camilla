@@ -7,23 +7,23 @@ Memory :: Memory() {
 }
 
 
-void Memory :: write_gears(int *gears, int size) {
+void Memory :: write_array(const char *key, void *array, int array_size, int element_size) {
     xSemaphoreTake(mutex, portMAX_DELAY);       // wait forever
 
-    preferences.begin(gears_key, false);
-    preferences.putBytes(gears_key, (void *) gears, size * sizeof(int));
+    preferences.begin(key, false);
+    preferences.putBytes(key, array, array_size * element_size);
     preferences.end();
     
     xSemaphoreGive(mutex);
 }
 
 
-void Memory :: read_gears(int *gears, int size) {
+void Memory :: read_array(const char *key, void *array, int array_size, int element_size) {
     xSemaphoreTake(mutex, portMAX_DELAY);       // wait forever
 
-    preferences.begin(gears_key, false);
-    if (preferences.isKey(gears_key)) {
-        preferences.getBytes(gears_key, (void *) gears, size * sizeof(int));
+    preferences.begin(key, false);
+    if (preferences.isKey(key)) {
+        preferences.getBytes(key, array, array_size * element_size);
     }
     preferences.end();
 
