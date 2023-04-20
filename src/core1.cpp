@@ -9,8 +9,6 @@
 
 
 #define ENABLE_PIN       18
-#define SLEEP_PIN        -1     // not connected
-#define RESET_PIN        -1     // not connected
 
 #define STEP_PIN         12
 #define DIRECTION_PIN    14
@@ -36,9 +34,9 @@ const int steps_per_turn = 200;
 const float deg_per_full_step = 1.8;
 
 HR4988 stepper_motor = HR4988 (
-    ENABLE_PIN, SLEEP_PIN, RESET_PIN,
     STEP_PIN, DIRECTION_PIN,
     MS1_PIN, MS2_PIN, MS3_PIN,
+    ENABLE_PIN,
     steps_per_turn, deg_per_full_step, +1
 );
 

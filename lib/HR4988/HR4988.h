@@ -34,16 +34,16 @@
 class HR4988 {
     
     private:
-        uint8_t enable_pin;     // negated pin
-        uint8_t sleep_pin;      // negated pin
-        uint8_t reset_pin;      // negated pin
-
         uint8_t step_pin;
         uint8_t direction_pin;
 
         uint8_t ms1_pin;
         uint8_t ms2_pin;
         uint8_t ms3_pin;
+
+        uint8_t enable_pin;     // negated pin
+        uint8_t sleep_pin;      // negated pin
+        uint8_t reset_pin;      // negated pin
 
     private:
         uint8_t steps_per_turn;
@@ -64,11 +64,18 @@ class HR4988 {
         uint8_t cw_direction_sign;
 
     public:
-        HR4988 (uint8_t enable_pin, uint8_t sleep_pin, uint8_t reset_pin,
-                uint8_t step_pin, uint8_t direction_pin,
+        HR4988 (uint8_t step_pin, uint8_t direction_pin,
                 uint8_t ms1_pin, uint8_t ms2_pin, uint8_t ms3_pin,
-                int steps_per_turn = 200, float deg_per_full_step = 1.8,
-                uint8_t cw_direction_sign = 1);
+                uint8_t enable_pin, uint8_t sleep_pin, uint8_t reset_pin,
+                int steps_per_turn, float deg_per_full_step,
+                uint8_t cw_direction_sign);
+
+        HR4988 (uint8_t step_pin, uint8_t direction_pin,
+                uint8_t ms1_pin, uint8_t ms2_pin, uint8_t ms3_pin,
+                uint8_t enable_pin,
+                int steps_per_turn, float deg_per_full_step,
+                uint8_t cw_direction_sign);
+
         void setup();
         
         void move(int start_pos, int target_pos);
