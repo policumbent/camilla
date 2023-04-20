@@ -190,12 +190,6 @@ public:
     bool     magnetTooWeak();
 
 
-    //  BURN COMMANDS
-    //  DO NOT UNCOMMENT - USE AT OWN RISK - READ DATASHEET
-    //  void burnAngle();
-    //  void burnSetting();
-
-
     //  Experimental 0.1.2 - to be tested.
     //  approximation of the angular speed in rotations per second.
     //  mode == 1: radians /second

@@ -1,6 +1,7 @@
 #include "main.h"
 
 #include "HR4988.h"
+#include "AS5600.h"
 #include "Button.h"
 #include "Memory.h"
 
@@ -40,9 +41,10 @@ HR4988 stepper_motor = HR4988 (
     steps_per_turn, deg_per_full_step, +1
 );
 
-/*
- * for now, these are random values, consider them to be in sixteenth of step
- */
+
+AS5600 encoder = AS5600 ();
+
+
 int gears[NUM_GEARS];
 
 

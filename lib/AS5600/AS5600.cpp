@@ -40,6 +40,7 @@ const uint8_t AS5600_MAGNET_HIGH = 0x08;
 const uint8_t AS5600_MAGNET_LOW = 0x10;
 const uint8_t AS5600_MAGNET_DETECT = 0x20;
 
+
 AS5600::AS5600(TwoWire *wire) {
     this->wire = wire;
 }
@@ -47,19 +48,16 @@ AS5600::AS5600(TwoWire *wire) {
 
 bool AS5600::begin(int dataPin, int clockPin, uint8_t directionPin) {
     directionPin = directionPin;
-    if (directionPin != 255)
-    {
+    if (directionPin != 255) {
         pinMode(directionPin, OUTPUT);
     }
     setDirection(AS5600_CLOCK_WISE);
 
     wire = &Wire;
-    if ((dataPin < 255) && (clockPin < 255))
-    {
+    if ((dataPin < 255) && (clockPin < 255)) {
         wire->begin(dataPin, clockPin);
     }
-    else
-    {
+    else {
         wire->begin();
     }
     if (!isConnected())
@@ -70,8 +68,7 @@ bool AS5600::begin(int dataPin, int clockPin, uint8_t directionPin) {
 
 bool AS5600::begin(uint8_t directionPin) {
     directionPin = directionPin;
-    if (directionPin != 255)
-    {
+    if (directionPin != 255) {
         pinMode(directionPin, OUTPUT);
     }
     setDirection(AS5600_CLOCK_WISE);
@@ -298,8 +295,7 @@ uint16_t AS5600::rawAngle() {
     if (offset > 0)
         value = (value + offset) & 0x0FFF;
 
-    if ((directionPin == 255) && (direction == AS5600_COUNTERCLOCK_WISE))
-    {
+    if ((directionPin == 255) && (direction == AS5600_COUNTERCLOCK_WISE)) {
         value = (4096 - value) & 0x0FFF;
     }
     return value;
@@ -311,8 +307,7 @@ uint16_t AS5600::readAngle() {
     if (offset > 0)
         value = (value + offset) & 0x0FFF;
 
-    if ((directionPin == 255) && (direction == AS5600_COUNTERCLOCK_WISE))
-    {
+    if ((directionPin == 255) && (direction == AS5600_COUNTERCLOCK_WISE)) {
         value = (4096 - value) & 0x0FFF;
     }
     return value;
@@ -376,24 +371,6 @@ bool AS5600::magnetTooStrong() {
 bool AS5600::magnetTooWeak() {
     return (readStatus() & AS5600_MAGNET_LOW) > 1;
 }
-
-
-/////////////////////////////////////////////////////////
-//
-//  BURN COMMANDS
-//
-//  DO NOT UNCOMMENT - USE AT OWN RISK - READ DATASHEET
-//
-//  void AS5600::burnAngle()
-//  {
-//    writeReg(AS5600_BURN, x0x80);
-//  }
-//
-//
-//  void AS5600::burnSetting()
-//  {
-//    writeReg(AS5600_BURN, x0x40);
-//  }
 
 
 float AS5600::getAngularSpeed(uint8_t mode) {
