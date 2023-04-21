@@ -8,7 +8,7 @@ class AS5600 {
     
     private:
         uint8_t analog_pin;
-        int reading;
+        int raw;
 
     public:
         AS5600 (uint8_t analog_pin);
@@ -16,6 +16,7 @@ class AS5600 {
         void setup();
 
         int read_raw();
+        int get_raw();
 
         void calibration(HR4988 stepper_motor);
 };

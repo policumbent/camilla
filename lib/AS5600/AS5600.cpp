@@ -14,7 +14,13 @@ void AS5600 :: setup() {
 
 
 int AS5600 :: read_raw() {
-    return analogRead(analog_pin);
+    raw = analogRead(analog_pin);
+    return raw;
+}
+
+
+int AS5600 :: get_raw() {
+    return raw;
 }
 
 

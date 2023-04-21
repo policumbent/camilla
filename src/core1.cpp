@@ -29,7 +29,6 @@
 #define MAGNETIC_ENCODER_PIN 27
 
 
-
 const int full_steps_per_turn = 200;
 const float deg_per_full_step = 1.8;
 
@@ -41,7 +40,7 @@ HR4988 stepper_motor = HR4988 (
 );
 
 
-AS5600 encoder = AS5600 (
+AS5600 rotative_encoder = AS5600 (
     MAGNETIC_ENCODER_PIN
 );
 
@@ -114,11 +113,10 @@ void function_core_1 (void *parameters) {
     #if DEBUG_MOTOR
         stepper_motor.set_speed(60);
         
-        int i;
         char str_mot[100];
         unsigned long int time;
         
-        for (i=0; i<10; i++) {
+        for (int i=0; i<10; i++) {
             time = micros();
             stepper_motor.step();
             time = micros() - time;
@@ -129,13 +127,28 @@ void function_core_1 (void *parameters) {
         }
 
         time = micros();
-        for (i=0; i<10000; i++) {
+        for (int i=0; i<10000; i++) {
             stepper_motor.step();
         }
         time = micros() - time;
         sprintf(str_mot, "Measured delay per step: %lf\tExpected delay per step: %ld",
             (double) time / 10000.0, stepper_motor.get_expected_step_time());
         Serial.println(str_mot);
+    #endif
+
+    #if DEBUG_ENCODER
+        char str_enc[100];
+        unsigned long int t;
+        int angle;
+
+        t = micros();
+        for (int i=0; i<1000; i++) {
+            angle = rotative_encoder.read_raw();
+        }
+        t = micros() - t;
+
+        sprintf(str_enc, "Average read time: %f\t", (float) t / 1000.0);
+        Serial.println(str_enc);
     #endif
 
 
@@ -165,12 +178,6 @@ void function_core_1 (void *parameters) {
 
 
     while (1) {
-        
-        uint16_t angle; int time;
-    
-        time = micros(); angle = encoder.read_raw(); time = micros() - time;
-        Serial.print(angle); Serial.print("\t"); Serial.println(time);
-        delay(500);
 
         if (shift_up_pressed) {
             #if DEBUG_BUTTONS
@@ -198,7 +205,6 @@ void function_core_1 (void *parameters) {
             while((limit_reached = button_read_attach_interrupt(&limit_switch_parameters)));
         }
 
-        
         
         // TODO: signal to core0 the need to pass the gear to CAN-BUS
 
