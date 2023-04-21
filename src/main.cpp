@@ -4,18 +4,18 @@
 TaskHandle_t task_core_1;
 TaskHandle_t task_core_0;
 
-SemaphoreHandle_t semaphore;
+SemaphoreHandle_t g_semaphore;
 
 uint8_t g_current_gear;
 
 
 void setup() {
-    Serial.begin(115200);
+    Serial.begin(9600);
     while (!Serial);
     Serial.println("Serial initialized");
 
-    semaphore = xSemaphoreCreateBinary();
-    xSemaphoreGive(semaphore);
+    g_semaphore = xSemaphoreCreateBinary();
+    xSemaphoreGive(g_semaphore);
 
     xTaskCreatePinnedToCore(function_core_1, "Core_1", 10000, NULL, 0, &task_core_1, 1);
     delay(500);

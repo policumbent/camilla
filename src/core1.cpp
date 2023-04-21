@@ -28,6 +28,7 @@
 
 #define SCL_MAGNETIC_ENCODER_PIN 22
 #define SDA_MAGNETIC_ENCODER_PIN 21
+#define MAGNETIC_ENCODER_PIN 27
 
 
 
@@ -42,7 +43,7 @@ HR4988 stepper_motor = HR4988 (
 );
 
 
-AS5600 encoder = AS5600 ();
+AS5600 encoder;
 
 
 int gears[NUM_GEARS];
@@ -108,6 +109,9 @@ void function_core_1 (void *parameters) {
         }
     #endif
 
+    while (!shift_down_pressed) delay(1);
+    while ((shift_down_pressed = button_read_attach_interrupt(&shift_down_button_parameters)));
+
     stepper_motor.set_direction(CCW);   // TODO: to be checked
     stepper_motor.set_speed(100);
     while (!limit_reached) {
@@ -129,7 +133,25 @@ void function_core_1 (void *parameters) {
         stepper_motor.debug_serial_control();
     #endif
 
+    /*
+    encoder.begin(SDA_MAGNETIC_ENCODER_PIN, SCL_MAGNETIC_ENCODER_PIN);
+    encoder.setDirection(0);
+    int b = encoder.isConnected();
+    Serial.print("Connect: "); Serial.println(b);
+    */
+    pinMode(MAGNETIC_ENCODER_PIN, INPUT_PULLDOWN);
+
     while (1) {
+        
+        uint16_t angle; int time;
+        /*
+        time = micros(); angle = encoder.readAngle(); time = micros() - time;
+        Serial.print(angle); Serial.print("\t"); Serial.println(time);
+        delay(500);
+        */
+        time = micros(); angle = analogRead(MAGNETIC_ENCODER_PIN); time = micros() - time;
+        Serial.print(angle); Serial.print("\t"); Serial.println(time);
+        delay(500);
 
         if (shift_up_pressed) {
             #if DEBUG_BUTTONS

@@ -30,11 +30,19 @@ HR4988 :: HR4988 (
     int steps_per_turn, float deg_per_full_step,
     uint8_t cw_direction_sign )
 {
-    HR4988 (step_pin, direction_pin,
-            ms1_pin, ms2_pin, ms3_pin,
-            enable_pin, 0, 0,
-            steps_per_turn, deg_per_full_step,
-            cw_direction_sign);
+    this->step_pin = step_pin;
+    this->direction_pin = direction_pin;
+    this->ms1_pin = ms1_pin;
+    this->ms2_pin = ms2_pin;
+    this->ms3_pin = ms3_pin;
+    this->enable_pin = enable_pin;
+    this->sleep_pin = 0;
+    this->reset_pin = 0;
+    this->steps_per_turn = steps_per_turn;
+    this->deg_per_full_step = deg_per_full_step;
+    this->cw_direction_sign = cw_direction_sign;
+
+    setup();
 }
 
 
