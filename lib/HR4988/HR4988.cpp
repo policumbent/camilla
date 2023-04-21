@@ -4,7 +4,7 @@ HR4988 :: HR4988 (
     uint8_t step_pin, uint8_t direction_pin,
     uint8_t ms1_pin, uint8_t ms2_pin, uint8_t ms3_pin,
     uint8_t enable_pin, uint8_t sleep_pin, uint8_t reset_pin,
-    int steps_per_turn, float deg_per_full_step,
+    int full_steps_per_turn, float deg_per_full_step,
     uint8_t cw_direction_sign )
 {
     this->step_pin = step_pin;
@@ -15,7 +15,7 @@ HR4988 :: HR4988 (
     this->enable_pin = enable_pin;
     this->sleep_pin = sleep_pin;
     this->reset_pin = reset_pin;
-    this->steps_per_turn = steps_per_turn;
+    this->full_steps_per_turn = full_steps_per_turn;
     this->deg_per_full_step = deg_per_full_step;
     this->cw_direction_sign = cw_direction_sign;
 
@@ -27,7 +27,7 @@ HR4988 :: HR4988 (
     uint8_t step_pin, uint8_t direction_pin,
     uint8_t ms1_pin, uint8_t ms2_pin, uint8_t ms3_pin,
     uint8_t enable_pin,
-    int steps_per_turn, float deg_per_full_step,
+    int full_steps_per_turn, float deg_per_full_step,
     uint8_t cw_direction_sign )
 {
     this->step_pin = step_pin;
@@ -38,7 +38,7 @@ HR4988 :: HR4988 (
     this->enable_pin = enable_pin;
     this->sleep_pin = 0;
     this->reset_pin = 0;
-    this->steps_per_turn = steps_per_turn;
+    this->full_steps_per_turn = full_steps_per_turn;
     this->deg_per_full_step = deg_per_full_step;
     this->cw_direction_sign = cw_direction_sign;
 
@@ -170,8 +170,6 @@ void HR4988 :: set_speed (float speed) {
     uint8_t ms;
 
     rpm = speed;
-    delay_off = (int) ((((float) deg_per_full_step / (float) microstepping) * 60.0e6) / (360.0 * rpm) - (float) delay_on);
-    delay_off = (delay_off < 1000000) ? delay_off : 1000000;
 
     if (rpm <= SIXTEENTH_MAX_RPM) {
         ms = SIXTEENTH_STEP_MODE;
@@ -188,6 +186,10 @@ void HR4988 :: set_speed (float speed) {
     if (microstepping != ms) {
         set_microstepping(ms);
     }
+
+    delay_off = (int) ((((float) deg_per_full_step / (float) microstepping) * 60.0e6) / (360.0 * rpm) - (float) delay_on);
+    //delay_off = ((float) 1000000 / ((float) full_steps_per_turn * (float) microstepping * 60.0 * rpm));
+    delay_off = (delay_off < 1000000) ? delay_off : 1000000;
 }
 
 
@@ -256,26 +258,19 @@ uint8_t HR4988 :: get_microstepping() {
 }
 
 
-void HR4988 :: sleep() {
-    _sleep = 1;
-    digitalWrite(sleep_pin, !_sleep);
+int HR4988 :: get_delta_position_turn() {
+    return full_steps_per_turn * SIXTEENTH_STEP_MODE;
 }
 
 
-void HR4988 :: awake() {
-    _sleep = 0;
-    digitalWrite(sleep_pin, !_sleep);
-}
-
-
-int HR4988 :: is_sleep() {
-    return _sleep;
+int HR4988 :: get_expected_step_time() {
+    return delay_on + delay_off;
 }
 
 
 void HR4988 :: debug_serial_control() {
     uint8_t end = 0;
-    int steps_per_activation = steps_per_turn / 4;
+    int steps_per_activation = full_steps_per_turn / 4;
 
     Serial.println("Debug from serial initialized (read switch case from HR4988.cpp)");
 
@@ -290,7 +285,6 @@ void HR4988 :: debug_serial_control() {
             c = Serial.read();
 
             switch (c) {
-                case 's': (is_sleep()) ? awake() : sleep(); break;
                 case 'c': change_direction(); break;
                 case '^': steps_per_activation += 1; break;
                 case 'i': steps_per_activation += 10; break;

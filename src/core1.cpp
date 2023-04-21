@@ -26,24 +26,24 @@
 #define SHIFT_DOWN_BUTTON_PIN 17
 
 
-#define SCL_MAGNETIC_ENCODER_PIN 22
-#define SDA_MAGNETIC_ENCODER_PIN 21
 #define MAGNETIC_ENCODER_PIN 27
 
 
 
-const int steps_per_turn = 200;
+const int full_steps_per_turn = 200;
 const float deg_per_full_step = 1.8;
 
 HR4988 stepper_motor = HR4988 (
     STEP_PIN, DIRECTION_PIN,
     MS1_PIN, MS2_PIN, MS3_PIN,
     ENABLE_PIN,
-    steps_per_turn, deg_per_full_step, +1
+    full_steps_per_turn, deg_per_full_step, +1
 );
 
 
-AS5600 encoder;
+AS5600 encoder = AS5600 (
+    MAGNETIC_ENCODER_PIN
+);
 
 
 int gears[NUM_GEARS];
@@ -85,6 +85,8 @@ void function_core_1 (void *parameters) {
         Serial.println(xPortGetCoreID());
     #endif
 
+    delay(1000);
+
     button_setup(&limit_switch_parameters);
 
     button_setup(&shift_up_button_parameters);
@@ -92,7 +94,7 @@ void function_core_1 (void *parameters) {
 
     #if DEBUG_MEMORY >= 2
         for (int i=0; i<NUM_GEARS; i++)
-            gears[i] = 4 * steps_per_turn * 16 * (i+1);
+            gears[i] = 4 * stepper_motor.get_delta_position_turn() * (i+1);
         flash.write_array(gears_memory_key, (void *) gears, NUM_GEARS, sizeof(int));
         for (int i=0; i<NUM_GEARS; i++)
             gears[i] = 0;
@@ -102,18 +104,46 @@ void function_core_1 (void *parameters) {
 
     #if DEBUG_MEMORY
         Serial.println("Gears read from memory");
+        char str_mem[50];
         for (int i=0; i<NUM_GEARS; i++) {
-            char str[50];
-            sprintf(str, "Gear: %d \tPosition: %d", i+1, gears[i]);
-            Serial.println(str);
+            sprintf(str_mem, "Gear: %d \tPosition: %d", i+1, gears[i]);
+            Serial.println(str_mem);
         }
     #endif
+
+    #if DEBUG_MOTOR
+        stepper_motor.set_speed(60);
+        
+        int i;
+        char str_mot[100];
+        unsigned long int time;
+        
+        for (i=0; i<10; i++) {
+            time = micros();
+            stepper_motor.step();
+            time = micros() - time;
+            
+            sprintf(str_mot, "Measured delay per step: %ld\tExpected delay per step: %ld",
+                time, stepper_motor.get_expected_step_time());
+            Serial.println(str_mot);
+        }
+
+        time = micros();
+        for (i=0; i<10000; i++) {
+            stepper_motor.step();
+        }
+        time = micros() - time;
+        sprintf(str_mot, "Measured delay per step: %lf\tExpected delay per step: %ld",
+            (double) time / 10000.0, stepper_motor.get_expected_step_time());
+        Serial.println(str_mot);
+    #endif
+
 
     while (!shift_down_pressed) delay(1);
     while ((shift_down_pressed = button_read_attach_interrupt(&shift_down_button_parameters)));
 
     stepper_motor.set_direction(CCW);   // TODO: to be checked
-    stepper_motor.set_speed(100);
+    stepper_motor.set_speed(60);
     while (!limit_reached) {
         stepper_motor.step();
     }
@@ -129,27 +159,16 @@ void function_core_1 (void *parameters) {
 
     while ((limit_reached = button_read_attach_interrupt(&limit_switch_parameters)));
 
-    #if DEBUG_MOTOR
+    #if DEBUG_MOTOR >= 2
         stepper_motor.debug_serial_control();
     #endif
 
-    /*
-    encoder.begin(SDA_MAGNETIC_ENCODER_PIN, SCL_MAGNETIC_ENCODER_PIN);
-    encoder.setDirection(0);
-    int b = encoder.isConnected();
-    Serial.print("Connect: "); Serial.println(b);
-    */
-    pinMode(MAGNETIC_ENCODER_PIN, INPUT_PULLDOWN);
 
     while (1) {
         
         uint16_t angle; int time;
-        /*
-        time = micros(); angle = encoder.readAngle(); time = micros() - time;
-        Serial.print(angle); Serial.print("\t"); Serial.println(time);
-        delay(500);
-        */
-        time = micros(); angle = analogRead(MAGNETIC_ENCODER_PIN); time = micros() - time;
+    
+        time = micros(); angle = encoder.read_raw(); time = micros() - time;
         Serial.print(angle); Serial.print("\t"); Serial.println(time);
         delay(500);
 

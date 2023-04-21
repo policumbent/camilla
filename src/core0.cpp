@@ -8,6 +8,8 @@ void function_core_0 (void *parameters) {
     Serial.println(xPortGetCoreID());
 #endif
 
+    delay(1000);
+
     while (1) {
     
         delay(100);

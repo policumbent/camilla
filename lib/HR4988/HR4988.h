@@ -46,7 +46,7 @@ class HR4988 {
         uint8_t reset_pin;      // negated pin
 
     private:
-        uint8_t steps_per_turn;
+        uint8_t full_steps_per_turn;
         float deg_per_full_step;
 
         uint8_t enable;
@@ -67,13 +67,13 @@ class HR4988 {
         HR4988 (uint8_t step_pin, uint8_t direction_pin,
                 uint8_t ms1_pin, uint8_t ms2_pin, uint8_t ms3_pin,
                 uint8_t enable_pin, uint8_t sleep_pin, uint8_t reset_pin,
-                int steps_per_turn, float deg_per_full_step,
+                int full_steps_per_turn, float deg_per_full_step,
                 uint8_t cw_direction_sign);
 
         HR4988 (uint8_t step_pin, uint8_t direction_pin,
                 uint8_t ms1_pin, uint8_t ms2_pin, uint8_t ms3_pin,
                 uint8_t enable_pin,
-                int steps_per_turn, float deg_per_full_step,
+                int full_steps_per_turn, float deg_per_full_step,
                 uint8_t cw_direction_sign);
 
         void setup();
@@ -94,10 +94,8 @@ class HR4988 {
         void set_microstepping (uint8_t mode);
         uint8_t get_microstepping();
 
-        void sleep();
-        void awake();
-
-        int is_sleep();
+        int get_delta_position_turn();
+        int get_expected_step_time();
 
         void debug_serial_control();
         void print_status();
