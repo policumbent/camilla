@@ -1,6 +1,8 @@
 #pragma once
 #include <Arduino.h>
 
+#include "AS5600.h"
+
 
 #define FULL_STEP_MODE      1
 #define HALF_STEP_MODE      2
@@ -78,6 +80,7 @@ class HR4988 {
 
         void setup();
         
+        void shift(int start_pos, int target_pos, AS5600 rotative_encoder);
         void move(int start_pos, int target_pos);
         void step();
 

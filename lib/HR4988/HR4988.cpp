@@ -82,6 +82,11 @@ void HR4988 :: setup () {
 }
 
 
+void HR4988 :: shift(int start_pos, int target_pos, AS5600 rotative_encoder) {
+
+}
+
+
 void HR4988 :: move(int start_pos, int target_pos) {
     uint8_t dir;
     float speed;
