@@ -1,10 +1,5 @@
 #include "main.h"
 
-#include "HR4988.h"
-#include "AS5600.h"
-#include "Button.h"
-#include "Memory.h"
-
 
 #define NUM_GEARS        12     // for Phoenix
 
@@ -74,7 +69,7 @@ const char gears_memory_key[] = "gears_key";
 Memory flash = Memory();
 
 
-void shift(uint8_t delta);
+void shift(uint8_t next_gear);
 
 
 void function_core_1 (void *parameters) {
@@ -153,7 +148,12 @@ void function_core_1 (void *parameters) {
 
 
     while (!shift_down_pressed) delay(1);
+    int time_long_press = millis();
     while ((shift_down_pressed = button_read_attach_interrupt(&shift_down_button_parameters)));
+    time_long_press = millis() - time_long_press;
+    if (time_long_press >= 3000) {
+        gears_calibration();
+    }
 
     stepper_motor.set_direction(CCW);   // TODO: to be checked
     stepper_motor.set_speed(60);
@@ -162,8 +162,7 @@ void function_core_1 (void *parameters) {
     }
     stepper_motor.set_position(0);
 
-    g_current_gear = 1;
-    shift(0);
+    shift(1);
     
     #if DEBUG_CORES
         Serial.print("The limit switch isr has runned on core: ");
@@ -183,7 +182,7 @@ void function_core_1 (void *parameters) {
             #if DEBUG_BUTTONS
                 Serial.println("Shifting up");
             #endif
-            shift(+1);
+            shift(g_current_gear + 1);
 
             while ((shift_up_pressed = button_read_attach_interrupt(&shift_up_button_parameters)));
         }
@@ -192,7 +191,7 @@ void function_core_1 (void *parameters) {
             #if DEBUG_BUTTONS
                 Serial.println("Shifting down");
             #endif
-            shift(-1);
+            shift(g_current_gear - 1);
 
             while ((shift_down_pressed = button_read_attach_interrupt(&shift_down_button_parameters)));
         }
@@ -231,8 +230,7 @@ void IRAM_ATTR shift_down_button_isr() {
 }
 
 
-void shift(uint8_t delta) {
-    uint8_t next_gear = g_current_gear + delta;
+void shift(uint8_t next_gear) {
 
     if (next_gear < 1 || next_gear > NUM_GEARS) {
         #if DEBUG_GEARS
@@ -251,9 +249,85 @@ void shift(uint8_t delta) {
         stepper_motor.move(start_pos, target_pos);
     }
 
-    g_current_gear += delta;
+    g_current_gear = next_gear;
 
     #if DEBUG_GEARS
         Serial.print("Gear: "); Serial.println(g_current_gear);
     #endif
+}
+
+
+int read_int_serial();
+
+void gears_calibration() {
+    uint8_t end, on, gear;
+    char c;
+    
+    if (!Serial) {
+        Serial.begin(9600);
+        while (!Serial);
+        Serial.println("Serial initialized");
+    }
+
+    Serial.println("\nGears calibration");
+
+    stepper_motor.set_direction(CCW);   // TODO: to be checked
+    stepper_motor.set_speed(60);
+    while (!limit_reached) {
+        stepper_motor.step();
+    }
+    stepper_motor.set_position(0);
+
+    stepper_motor.set_direction(CW);    // TODO: to be checked
+    stepper_motor.set_speed(60);
+
+    end = on = gear = 0;
+    while (!end) {
+
+        if (on) {
+            stepper_motor.step();
+        }
+
+        if (Serial.available()) {
+            c = Serial.read();
+
+            switch (c) {
+                case 'o': on = 1 - on; break;
+                case 'c': stepper_motor.change_direction(); break;
+                case 's':
+                    on = 0;
+                    gear = read_int_serial();
+                    if (gear < 1 || gear > NUM_GEARS)
+                        break;
+                    gears[gear-1] = stepper_motor.get_position();
+                    Serial.print("Saved gear: "); Serial.print(gear); Serial.print("\tPosition: "); Serial.println(gears[gear-1]);
+                    break;
+                case 'g':
+                    on = 0;
+                    gear = read_int_serial();
+                    shift(gear);
+                    Serial.print("Shifter to gear: "); Serial.println(gear);
+                    break;
+                case 'e': end = 1; break;
+                default: break;
+            }
+        }
+    }
+}
+
+
+int read_int_serial() {
+    String input_str;
+
+    while (!Serial.available()) delay(1);
+    
+    input_str = Serial.readString();
+    input_str.trim();
+
+    for (int i=0; i<input_str.length(); i++) {
+        if (!isdigit(input_str[i]))
+            return 0;
+    }
+
+    return input_str.toInt();
 }
