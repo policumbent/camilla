@@ -65,6 +65,11 @@ class HR4988 {
         int position_sixteenth;
         uint8_t cw_direction_sign;
 
+
+    private:
+        void _move_set_speed_direction(int start_pos, int target_pos);
+
+
     public:
         HR4988 (uint8_t step_pin, uint8_t direction_pin,
                 uint8_t ms1_pin, uint8_t ms2_pin, uint8_t ms3_pin,
@@ -80,21 +85,20 @@ class HR4988 {
 
         void setup();
         
-        void shift(int start_pos, int target_pos, AS5600 rotative_encoder);
-        void move(int start_pos, int target_pos);
+        void move(int start_pos, int target_pos, AS5600 rotative_encoder);
         void step();
 
         void set_position(int position);
         int get_position();
 
-        void set_speed (float speed);
+        void set_speed(float speed);
         float get_speed();
 
         void change_direction ();
-        void set_direction (uint8_t dir);
+        void set_direction(uint8_t dir);
         uint8_t get_direction();
 
-        void set_microstepping (uint8_t mode);
+        void set_microstepping(uint8_t mode);
         uint8_t get_microstepping();
 
         int get_delta_position_turn();

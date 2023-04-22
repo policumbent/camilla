@@ -82,12 +82,42 @@ void HR4988 :: setup () {
 }
 
 
-void HR4988 :: shift(int start_pos, int target_pos, AS5600 rotative_encoder) {
+void HR4988 :: move(int start_pos, int target_pos, AS5600 rotative_encoder) {
+    long int elapsed_time, delay;
+    int delta_angle;
+    
+    while (position_sixteenth != target_pos) {
+        portDISABLE_INTERRUPTS();
+        elapsed_time = micros();
 
+        delta_angle = rotative_encoder.get_angle();
+
+        _move_set_speed_direction(start_pos, target_pos);
+
+        digitalWrite(step_pin, HIGH);
+        delayMicroseconds(delay_on);
+        digitalWrite(step_pin, LOW);
+
+        delta_angle = rotative_encoder.read_angle() - delta_angle;
+
+        elapsed_time = micros() - elapsed_time;
+        delay = (delay_off - elapsed_time > 0) ? (delay_off - elapsed_time) : (1);
+        portENABLE_INTERRUPTS();
+
+        delayMicroseconds(delay);
+
+        // TODO: include position correction
+
+        if (direction == CW) {
+            position_sixteenth += cw_direction_sign * position_change;
+        } else {
+            position_sixteenth -= cw_direction_sign * position_change;
+        }
+    }
 }
 
 
-void HR4988 :: move(int start_pos, int target_pos) {
+void HR4988 :: _move_set_speed_direction(int start_pos, int target_pos) {
     uint8_t dir;
     float speed;
     int accel_steps;
@@ -142,8 +172,6 @@ void HR4988 :: move(int start_pos, int target_pos) {
     if (rpm != speed) {
         set_speed(speed);
     }
-
-    step();
 }
 
 
@@ -171,7 +199,7 @@ int HR4988 :: get_position() {
 }
 
 
-void HR4988 :: set_speed (float speed) {
+void HR4988 :: set_speed(float speed) {
     uint8_t ms;
 
     rpm = speed;
@@ -203,14 +231,14 @@ float HR4988 :: get_speed() {
 }
 
 
-void HR4988 :: change_direction () {
+void HR4988 :: change_direction() {
     direction = 1 - direction;
     digitalWrite(direction_pin, direction);
     delayMicroseconds(DELAY_CHANGE_DIRECTION);
 }
 
 
-void HR4988 :: set_direction (uint8_t dir) {
+void HR4988 :: set_direction(uint8_t dir) {
     if (direction == dir)
         return;
     
@@ -223,7 +251,7 @@ uint8_t HR4988 :: get_direction() {
 }
 
 
-void HR4988 :: set_microstepping (uint8_t mode) {
+void HR4988 :: set_microstepping(uint8_t mode) {
     uint8_t ms1, ms2, ms3;
 
     if (microstepping == mode)

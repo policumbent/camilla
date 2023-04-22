@@ -138,7 +138,7 @@ void function_core_1 (void *parameters) {
 
         t = micros();
         for (int i=0; i<1000; i++) {
-            angle = rotative_encoder.read_raw();
+            angle = rotative_encoder.read_angle();
         }
         t = micros() - t;
 
@@ -244,10 +244,7 @@ void shift(uint8_t next_gear) {
     start_pos = stepper_motor.get_position();
     target_pos = gears[next_gear-1];
 
-    while (stepper_motor.get_position() != target_pos) {
-        // TODO: include encoder feedback and position correction
-        stepper_motor.move(start_pos, target_pos);
-    }
+    stepper_motor.move(start_pos, target_pos, rotative_encoder);
 
     g_current_gear = next_gear;
 

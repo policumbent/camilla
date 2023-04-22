@@ -5,6 +5,7 @@
         "cmath": "cpp",
         "random": "cpp",
         "limits": "cpp",
-        "utility": "cpp"
+        "utility": "cpp",
+        "*.tcc": "cpp"
     }
 }
