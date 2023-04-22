@@ -26,12 +26,14 @@
 
 const int full_steps_per_turn = 200;
 const float deg_per_full_step = 1.8;
+const uint8_t cw_direction_sign = -1;
 
 HR4988 stepper_motor = HR4988 (
     STEP_PIN, DIRECTION_PIN,
     MS1_PIN, MS2_PIN, MS3_PIN,
     ENABLE_PIN,
-    full_steps_per_turn, deg_per_full_step, +1
+    full_steps_per_turn, deg_per_full_step,
+    cw_direction_sign
 );
 
 
@@ -155,7 +157,7 @@ void function_core_1 (void *parameters) {
         gears_calibration();
     }
 
-    stepper_motor.set_direction(CCW);   // TODO: to be checked
+    stepper_motor.set_direction((cw_direction_sign == 1) ? CCW : CW);
     stepper_motor.set_speed(60);
     while (!limit_reached) {
         stepper_motor.step();
@@ -268,14 +270,14 @@ void gears_calibration() {
 
     Serial.println("\nGears calibration");
 
-    stepper_motor.set_direction(CCW);   // TODO: to be checked
+    stepper_motor.set_direction((cw_direction_sign == 1) ? CCW : CW);
     stepper_motor.set_speed(60);
     while (!limit_reached) {
         stepper_motor.step();
     }
     stepper_motor.set_position(0);
 
-    stepper_motor.set_direction(CW);    // TODO: to be checked
+    stepper_motor.change_direction();
     stepper_motor.set_speed(60);
 
     end = on = gear = 0;
