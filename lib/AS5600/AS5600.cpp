@@ -30,7 +30,7 @@ void AS5600 :: _read_raw() {
 }
 
 
-void AS5600 :: calibration(HR4988 stepper_motor) {
+void AS5600 :: calibration(HR4988 &stepper_motor) {
     
     pinMode(analog_pin, OUTPUT);
     digitalWrite(analog_pin, LOW);

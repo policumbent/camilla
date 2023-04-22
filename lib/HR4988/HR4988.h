@@ -2,6 +2,7 @@
 #include <Arduino.h>
 
 #include "AS5600.h"
+class AS5600;
 
 
 #define FULL_STEP_MODE      1
@@ -85,7 +86,7 @@ class HR4988 {
 
         void setup();
         
-        void move(int start_pos, int target_pos, AS5600 rotative_encoder);
+        void move(int start_pos, int target_pos, AS5600 &rotative_encoder);
         void step();
 
         void set_position(int position);

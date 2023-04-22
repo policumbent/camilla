@@ -2,6 +2,7 @@
 #include <Arduino.h>
 
 #include "HR4988.h"
+class HR4988;
 
 
 class AS5600 {
@@ -23,5 +24,5 @@ class AS5600 {
         float get_angle();
 
 
-        void calibration(HR4988 stepper_motor);
+        void calibration(HR4988 &stepper_motor);
 };

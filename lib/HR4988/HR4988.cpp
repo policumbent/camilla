@@ -82,7 +82,7 @@ void HR4988 :: setup () {
 }
 
 
-void HR4988 :: move(int start_pos, int target_pos, AS5600 rotative_encoder) {
+void HR4988 :: move(int start_pos, int target_pos, AS5600 &rotative_encoder) {
     long int elapsed_time, delay;
     int delta_angle;
     
