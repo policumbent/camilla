@@ -1,4 +1,4 @@
-# Camilla - CAmbio Intrinsicamente LAborioso
+# Camilla - CAMbio Intrinsicamente LAborioso
 
 Testing software for the Phoenix gearbox, using a stepper motor.
 
