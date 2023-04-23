@@ -1,4 +1,6 @@
-# HR4988 stepper test
+# Camilla - CAmbio Intrinsicamente LAborioso
+
+## HR4988 stepper motor 
 
 Testing software for the Phoenix gearbox, using a stepper motor.
 
