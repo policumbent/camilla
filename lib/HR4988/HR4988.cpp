@@ -5,7 +5,7 @@ HR4988 :: HR4988 (
     uint8_t ms1_pin, uint8_t ms2_pin, uint8_t ms3_pin,
     uint8_t enable_pin, uint8_t sleep_pin, uint8_t reset_pin,
     int full_steps_per_turn, float deg_per_full_step,
-    uint8_t cw_direction_sign )
+    int cw_direction_sign )
 {
     this->step_pin = step_pin;
     this->direction_pin = direction_pin;
@@ -28,7 +28,7 @@ HR4988 :: HR4988 (
     uint8_t ms1_pin, uint8_t ms2_pin, uint8_t ms3_pin,
     uint8_t enable_pin,
     int full_steps_per_turn, float deg_per_full_step,
-    uint8_t cw_direction_sign )
+    int cw_direction_sign )
 {
     this->step_pin = step_pin;
     this->direction_pin = direction_pin;
@@ -82,11 +82,18 @@ void HR4988 :: setup () {
 }
 
 
-void HR4988 :: move(int start_pos, int target_pos, AS5600 &rotative_encoder) {
+void HR4988 :: move(int start_pos, int target_pos, AS5600 &rotative_encoder, uint8_t *limit_reached) {
     long int elapsed_time, delay;
     int delta_angle;
     
-    while (position_sixteenth != target_pos) {
+    #if DEBUG_HR4988
+        Serial.print("Shift from "); Serial.print(start_pos); Serial.print(" to "); Serial.println(target_pos);
+        long int debug_t = micros();
+        int cnt = 0, expected_delay = 0, tot_angle = 0;
+    #endif
+    
+    while (position_sixteenth != target_pos && !(*limit_reached)) {
+
         portDISABLE_INTERRUPTS();
         elapsed_time = micros();
 
@@ -113,7 +120,21 @@ void HR4988 :: move(int start_pos, int target_pos, AS5600 &rotative_encoder) {
         } else {
             position_sixteenth -= cw_direction_sign * position_change;
         }
+
+        #if DEBUG_HR4988
+            cnt++;
+            expected_delay += get_expected_step_time();
+            tot_angle += delta_angle;
+        #endif
     }
+
+    #if DEBUG_HR4988
+        debug_t = micros() - debug_t;
+        if (cnt == 0) return;
+        Serial.print("Expected (avg) delay: "); Serial.print(expected_delay / cnt);
+        Serial.print("\tMeasured (avg) delay: "); Serial.print(debug_t / cnt);
+        Serial.print("\tEncoder reading: "); Serial.println(tot_angle);
+    #endif
 }
 
 

@@ -1,6 +1,8 @@
 #pragma once
 #include <Arduino.h>
 
+#define DEBUG_HR4988 1
+
 #include "AS5600.h"
 class AS5600;
 
@@ -64,7 +66,7 @@ class HR4988 {
         uint8_t position_change;
         float rpm;
         int position_sixteenth;
-        uint8_t cw_direction_sign;
+        int cw_direction_sign;
 
 
     private:
@@ -76,17 +78,17 @@ class HR4988 {
                 uint8_t ms1_pin, uint8_t ms2_pin, uint8_t ms3_pin,
                 uint8_t enable_pin, uint8_t sleep_pin, uint8_t reset_pin,
                 int full_steps_per_turn, float deg_per_full_step,
-                uint8_t cw_direction_sign);
+                int cw_direction_sign);
 
         HR4988 (uint8_t step_pin, uint8_t direction_pin,
                 uint8_t ms1_pin, uint8_t ms2_pin, uint8_t ms3_pin,
                 uint8_t enable_pin,
                 int full_steps_per_turn, float deg_per_full_step,
-                uint8_t cw_direction_sign);
+                int cw_direction_sign);
 
         void setup();
         
-        void move(int start_pos, int target_pos, AS5600 &rotative_encoder);
+        void move(int start_pos, int target_pos, AS5600 &rotative_encoder, uint8_t *limit_reached);
         void step();
 
         void set_position(int position);

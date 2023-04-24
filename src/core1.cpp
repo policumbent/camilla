@@ -26,7 +26,7 @@
 
 const int full_steps_per_turn = 200;
 const float deg_per_full_step = 1.8;
-const uint8_t cw_direction_sign = -1;
+const int cw_direction_sign = -1;
 
 HR4988 stepper_motor = HR4988 (
     STEP_PIN, DIRECTION_PIN,
@@ -164,14 +164,18 @@ void function_core_1 (void *parameters) {
     }
     stepper_motor.set_position(0);
 
-    shift(1);
-    
     #if DEBUG_CORES
         Serial.print("The limit switch isr has runned on core: ");
         Serial.println(limit_reached - 1);
     #endif
 
-    while ((limit_reached = button_read_attach_interrupt(&limit_switch_parameters)));
+    stepper_motor.change_direction();
+    while ((limit_reached = button_read_attach_interrupt(&limit_switch_parameters))) {
+        stepper_motor.step();
+    }
+    
+    shift(1);
+    
 
     #if DEBUG_MOTOR >= 2
         stepper_motor.debug_serial_control();
@@ -246,7 +250,7 @@ void shift(uint8_t next_gear) {
     start_pos = stepper_motor.get_position();
     target_pos = gears[next_gear-1];
 
-    stepper_motor.move(start_pos, target_pos, rotative_encoder);
+    stepper_motor.move(start_pos, target_pos, rotative_encoder, &limit_reached);
 
     g_current_gear = next_gear;
 
