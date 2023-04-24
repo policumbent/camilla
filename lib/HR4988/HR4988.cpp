@@ -5,7 +5,7 @@ HR4988 :: HR4988 (
     uint8_t ms1_pin, uint8_t ms2_pin, uint8_t ms3_pin,
     uint8_t enable_pin, uint8_t sleep_pin, uint8_t reset_pin,
     int full_steps_per_turn, float deg_per_full_step,
-    int cw_direction_sign )
+    int8_t cw_direction_sign )
 {
     this->step_pin = step_pin;
     this->direction_pin = direction_pin;
@@ -28,7 +28,7 @@ HR4988 :: HR4988 (
     uint8_t ms1_pin, uint8_t ms2_pin, uint8_t ms3_pin,
     uint8_t enable_pin,
     int full_steps_per_turn, float deg_per_full_step,
-    int cw_direction_sign )
+    int8_t cw_direction_sign )
 {
     this->step_pin = step_pin;
     this->direction_pin = direction_pin;
