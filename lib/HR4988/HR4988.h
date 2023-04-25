@@ -71,6 +71,7 @@ class HR4988 {
 
     private:
         void _move_set_speed_direction(int start_pos, int target_pos);
+        void _update_position();
 
 
     public:
@@ -104,7 +105,7 @@ class HR4988 {
         void set_microstepping(uint8_t mode);
         uint8_t get_microstepping();
 
-        int get_delta_position_turn();
+        int get_delta_position_360_degrees_rotation();
         int get_expected_step_time();
 
         void debug_serial_control();

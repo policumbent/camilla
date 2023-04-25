@@ -115,11 +115,7 @@ void HR4988 :: move(int start_pos, int target_pos, AS5600 &rotative_encoder, uin
 
         // TODO: include position correction
 
-        if (direction == CW) {
-            position_sixteenth += cw_direction_sign * position_change;
-        } else {
-            position_sixteenth -= cw_direction_sign * position_change;
-        }
+        _update_position();
 
         #if DEBUG_HR4988
             cnt++;
@@ -196,17 +192,22 @@ void HR4988 :: _move_set_speed_direction(int start_pos, int target_pos) {
 }
 
 
+void HR4988 :: _update_position() {
+    if (direction == CW) {
+        position_sixteenth += cw_direction_sign * position_change;
+    } else {
+        position_sixteenth -= cw_direction_sign * position_change;
+    }
+}
+
+
 void HR4988 :: step() {
     digitalWrite(step_pin, HIGH);
     delayMicroseconds(delay_on);
     digitalWrite(step_pin, LOW);
     delayMicroseconds(delay_off);
 
-    if (direction == CW) {
-        position_sixteenth += cw_direction_sign * position_change;
-    } else {
-        position_sixteenth -= cw_direction_sign * position_change;
-    }
+    _update_position();
 }
 
 
@@ -312,7 +313,7 @@ uint8_t HR4988 :: get_microstepping() {
 }
 
 
-int HR4988 :: get_delta_position_turn() {
+int HR4988 :: get_delta_position_360_degrees_rotation() {
     return full_steps_per_turn * SIXTEENTH_STEP_MODE;
 }
 

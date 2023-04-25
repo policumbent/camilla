@@ -35,7 +35,7 @@ void AS5600 :: calibration(HR4988 &stepper_motor) {
     stepper_motor.set_speed(60);
 
     int start_pos = stepper_motor.get_position();
-    while (stepper_motor.get_position() < start_pos + stepper_motor.get_delta_position_turn()) {
+    while (stepper_motor.get_position() < start_pos + stepper_motor.get_delta_position_360_degrees_rotation()) {
         stepper_motor.step();
     }
 
