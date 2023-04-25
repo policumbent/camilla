@@ -13,25 +13,13 @@ void Potentiometer :: setup() {
 }
 
 
-uint16_t Potentiometer :: read_raw() {
-    raw = analogRead(analog_pin);
-    return raw;
-}
-
-
-uint16_t Potentiometer :: get_raw() {
-    return raw;
-}
-
-
-float Potentiometer :: read_position() {
-    read_raw();
-    position = (float) raw / 4095.0 * 55.0;     // TODO: check conversion
+uint16_t Potentiometer :: read_position() {
+    position = analogRead(analog_pin);
     return position;
 }
 
 
-float Potentiometer :: get_position() {
+uint16_t Potentiometer :: get_position() {
     return position;
 }
 
