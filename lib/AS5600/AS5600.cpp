@@ -13,20 +13,26 @@ void AS5600 :: setup() {
 }
 
 
+uint16_t AS5600 :: read_raw() {
+    raw = analogRead(analog_pin);
+    return raw;
+}
+
+
+uint16_t AS5600 :: get_raw() {
+    return raw;
+}
+
+
 float AS5600 :: read_angle() {
-    _read_raw();
+    read_raw();
     angle = (float) raw / 4095.0 * 360.0;      // TODO: check conversion
     return angle;
 }
 
 
-    float AS5600 :: get_angle() {
+float AS5600 :: get_angle() {
     return angle;
-}
-
-
-void AS5600 :: _read_raw() {
-    raw = analogRead(analog_pin);
 }
 
 
