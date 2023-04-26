@@ -123,7 +123,7 @@ void function_core_1 (void *parameters) {
     while ((shift_down_pressed = button_read_attach_interrupt(&shift_down_button_parameters)));
     time_long_press = millis() - time_long_press;
     if (time_long_press >= 3000) {
-        gears_calibration();
+        calibration();
     }
 
     stepper_motor.set_direction((cw_direction_sign == 1) ? CCW : CW);

@@ -30,9 +30,6 @@ const int8_t cw_direction_sign = -1;
 const char gears_memory_key[] = "gears_key";
 
 
-void shift(uint8_t next_gear);
-
-
 extern HR4988 stepper_motor;
 extern AS5600 rotative_encoder;
 extern Memory flash;
@@ -40,3 +37,9 @@ extern int gears[];
 extern uint8_t limit_reached;
 extern uint8_t shift_up_pressed;
 extern uint8_t shift_down_pressed;
+
+
+void shift(uint8_t next_gear);
+
+
+void calibration();
