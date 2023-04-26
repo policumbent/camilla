@@ -318,12 +318,24 @@ void gears_calibration() {
     }
 
     Serial.println("Confirm changes? (Y/n)");
-    while (!Serial.available()) delay(1);
-    c = Serial.read();
-    if (c == 'n' || c == 'N')
-        return;
-    
-    flash.write_array(gears_memory_key, (void *) gears, NUM_GEARS, sizeof(int));
+    end = 0;
+    while(!end) {
+        while (!Serial.available()) delay(1);
+        c = Serial.read();
+        switch (c) {
+            case 'n': case 'N':
+                Serial.println("Changes NOT saved");
+                end = 1; break;
+            case 'y': case 'Y':
+                flash.write_array(gears_memory_key, (void *) gears, NUM_GEARS, sizeof(int));
+                Serial.println("Changes saved");
+                end = 1; break;
+            default:
+                Serial.println("Unrecognized command (use: y,Y/n,N)");
+                break;
+        }
+    }
+
 }
 
 
