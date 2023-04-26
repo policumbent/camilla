@@ -25,6 +25,8 @@ uint16_t AS5600 :: get_angle() {
 
 
 void AS5600 :: calibration(HR4988 &stepper_motor) {
+
+    Serial.println("\nEncoder calibration");
     
     pinMode(analog_pin, OUTPUT);
     digitalWrite(analog_pin, LOW);

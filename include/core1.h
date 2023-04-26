@@ -34,6 +34,7 @@ void shift(uint8_t next_gear);
 
 
 extern HR4988 stepper_motor;
+extern AS5600 rotative_encoder;
 extern Memory flash;
 extern int gears[];
 extern uint8_t limit_reached;
