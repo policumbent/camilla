@@ -1,4 +1,4 @@
-#include "main.h"
+#include "core0.h"
 
 
 void function_core_0 (void *parameters) {

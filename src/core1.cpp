@@ -15,6 +15,11 @@ AS5600 rotative_encoder = AS5600 (
 );
 
 
+Potentiometer linear_potentiometer = Potentiometer (
+    POTENTIOMETER_PIN
+);
+
+
 int gears[NUM_GEARS];
 
 
@@ -219,7 +224,7 @@ void shift(uint8_t next_gear) {
     start_pos = stepper_motor.get_position();
     target_pos = gears[next_gear-1];
 
-    stepper_motor.move(start_pos, target_pos, rotative_encoder, &limit_reached);
+    stepper_motor.move(start_pos, target_pos, rotative_encoder, linear_potentiometer, &limit_reached);
 
     g_current_gear = next_gear;
 

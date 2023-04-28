@@ -24,6 +24,6 @@ uint16_t Potentiometer :: get_position() {
 }
 
 
-void Potentiometer :: calibration(HR4988 stepper_motor) {
-
+void Potentiometer :: calibration(HR4988 &stepper_motor) {
+    Serial.println("\nPotentiometer calibration");
 }

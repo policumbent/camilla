@@ -15,20 +15,23 @@ void calibration() {
     char c;
     uint8_t end = 0;
 
-    Serial.println("Select: Gears calibration or Encoder calibration");
+    Serial.println("Select: Gears, Encoder or Potentiometer calibration (g,G/e,E/p,P)");
 
     while(!end) {
         while (!Serial.available()) delay(1);
         c = Serial.read();
         switch (c) {
             case 'g': case 'G':
-                rotative_encoder.calibration(stepper_motor);
-                end = 1; break;
-            case 'e': case 'E':
                 gears_calibration();
                 end = 1; break;
+            case 'e': case 'E':
+                rotative_encoder.calibration(stepper_motor);
+                end = 1; break;
+            case 'p': case 'P':
+                linear_potentiometer.calibration(stepper_motor);
+                end = 1; break;
             default:
-                Serial.println("Unrecognized command (use: g,G/e,E)");
+                Serial.println("Unrecognized command (use: g,G/e,E/p,P)");
                 break;
         }
     }    

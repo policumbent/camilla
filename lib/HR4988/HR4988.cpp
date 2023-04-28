@@ -3,7 +3,8 @@
 HR4988 :: HR4988 (uint8_t step_pin, uint8_t direction_pin,
                   uint8_t ms1_pin, uint8_t ms2_pin, uint8_t ms3_pin,
                   uint8_t enable_pin, uint8_t sleep_pin, uint8_t reset_pin,
-                  int full_steps_per_turn, float deg_per_full_step, int8_t cw_direction_sign ) {
+                  int full_steps_per_turn, float deg_per_full_step,
+                  int8_t cw_direction_sign ) {
     this->step_pin = step_pin;
     this->direction_pin = direction_pin;
     this->ms1_pin = ms1_pin;
@@ -77,7 +78,8 @@ void HR4988 :: setup () {
 }
 
 
-void HR4988 :: move(int start_pos, int target_pos, AS5600 &rotative_encoder, uint8_t *limit_reached) {
+void HR4988 :: move(int start_pos, int target_pos,
+                    AS5600 &rotative_encoder, Potentiometer &linear_potentiometer, uint8_t *limit_reached) {
     long int elapsed_time, delay;
     int delta_angle;
     
@@ -109,6 +111,7 @@ void HR4988 :: move(int start_pos, int target_pos, AS5600 &rotative_encoder, uin
         delayMicroseconds(delay);
 
         // TODO: include position correction
+        // TODO: reading potentiometer, when?
 
         _update_position();
 

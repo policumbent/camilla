@@ -22,6 +22,8 @@
 
 #define MAGNETIC_ENCODER_PIN 27
 
+#define POTENTIOMETER_PIN 35        // TODO: not connected at the moment
+
 
 const int full_steps_per_turn = 200;
 const float deg_per_full_step = 1.8;
@@ -32,6 +34,7 @@ const char gears_memory_key[] = "gears_key";
 
 extern HR4988 stepper_motor;
 extern AS5600 rotative_encoder;
+extern Potentiometer linear_potentiometer;
 extern Memory flash;
 extern int gears[];
 extern uint8_t limit_reached;
