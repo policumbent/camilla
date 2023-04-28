@@ -1,0 +1,66 @@
+read_angle, read_linear -> 80 us
+step (on,delay_on,off) -> 5/10 us
+delay_off -> worst-case (minimum value) 150 us
+
+
+
+
+
+1 CORE
+
+- core 1
+while (current != target)
+	begin t
+	move_param
+	step
+	read_angle
+	end t
+	delay_off - (end - begin)
+	pos_correction
+	pos_update
+
+
+-> synchronous correction
+-> not enough time to read both rotative and linear in the same loop
+	-> maybe read rotative more often, linear sometimes
+
+
+
+
+
+2 CORES
+
+- core 1
+post (sem_move)
+while (current != target)
+	begin t
+	move_param
+	step
+	wait (sem_pos)
+		update_pos		// note that stepper may not have finished step
+	post (sem_pos)
+	end t
+	delay_off - (end - begin)
+wait (sem_move)
+
+- core0
+while (1)
+	wait (sem_move)
+	read_angle
+	if (cnt%N == 0) read_linear
+	wait (sem_pos)
+		get_stepper_pos
+		correct_pos		// done with previous value comparison
+		set_stepper_pos
+	post(sem_pos)
+	wait (sem_move)
+	
+
+-> asynchronous correction
+-> rotative: correction with an error of +-2 steps
+-> linear: correction on bigger scale
+	-> how to manage rotative/linear compatibility?
+-> wait in core1 can be done for a specified amount of time, not blocking the process if some problems occur
+
+
+
