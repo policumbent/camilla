@@ -3,11 +3,6 @@
 
 #define DEBUG_HR4988 1
 
-#include "AS5600.h"
-class AS5600;
-#include "Potentiometer.h"
-class Potentiometer;
-
 
 #define FULL_STEP_MODE      1
 #define HALF_STEP_MODE      2
@@ -91,8 +86,7 @@ class HR4988 {
 
         void setup();
         
-        void move(int start_pos, int target_pos,
-                  AS5600 &rotative_encoder, Potentiometer &linear_potentiometer, uint8_t *limit_reached);
+        void move(int start_pos, int target_pos, uint8_t *limit_reached, SemaphoreHandle_t sem_pos);
         void step();
 
         void set_position(int position);

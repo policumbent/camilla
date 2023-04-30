@@ -1,28 +1,6 @@
 #include "core1.h"
 
 
-HR4988 stepper_motor = HR4988 (
-    STEP_PIN, DIRECTION_PIN,
-    MS1_PIN, MS2_PIN, MS3_PIN,
-    ENABLE_PIN,
-    full_steps_per_turn, deg_per_full_step,
-    cw_direction_sign
-);
-
-
-AS5600 rotative_encoder = AS5600 (
-    MAGNETIC_ENCODER_PIN
-);
-
-
-Potentiometer linear_potentiometer = Potentiometer (
-    POTENTIOMETER_PIN
-);
-
-
-int gears[NUM_GEARS];
-
-
 uint8_t limit_reached = 0;
 void IRAM_ATTR limit_switch_isr();
 
@@ -42,10 +20,6 @@ button_parameters shift_up_button_parameters = {
 button_parameters shift_down_button_parameters = {
     SHIFT_DOWN_BUTTON_PIN, INPUT_PULLUP, LOW, shift_down_button_isr, FALLING
 };
-
-
-Memory flash = Memory();
-
 
 
 void function_core_1 (void *parameters) {
@@ -224,7 +198,9 @@ void shift(uint8_t next_gear) {
     start_pos = stepper_motor.get_position();
     target_pos = gears[next_gear-1];
 
-    stepper_motor.move(start_pos, target_pos, rotative_encoder, linear_potentiometer, &limit_reached);
+    xSemaphoreGive(g_sem_move);
+    stepper_motor.move(start_pos, target_pos, &limit_reached, g_sem_pos);
+    xSemaphoreTake(g_sem_move, portMAX_DELAY);
 
     g_current_gear = next_gear;
 
