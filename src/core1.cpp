@@ -38,7 +38,7 @@ void function_core_1 (void *parameters) {
 
     #if DEBUG_MEMORY >= 2
         for (int i=0; i<NUM_GEARS; i++)
-            gears[i] = 4 * stepper_motor.get_delta_position_turn() * (i+1);
+            gears[i] = 10 * stepper_motor.get_delta_position_360_degrees_rotation() * (i+1);
         flash.write_array(gears_memory_key, (void *) gears, NUM_GEARS, sizeof(int));
         for (int i=0; i<NUM_GEARS; i++)
             gears[i] = 0;
