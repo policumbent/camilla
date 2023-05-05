@@ -2,6 +2,8 @@
 #include <Arduino.h>
 
 #include "HR4988.h"
+class HR4988;
+#include "Potentiometer.h"      // not used, but otherwise it does not compile
 
 
 class AS5600 {

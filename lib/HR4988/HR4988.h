@@ -3,6 +3,11 @@
 
 #define DEBUG_HR4988 1
 
+#include "AS5600.h"
+class AS5600;
+#include "Potentiometer.h"
+class Potentiometer;
+
 
 #define FULL_STEP_MODE      1
 #define HALF_STEP_MODE      2
@@ -60,7 +65,6 @@ class HR4988 {
 
         uint8_t direction;
         uint8_t microstepping;
-        uint8_t microstepping_on;
         uint8_t position_change;
         float rpm;
         int position_sixteenth;
@@ -85,14 +89,10 @@ class HR4988 {
                 int full_steps_per_turn, float deg_per_full_step,
                 int8_t cw_direction_sign);
 
-        HR4988 (uint8_t step_pin, uint8_t direction_pin,
-                uint8_t enable_pin,
-                int full_steps_per_turn, float deg_per_full_step,
-                int8_t cw_direction_sign);
-
         void setup();
         
-        void move(int start_pos, int target_pos, uint8_t *limit_reached, SemaphoreHandle_t sem_pos);
+        void move(int start_pos, int target_pos,
+                  AS5600 &rotative_encoder, Potentiometer &linear_potentiometer, uint8_t *limit_reached);
         void step();
 
         void set_position(int position);
