@@ -6,7 +6,7 @@
 #include "HR4988.h"
 #include "AS5600.h"
 #include "Potentiometer.h"
-#include "Button.h"
+#include "button.h"
 #include "Memory.h"
 
 
