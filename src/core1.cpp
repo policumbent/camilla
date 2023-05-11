@@ -1,6 +1,28 @@
 #include "core1.h"
 
 
+HR4988 stepper_motor = HR4988 (
+    STEP_PIN, DIRECTION_PIN,
+    MS1_PIN, MS2_PIN, MS3_PIN,
+    ENABLE_PIN,
+    full_steps_per_turn, deg_per_full_step,
+    cw_direction_sign
+);
+
+
+AS5600 rotative_encoder = AS5600 (
+    MAGNETIC_ENCODER_PIN
+);
+
+
+Potentiometer linear_potentiometer = Potentiometer (
+    POTENTIOMETER_PIN
+);
+
+
+int gears[NUM_GEARS];
+
+
 uint8_t limit_reached = 0;
 void IRAM_ATTR limit_switch_isr();
 
@@ -22,6 +44,10 @@ button_parameters shift_down_button_parameters = {
 };
 
 
+Memory flash = Memory();
+
+
+
 void function_core_1 (void *parameters) {
 
     #if DEBUG_CORES
@@ -38,7 +64,7 @@ void function_core_1 (void *parameters) {
 
     #if DEBUG_MEMORY >= 2
         for (int i=0; i<NUM_GEARS; i++)
-            gears[i] = 10 * stepper_motor.get_delta_position_360_degrees_rotation() * (i+1);
+            gears[i] = 4 * stepper_motor.get_delta_position_turn() * (i+1);
         flash.write_array(gears_memory_key, (void *) gears, NUM_GEARS, sizeof(int));
         for (int i=0; i<NUM_GEARS; i++)
             gears[i] = 0;
@@ -198,9 +224,7 @@ void shift(uint8_t next_gear) {
     start_pos = stepper_motor.get_position();
     target_pos = gears[next_gear-1];
 
-    xSemaphoreGive(g_sem_move);
-    stepper_motor.move(start_pos, target_pos, &limit_reached, g_sem_pos);
-    xSemaphoreTake(g_sem_move, portMAX_DELAY);
+    stepper_motor.move(start_pos, target_pos, rotative_encoder, linear_potentiometer, &limit_reached);
 
     g_current_gear = next_gear;
 

@@ -42,37 +42,13 @@ HR4988 :: HR4988 (uint8_t step_pin, uint8_t direction_pin,
 }
 
 
-HR4988 :: HR4988 (uint8_t step_pin, uint8_t direction_pin,
-                  uint8_t enable_pin,
-                  int full_steps_per_turn, float deg_per_full_step,
-                  int8_t cw_direction_sign) {
-    this->step_pin = step_pin;
-    this->direction_pin = direction_pin;
-    this->ms1_pin = 0;
-    this->ms2_pin = 0;
-    this->ms3_pin = 0;
-    this->enable_pin = enable_pin;
-    this->sleep_pin = 0;
-    this->reset_pin = 0;
-    this->full_steps_per_turn = full_steps_per_turn;
-    this->deg_per_full_step = deg_per_full_step;
-    this->cw_direction_sign = cw_direction_sign;
-
-    setup();
-}
-
-
 void HR4988 :: setup () {
     pinMode(step_pin, OUTPUT);
     pinMode(direction_pin, OUTPUT);
 
-    microstepping_on = 0;
-    if (ms1_pin != 0 && ms2_pin != 0 && ms3_pin != 0) {
-        microstepping_on = 1;
-        pinMode(ms1_pin, OUTPUT);
-        pinMode(ms2_pin, OUTPUT);
-        pinMode(ms3_pin, OUTPUT);
-    }
+    pinMode(ms1_pin, OUTPUT);
+    pinMode(ms2_pin, OUTPUT);
+    pinMode(ms3_pin, OUTPUT);
     
     pinMode(enable_pin, OUTPUT);
 
@@ -102,15 +78,20 @@ void HR4988 :: setup () {
 }
 
 
-void HR4988 :: move(int start_pos, int target_pos, uint8_t *limit_reached, SemaphoreHandle_t sem_pos) {
+void HR4988 :: move(int start_pos, int target_pos,
+                    AS5600 &rotative_encoder, Potentiometer &linear_potentiometer, uint8_t *limit_reached) {
     long int elapsed_time, delay;
+    int step_cnt;
+    uint16_t delta_angle, delta_linear;
     
     #if DEBUG_HR4988
         Serial.print("Shift from "); Serial.print(start_pos); Serial.print(" to "); Serial.println(target_pos);
         long int debug_t = micros();
-        int cnt = 0, expected_delay = 0;
+        int cnt = 0, expected_delay = 0, tot_angle = 0, tot_linear = 0;
     #endif
     
+    step_cnt = 0;
+
     while (position_sixteenth != target_pos && !(*limit_reached)) {
 
         portDISABLE_INTERRUPTS();
@@ -121,10 +102,15 @@ void HR4988 :: move(int start_pos, int target_pos, uint8_t *limit_reached, Semap
         digitalWrite(step_pin, HIGH);
         delayMicroseconds(delay_on);
         digitalWrite(step_pin, LOW);
-        
-        xSemaphoreTake(sem_pos, portMAX_DELAY);
-        _update_position();
-        xSemaphoreGive(sem_pos);
+
+        if (step_cnt % 2 == 0) {
+            delta_angle = rotative_encoder.get_angle();
+            delta_angle = rotative_encoder.read_angle() - delta_angle;
+        }
+        else if (step_cnt % 5 == 0) {
+            delta_linear = linear_potentiometer.get_position();
+            delta_linear = linear_potentiometer.read_position() - delta_linear;
+        }
 
         elapsed_time = micros() - elapsed_time;
         delay = (delay_off - elapsed_time > 0) ? (delay_off - elapsed_time) : (1);
@@ -132,10 +118,17 @@ void HR4988 :: move(int start_pos, int target_pos, uint8_t *limit_reached, Semap
 
         delayMicroseconds(delay);
 
+        // TODO: include position correction
+
+        _update_position();
+
+        step_cnt++;
 
         #if DEBUG_HR4988
             cnt++;
             expected_delay += get_expected_step_time();
+            tot_angle += delta_angle;
+            tot_linear += delta_linear;
         #endif
     }
 
@@ -143,7 +136,9 @@ void HR4988 :: move(int start_pos, int target_pos, uint8_t *limit_reached, Semap
         debug_t = micros() - debug_t;
         if (cnt == 0) return;
         Serial.print("Expected (avg) delay: "); Serial.print(expected_delay / cnt);
-        Serial.print("\tMeasured (avg) delay: "); Serial.println(debug_t / cnt);
+        Serial.print("\tMeasured (avg) delay: "); Serial.print(debug_t / cnt);
+        Serial.print("\tEncoder reading: "); Serial.print(tot_angle);
+        Serial.print("\tPotentiometer reading: "); Serial.println(tot_linear);
     #endif
 }
 
@@ -293,14 +288,8 @@ void HR4988 :: set_microstepping(uint8_t mode) {
     if (microstepping == mode)
         return;
 
-    if (!microstepping_on) {
-        microstepping = FULL_STEP_MODE;
-        position_change = POSITION_CHANGE_FULL_MODE;
-        return;
-    }
-
     microstepping = mode;
-    
+
     switch (mode) {
         case FULL_STEP_MODE:
             ms1 = 0; ms2 = 0; ms3 = 0;
