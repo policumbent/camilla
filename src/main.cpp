@@ -12,7 +12,6 @@ uint8_t g_current_gear;
 void setup() {
     #if DEBUG
         Serial.begin(9600);
-        while (!Serial);
         Serial.println("Serial initialized");
     #endif
 

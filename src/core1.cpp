@@ -122,21 +122,29 @@ void function_core_1 (void *parameters) {
         Serial.println(str_enc);
     #endif
 
+    shift_down_pressed = shift_up_pressed = 0;
+    while (!(shift_down_pressed || shift_up_pressed)) delay(10);
 
-    while (!shift_down_pressed) delay(1);
-    int time_long_press = millis();
-    while ((shift_down_pressed = button_read_attach_interrupt(&shift_down_button_parameters)));
-    time_long_press = millis() - time_long_press;
-    if (time_long_press >= 3000) {
-        calibration();
+    if (shift_down_pressed) {
+        int time_long_press = millis();
+        while ((shift_down_pressed = button_read_attach_interrupt(&shift_down_button_parameters)));
+        time_long_press = millis() - time_long_press;
+        
+        if (time_long_press >= 3000) {
+            calibration();
+        }
+        else {
+            stepper_motor.set_direction((cw_direction_sign == 1) ? CCW : CW);
+            stepper_motor.set_speed(60);
+            while (!limit_reached) {
+                stepper_motor.step();
+            }
+            stepper_motor.set_position(0);
+        }
     }
-
-    stepper_motor.set_direction((cw_direction_sign == 1) ? CCW : CW);
-    stepper_motor.set_speed(60);
-    while (!limit_reached) {
-        stepper_motor.step();
+    else if (shift_up_pressed) {
+        test_mode();
     }
-    stepper_motor.set_position(0);
 
     #if DEBUG_CORES
         Serial.print("The limit switch isr has runned on core: ");
@@ -231,4 +239,43 @@ void shift(uint8_t next_gear) {
     #if DEBUG_GEARS
         Serial.print("Gear: "); Serial.println(g_current_gear);
     #endif
+}
+
+
+void test_mode() {
+    int pos;
+    int delta_pos = 2 * stepper_motor.get_delta_position_360_degrees_rotation();
+    
+    Serial.println("Test mode");
+
+    while (1) {
+
+        if (shift_up_pressed) {
+            #if DEBUG_BUTTONS
+                Serial.println("Shifting up");
+            #endif
+            pos = stepper_motor.get_position();
+            stepper_motor.move(pos, pos + delta_pos, rotative_encoder, linear_potentiometer, &limit_reached);
+
+            while ((shift_up_pressed = button_read_attach_interrupt(&shift_up_button_parameters)));
+        }
+
+        if (shift_down_pressed) {
+            #if DEBUG_BUTTONS
+                Serial.println("Shifting down");
+            #endif
+            pos = stepper_motor.get_position();
+            stepper_motor.move(pos, pos + delta_pos, rotative_encoder, linear_potentiometer, &limit_reached);
+
+            while ((shift_down_pressed = button_read_attach_interrupt(&shift_down_button_parameters)));
+        }
+
+        if (limit_reached) {
+            #if DEBUG_LIMIT_SWITCH
+                Serial.println("Limit reached");
+            #endif
+
+            while((limit_reached = button_read_attach_interrupt(&limit_switch_parameters)));
+        }
+    }
 }

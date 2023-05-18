@@ -1,6 +1,6 @@
 #include "main.h"
 
-#define NUM_GEARS        12     // for Phoenix
+#define NUM_GEARS  12     // for Phoenix
 
 
 #define ENABLE_PIN       18
@@ -43,6 +43,8 @@ extern uint8_t shift_down_pressed;
 
 
 void shift(uint8_t next_gear);
+
+void test_mode();
 
 
 void calibration();
