@@ -42,13 +42,37 @@ HR4988 :: HR4988 (uint8_t step_pin, uint8_t direction_pin,
 }
 
 
+HR4988 :: HR4988 (uint8_t step_pin, uint8_t direction_pin,
+                  uint8_t enable_pin,
+                  int full_steps_per_turn, float deg_per_full_step,
+                  int8_t cw_direction_sign) {
+    this->step_pin = step_pin;
+    this->direction_pin = direction_pin;
+    this->ms1_pin = 0;
+    this->ms2_pin = 0;
+    this->ms3_pin = 0;
+    this->enable_pin = enable_pin;
+    this->sleep_pin = 0;
+    this->reset_pin = 0;
+    this->full_steps_per_turn = full_steps_per_turn;
+    this->deg_per_full_step = deg_per_full_step;
+    this->cw_direction_sign = cw_direction_sign;
+
+    setup();
+}
+
+
 void HR4988 :: setup () {
     pinMode(step_pin, OUTPUT);
     pinMode(direction_pin, OUTPUT);
 
-    pinMode(ms1_pin, OUTPUT);
-    pinMode(ms2_pin, OUTPUT);
-    pinMode(ms3_pin, OUTPUT);
+    microstepping_on = 0;
+    if (ms1_pin != 0 && ms2_pin != 0 && ms3_pin != 0) {
+        microstepping_on = 1;
+        pinMode(ms1_pin, OUTPUT);
+        pinMode(ms2_pin, OUTPUT);
+        pinMode(ms3_pin, OUTPUT);
+    }
     
     pinMode(enable_pin, OUTPUT);
 
@@ -287,6 +311,12 @@ void HR4988 :: set_microstepping(uint8_t mode) {
 
     if (microstepping == mode)
         return;
+
+    if (!microstepping_on) {
+        microstepping = FULL_STEP_MODE;
+        position_change = POSITION_CHANGE_FULL_MODE;
+        return;
+    }
 
     microstepping = mode;
 
