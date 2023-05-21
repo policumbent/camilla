@@ -1,4 +1,6 @@
+#pragma once
 #include "main.h"
+
 
 #define NUM_GEARS  12     // for Phoenix
 

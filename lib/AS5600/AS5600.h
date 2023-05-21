@@ -1,9 +1,13 @@
 #pragma once
 #include <Arduino.h>
 
-#include "HR4988.h"
+
+// Circular reference solution
 class HR4988;
-#include "Potentiometer.h"      // not used, but otherwise it does not compile
+class Potentiometer;
+
+#include "HR4988.h"
+#include "Potentiometer.h"
 
 
 class AS5600 {
@@ -18,7 +22,6 @@ class AS5600 {
 
         uint16_t read_angle();
         uint16_t get_angle();
-
 
         void calibration(HR4988 &stepper_motor);
 };

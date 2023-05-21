@@ -1,9 +1,13 @@
 #pragma once
 #include <Arduino.h>
 
-#include "HR4988.h"
+
+// Circular reference solution
 class HR4988;
-#include "AS5600.h"     // not used, but otherwise it does not compile
+class AS5600;
+
+#include "HR4988.h"
+#include "AS5600.h"
 
 
 class Potentiometer {

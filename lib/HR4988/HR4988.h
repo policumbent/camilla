@@ -1,12 +1,16 @@
 #pragma once
 #include <Arduino.h>
 
-#define DEBUG_HR4988 1
+
+// Circular reference solution
+class AS5600;
+class Potentiometer;
 
 #include "AS5600.h"
-class AS5600;
 #include "Potentiometer.h"
-class Potentiometer;
+
+
+#define DEBUG_HR4988 1
 
 
 #define FULL_STEP_MODE      1

@@ -62,7 +62,7 @@ HR4988 :: HR4988 (uint8_t step_pin, uint8_t direction_pin,
 }
 
 
-void HR4988 :: setup () {
+void HR4988 :: setup() {
     pinMode(step_pin, OUTPUT);
     pinMode(direction_pin, OUTPUT);
 
