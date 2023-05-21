@@ -24,7 +24,7 @@
 
 #define MAGNETIC_ENCODER_PIN 27
 
-#define POTENTIOMETER_PIN 35        // TODO: not connected at the moment
+#define POTENTIOMETER_PIN 35
 
 
 const int full_steps_per_turn = 200;

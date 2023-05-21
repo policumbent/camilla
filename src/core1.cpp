@@ -85,41 +85,72 @@ void function_core_1 (void *parameters) {
         stepper_motor.set_speed(60);
         
         char str_mot[100];
-        unsigned long int time;
+        unsigned long int t_mot;
         
         for (int i=0; i<10; i++) {
-            time = micros();
+            t_mot = micros();
             stepper_motor.step();
-            time = micros() - time;
+            t_mot = micros() - t_mot;
             
             sprintf(str_mot, "Measured delay per step: %ld\tExpected delay per step: %ld",
                 time, stepper_motor.get_expected_step_time());
             Serial.println(str_mot);
         }
 
-        time = micros();
+        t_mot = micros();
         for (int i=0; i<10000; i++) {
             stepper_motor.step();
         }
-        time = micros() - time;
+        t_mot = micros() - t_mot;
         sprintf(str_mot, "Measured delay per step: %lf\tExpected delay per step: %ld",
-            (double) time / 10000.0, stepper_motor.get_expected_step_time());
+            (double) t_mot / 10000.0, stepper_motor.get_expected_step_time());
         Serial.println(str_mot);
     #endif
 
     #if DEBUG_ENCODER
         char str_enc[100];
-        unsigned long int t;
-        int angle;
+        unsigned long int t_enc;
+        uint16_t angle;
 
-        t = micros();
+        t_enc = micros();
         for (int i=0; i<1000; i++) {
             angle = rotative_encoder.read_angle();
         }
-        t = micros() - t;
+        t_enc = micros() - t_enc;
 
-        sprintf(str_enc, "Average read time: %f\t", (float) t / 1000.0);
+        sprintf(str_enc, "Average read time: %f\t", (float) t_enc / 1000.0);
         Serial.println(str_enc);
+    #endif
+
+    #if DEBUG_POTENTIOMETER
+        char str_pot[100];
+        unsigned long int t_pot;
+        uint16_t lin_pos;
+
+        t_pot = micros();
+        for (int i=0; i<1000; i++) {
+            lin_pos = linear_potentiometer.read_position();
+        }
+        t_pot = micros() - t_pot;
+
+        sprintf(str_pot, "Average read time: %f", (float) t_pot / 1000.0);
+        Serial.println(str_pot);
+
+        #if DEBUG_POTENTIOMETER >= 2
+            char c_pot;
+
+            while (c_pot != 'e') {
+                if (Serial.available()) {
+                    c_pot = Serial.read();
+                }
+                lin_pos = linear_potentiometer.read_position();
+
+                sprintf(str_pot, "Reading: %d", lin_pos);
+                Serial.println(str_pot);
+
+                delay(250);
+            }
+        #endif
     #endif
 
     shift_down_pressed = shift_up_pressed = 0;
