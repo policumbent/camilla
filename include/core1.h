@@ -18,8 +18,8 @@
 
 #define LIMIT_SWITCH_PIN 23
 
-#define SHIFT_UP_BUTTON_PIN   16
-#define SHIFT_DOWN_BUTTON_PIN 17
+#define SHIFT_UP_BUTTON_PIN   16        // yellow
+#define SHIFT_DOWN_BUTTON_PIN 17        // green
 
 
 #define MAGNETIC_ENCODER_PIN 27

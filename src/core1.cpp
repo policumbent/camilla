@@ -139,7 +139,7 @@ void function_core_1 (void *parameters) {
         #if DEBUG_POTENTIOMETER >= 2
             char c_pot;
 
-            while (c_pot != 'e') {
+            while (c_pot == 'e') {
                 if (Serial.available()) {
                     c_pot = Serial.read();
                 }
@@ -275,7 +275,7 @@ void shift(uint8_t next_gear) {
 
 void test_mode() {
     int pos;
-    int delta_pos = 2 * stepper_motor.get_delta_position_360_degrees_rotation();
+    int delta_pos = 4 * stepper_motor.get_delta_position_360_degrees_rotation();
     
     Serial.println("Test mode");
 
@@ -296,7 +296,7 @@ void test_mode() {
                 Serial.println("Shifting down");
             #endif
             pos = stepper_motor.get_position();
-            stepper_motor.move(pos, pos + delta_pos, rotative_encoder, linear_potentiometer, &limit_reached);
+            stepper_motor.move(pos, pos - delta_pos, rotative_encoder, linear_potentiometer, &limit_reached);
 
             while ((shift_down_pressed = button_read_attach_interrupt(&shift_down_button_parameters)));
         }
