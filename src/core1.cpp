@@ -118,8 +118,28 @@ void function_core_1 (void *parameters) {
         }
         t_enc = micros() - t_enc;
 
-        sprintf(str_enc, "Average read time: %f\t", (float) t_enc / 1000.0);
+        sprintf(str_enc, "Rotative encoder average read time: %f\t", (float) t_enc / 1000.0);
         Serial.println(str_enc);
+
+        #if DEBUG_ENCODER >= 2
+            char c_enc = 'x';
+
+            while (c_enc != 'e') {
+                if (Serial.available()) {
+                    c_enc = Serial.read();
+                }
+
+                stepper_motor.set_speed(400);
+                stepper_motor.step();
+
+                angle = rotative_encoder.read_angle();
+
+                sprintf(str_enc, "Encoder reading: %d", angle);
+                Serial.println(str_enc);
+
+                delay(250);
+            }
+        #endif
     #endif
 
     #if DEBUG_POTENTIOMETER
@@ -133,19 +153,19 @@ void function_core_1 (void *parameters) {
         }
         t_pot = micros() - t_pot;
 
-        sprintf(str_pot, "Average read time: %f", (float) t_pot / 1000.0);
+        sprintf(str_pot, "Linear potentiometer average read time: %f", (float) t_pot / 1000.0);
         Serial.println(str_pot);
 
         #if DEBUG_POTENTIOMETER >= 2
-            char c_pot;
+            char c_pot = 'x';
 
-            while (c_pot == 'e') {
+            while (c_pot != 'e') {
                 if (Serial.available()) {
                     c_pot = Serial.read();
                 }
                 lin_pos = linear_potentiometer.read_position();
 
-                sprintf(str_pot, "Reading: %d", lin_pos);
+                sprintf(str_pot, "Potentiometer reading: %d", lin_pos);
                 Serial.println(str_pot);
 
                 delay(250);
