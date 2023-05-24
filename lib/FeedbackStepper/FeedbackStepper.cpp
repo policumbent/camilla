@@ -76,10 +76,17 @@ void FeedbackStepper :: move(int start_pos, int target_pos) {
         long int debug_t = micros();
         int expected_delay = 0, tot_angle = 0, tot_linear = 0;
     #endif
+
+    // If the limit switch is not connected create a dummy variable to have the limit reached condition never triggered
+    uint8_t *ptr_limit_reached = limit_reached;
+    if (ptr_limit_reached == NULL) {
+        uint8_t dummy_limit_reached = 0;
+        ptr_limit_reached = &dummy_limit_reached;
+    }
     
     step_cnt = 0;
 
-    while (position_sixteenth != target_pos && !(*limit_reached)) {
+    while (position_sixteenth != target_pos && !(*ptr_limit_reached)) {
 
         portDISABLE_INTERRUPTS();
         elapsed_time = micros();
@@ -88,11 +95,11 @@ void FeedbackStepper :: move(int start_pos, int target_pos) {
 
         _step_no_delay_off();
 
-        if (step_cnt % 2 == 0) {
+        if (rotative_encoder != NULL && step_cnt % 2 == 0) {
             delta_angle = (*rotative_encoder).get_angle();
             delta_angle = (*rotative_encoder).read_angle() - delta_angle;
         }
-        else if (step_cnt % 5 == 0) {
+        else if (linear_potentiometer != NULL && step_cnt % 5 == 0) {
             delta_linear = (*linear_potentiometer).get_position();
             delta_linear = (*linear_potentiometer).read_position() - delta_linear;
         }
