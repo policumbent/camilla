@@ -243,6 +243,8 @@ void function_core_1 (void *parameters) {
             while((limit_reached = button_read_attach_interrupt(&limit_switch_parameters)));
         }
 
+        delay(10);
+
         
         // TODO: signal to core0 the need to pass the gear to CAN-BUS
 
@@ -328,5 +330,7 @@ void test_mode() {
 
             while((limit_reached = button_read_attach_interrupt(&limit_switch_parameters)));
         }
+
+        delay(10);
     }
 }

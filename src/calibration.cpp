@@ -67,6 +67,16 @@ void gears_calibration() {
             switch (c) {
                 case 'o': on = 1 - on; break;
                 case 'c': stepper_motor.change_direction(); break;
+                case '+':
+                    for (int i=0; i<10; i++) {
+                        stepper_motor.step();
+                    }
+                    break;
+                case '*':
+                    for (int i=0; i<100; i++) {
+                        stepper_motor.step();
+                    }
+                    break;
                 case 's':
                     on = 0;
                     gear = read_int_serial();

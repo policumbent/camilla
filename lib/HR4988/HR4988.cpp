@@ -92,10 +92,11 @@ void HR4988 :: setup() {
         digitalWrite(sleep_pin, !_sleep);
     }
 
+    position_sixteenth = 0;
     direction = 0;
     microstepping = FULL_STEP_MODE;
     position_change = POSITION_CHANGE_FULL_MODE;
-    rpm = 120.0;
+    rpm = 60.0;
     set_direction(direction);
     set_microstepping(microstepping);
     set_speed(rpm);
@@ -107,7 +108,7 @@ void HR4988 :: move(int start_pos, int target_pos) {
     int step_cnt;
     
     #if DEBUG_HR4988
-        Serial.print("Shift from "); Serial.print(start_pos); Serial.print(" to "); Serial.println(target_pos);
+        Serial.print("[HR4988] Shift from "); Serial.print(start_pos); Serial.print(" to "); Serial.println(target_pos);
         long int debug_t = micros();
         int expected_delay = 0;
     #endif
@@ -128,7 +129,6 @@ void HR4988 :: move(int start_pos, int target_pos) {
         portENABLE_INTERRUPTS();
 
         delayMicroseconds(delay);
-
 
         _update_position();
 

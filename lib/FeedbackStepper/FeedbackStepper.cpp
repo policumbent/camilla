@@ -11,7 +11,9 @@ FeedbackStepper :: FeedbackStepper (uint8_t step_pin, uint8_t direction_pin,
           enable_pin, sleep_pin, reset_pin,
           full_steps_per_turn, deg_per_full_step,
           cw_direction_sign)
-{}
+{
+    setup();
+}
 
 
 FeedbackStepper :: FeedbackStepper (uint8_t step_pin, uint8_t direction_pin,
@@ -24,7 +26,9 @@ FeedbackStepper :: FeedbackStepper (uint8_t step_pin, uint8_t direction_pin,
           enable_pin,
           full_steps_per_turn, deg_per_full_step,
           cw_direction_sign)
-{}
+{
+    setup();
+}
 
 
 FeedbackStepper :: FeedbackStepper (uint8_t step_pin, uint8_t direction_pin,
@@ -35,19 +39,15 @@ FeedbackStepper :: FeedbackStepper (uint8_t step_pin, uint8_t direction_pin,
           enable_pin,
           full_steps_per_turn, deg_per_full_step,
           cw_direction_sign)
-{}
+{
+    setup();
+}
 
 
 void FeedbackStepper :: setup() {
-    HR4988::setup();
-
     rotative_encoder = NULL;
     linear_potentiometer = NULL;
     limit_reached = NULL;
-
-    #if DEBUG_FEEDBACK_STEPPER >= 2
-        Serial.println("Setup of FeedbackStepper correctly called from HR4988 constructor");
-    #endif
 }
 
 
@@ -72,18 +72,19 @@ void FeedbackStepper :: move(int start_pos, int target_pos) {
     uint16_t delta_angle, delta_linear;
     
     #if DEBUG_FEEDBACK_STEPPER
-        Serial.print("Shift from "); Serial.print(start_pos); Serial.print(" to "); Serial.println(target_pos);
+        Serial.print("[FeedbackStepper] Shift from "); Serial.print(start_pos); Serial.print(" to "); Serial.println(target_pos);
         long int debug_t = micros();
         int expected_delay = 0, tot_angle = 0, tot_linear = 0;
     #endif
 
     // If the limit switch is not connected create a dummy variable to have the limit reached condition never triggered
+    uint8_t dummy_limit_reached = 0;
     uint8_t *ptr_limit_reached = limit_reached;
     if (ptr_limit_reached == NULL) {
-        uint8_t dummy_limit_reached = 0;
         ptr_limit_reached = &dummy_limit_reached;
     }
     
+    delta_angle = delta_linear = 0;
     step_cnt = 0;
 
     while (position_sixteenth != target_pos && !(*ptr_limit_reached)) {
