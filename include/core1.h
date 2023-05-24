@@ -34,7 +34,7 @@ const int8_t cw_direction_sign = -1;
 const char gears_memory_key[] = "gears_key";
 
 
-extern HR4988 stepper_motor;
+extern FeedbackStepper stepper_motor;
 extern AS5600 rotative_encoder;
 extern Potentiometer linear_potentiometer;
 extern Memory flash;

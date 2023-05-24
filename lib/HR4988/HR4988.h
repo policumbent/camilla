@@ -2,14 +2,6 @@
 #include <Arduino.h>
 
 
-// Circular reference solution
-class AS5600;
-class Potentiometer;
-
-#include "AS5600.h"
-#include "Potentiometer.h"
-
-
 #define DEBUG_HR4988 1
 
 
@@ -56,7 +48,7 @@ class HR4988 {
         uint8_t sleep_pin;      // negated pin
         uint8_t reset_pin;      // negated pin
 
-    private:
+    protected:
         uint8_t full_steps_per_turn;
         float deg_per_full_step;
 
@@ -76,9 +68,10 @@ class HR4988 {
         int cw_direction_sign;
 
 
-    private:
+    protected:
         void _move_set_speed_direction(int start_pos, int target_pos);
         void _update_position();
+        void _step_no_delay_off();
 
 
     public:
@@ -101,8 +94,7 @@ class HR4988 {
 
         void setup();
         
-        void move(int start_pos, int target_pos,
-                  AS5600 &rotative_encoder, Potentiometer &linear_potentiometer, uint8_t *limit_reached);
+        void move(int start_pos, int target_pos);
         void step();
 
         void set_position(int position);

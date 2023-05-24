@@ -1,7 +1,7 @@
 #include "core1.h"
 
 
-HR4988 stepper_motor = HR4988 (
+FeedbackStepper stepper_motor = FeedbackStepper (
     STEP_PIN, DIRECTION_PIN,
     MS1_PIN, MS2_PIN, MS3_PIN,
     ENABLE_PIN,
@@ -263,7 +263,7 @@ void shift(uint8_t next_gear) {
     start_pos = stepper_motor.get_position();
     target_pos = gears[next_gear-1];
 
-    stepper_motor.move(start_pos, target_pos, rotative_encoder, linear_potentiometer, &limit_reached);
+    stepper_motor.move(start_pos, target_pos);
 
     g_current_gear = next_gear;
 
@@ -286,7 +286,7 @@ void test_mode() {
                 Serial.println("Shifting up");
             #endif
             pos = stepper_motor.get_position();
-            stepper_motor.move(pos, pos + delta_pos, rotative_encoder, linear_potentiometer, &limit_reached);
+            stepper_motor.move(pos, pos + delta_pos);
 
             while ((shift_up_pressed = button_read_attach_interrupt(&shift_up_button_parameters)));
         }
@@ -296,7 +296,7 @@ void test_mode() {
                 Serial.println("Shifting down");
             #endif
             pos = stepper_motor.get_position();
-            stepper_motor.move(pos, pos - delta_pos, rotative_encoder, linear_potentiometer, &limit_reached);
+            stepper_motor.move(pos, pos - delta_pos);
 
             while ((shift_down_pressed = button_read_attach_interrupt(&shift_down_button_parameters)));
         }

@@ -3,6 +3,7 @@
 
 #include "debug.h"
 
+#include "FeedbackStepper.h"
 #include "HR4988.h"
 #include "AS5600.h"
 #include "Potentiometer.h"
