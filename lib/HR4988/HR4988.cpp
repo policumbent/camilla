@@ -109,7 +109,7 @@ void HR4988 :: move(int start_pos, int target_pos) {
     #if DEBUG_HR4988
         Serial.print("Shift from "); Serial.print(start_pos); Serial.print(" to "); Serial.println(target_pos);
         long int debug_t = micros();
-        int cnt = 0, expected_delay = 0;
+        int expected_delay = 0;
     #endif
     
     step_cnt = 0;
@@ -135,16 +135,15 @@ void HR4988 :: move(int start_pos, int target_pos) {
         step_cnt++;
 
         #if DEBUG_HR4988
-            cnt++;
             expected_delay += get_expected_step_time();
         #endif
     }
 
     #if DEBUG_HR4988
         debug_t = micros() - debug_t;
-        if (cnt == 0) return;
-        Serial.print("Expected (avg) delay: "); Serial.print(expected_delay / cnt);
-        Serial.print("\tMeasured (avg) delay: "); Serial.print(debug_t / cnt);
+        if (step_cnt == 0) return;
+        Serial.print("Expected (avg) delay: "); Serial.print(expected_delay / step_cnt);
+        Serial.print("\tMeasured (avg) delay: "); Serial.print(debug_t / step_cnt);
     #endif
 }
 

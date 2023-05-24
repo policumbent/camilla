@@ -51,6 +51,21 @@ void FeedbackStepper :: setup() {
 }
 
 
+void FeedbackStepper :: set_rotative_encoder(AS5600 *rotative_encoder) {
+    this->rotative_encoder = rotative_encoder;
+}
+
+
+void FeedbackStepper :: set_linear_potentiometer(Potentiometer *linear_potentiometer) {
+    this->linear_potentiometer = linear_potentiometer;
+}
+
+
+void FeedbackStepper :: set_limit_switch(uint8_t *limit_reached) {
+    this->limit_reached = limit_reached;
+}
+
+
 void FeedbackStepper :: move(int start_pos, int target_pos) {
     long int elapsed_time, delay;
     int step_cnt;
@@ -59,7 +74,7 @@ void FeedbackStepper :: move(int start_pos, int target_pos) {
     #if DEBUG_FEEDBACK_STEPPER
         Serial.print("Shift from "); Serial.print(start_pos); Serial.print(" to "); Serial.println(target_pos);
         long int debug_t = micros();
-        int cnt = 0, expected_delay = 0, tot_angle = 0, tot_linear = 0;
+        int expected_delay = 0, tot_angle = 0, tot_linear = 0;
     #endif
     
     step_cnt = 0;
@@ -95,7 +110,6 @@ void FeedbackStepper :: move(int start_pos, int target_pos) {
         step_cnt++;
 
         #if DEBUG_FEEDBACK_STEPPER
-            cnt++;
             expected_delay += get_expected_step_time();
             tot_angle += delta_angle;
             tot_linear += delta_linear;
@@ -104,9 +118,9 @@ void FeedbackStepper :: move(int start_pos, int target_pos) {
 
     #if DEBUG_FEEDBACK_STEPPER
         debug_t = micros() - debug_t;
-        if (cnt == 0) return;
-        Serial.print("Expected (avg) delay: "); Serial.print(expected_delay / cnt);
-        Serial.print("\tMeasured (avg) delay: "); Serial.print(debug_t / cnt);
+        if (step_cnt == 0) return;
+        Serial.print("Expected (avg) delay: "); Serial.print(expected_delay / step_cnt);
+        Serial.print("\tMeasured (avg) delay: "); Serial.print(debug_t / step_cnt);
         Serial.print("\tEncoder reading: "); Serial.print(tot_angle);
         Serial.print("\tPotentiometer reading: "); Serial.println(tot_linear);
     #endif
