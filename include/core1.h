@@ -22,7 +22,7 @@
 #define SHIFT_DOWN_BUTTON_PIN 17        // green
 
 
-#define MAGNETIC_ENCODER_PIN 27
+#define MAGNETIC_ENCODER_PIN 27//34
 
 #define POTENTIOMETER_PIN 35
 

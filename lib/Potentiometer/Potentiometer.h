@@ -1,6 +1,8 @@
 #pragma once
 #include <Arduino.h>
 
+#include <Wire.h>
+
 
 // Circular reference solution
 class HR4988;

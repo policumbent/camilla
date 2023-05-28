@@ -62,6 +62,8 @@ void function_core_1 (void *parameters) {
     button_setup(&shift_up_button_parameters);
     button_setup(&shift_down_button_parameters);
 
+    stepper_motor.set_limit_switch(&limit_reached);
+
     #if DEBUG_MEMORY >= 2
         for (int i=0; i<NUM_GEARS; i++)
             gears[i] = 4 * stepper_motor.get_delta_position_turn() * (i+1);
@@ -129,6 +131,7 @@ void function_core_1 (void *parameters) {
                     c_enc = Serial.read();
                 }
 
+                stepper_motor.set_direction(CCW);
                 stepper_motor.set_speed(400);
                 stepper_motor.step();
 

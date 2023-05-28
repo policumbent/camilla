@@ -1,5 +1,7 @@
 #pragma once
 #include <Arduino.h>
+#include <Wire.h>
+#include <driver/adc.h>
 
 
 // Circular reference solution
@@ -22,6 +24,8 @@ class AS5600 {
 
         uint16_t read_angle();
         uint16_t get_angle();
+
+        uint16_t read_angle_output();
 
         void calibration(HR4988 &stepper_motor);
 };

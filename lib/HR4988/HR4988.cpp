@@ -103,6 +103,31 @@ void HR4988 :: setup() {
 }
 
 
+void HR4988 :: move_const_speed(int start_pos, int target_pos, float rpm) {
+    uint8_t dir;
+
+    set_speed(rpm);
+
+    if (start_pos < target_pos) {
+        dir = (cw_direction_sign == 1) ? CW : CCW;
+    }
+    else {
+        dir = (cw_direction_sign == 1) ? CCW : CW;
+    }
+
+    if (direction != dir) {
+        set_direction(dir);
+    }
+    if (rpm != this->rpm) {
+        set_speed(rpm);
+    }
+
+    while (position_sixteenth != target_pos) {
+        step();
+    }
+}
+
+
 void HR4988 :: move(int start_pos, int target_pos) {
     long int elapsed_time, delay;
     int step_cnt;
@@ -171,7 +196,7 @@ void HR4988 :: _move_set_speed_direction(int start_pos, int target_pos) {
     }
 
     if (start_pos < target_pos) {
-        dir = (cw_direction_sign == 1) ? CW : CCW;      // to be checked
+        dir = (cw_direction_sign == 1) ? CW : CCW;
 
         if (position_sixteenth < start_pos + accel_steps) {
             speed = MIN_MOVE_RPM + ((float) (position_sixteenth - start_pos) / (float) (MAX_ACCELERATION_STEPS)) * (MAX_RPM - MIN_MOVE_RPM);
@@ -184,7 +209,7 @@ void HR4988 :: _move_set_speed_direction(int start_pos, int target_pos) {
         }
     }
     else {
-        dir = (cw_direction_sign == 1) ? CCW : CW;     // to be checked
+        dir = (cw_direction_sign == 1) ? CCW : CW;
 
         if (position_sixteenth > start_pos - accel_steps) {
             speed = MIN_MOVE_RPM + ((float) (start_pos - position_sixteenth) / (float) (MAX_ACCELERATION_STEPS)) * (MAX_RPM - MIN_MOVE_RPM);
@@ -345,6 +370,11 @@ int HR4988 :: get_delta_position_360_degrees_rotation() {
 
 int HR4988 :: get_expected_step_time() {
     return delay_on + delay_off;
+}
+
+
+int8_t HR4988 :: get_cw_direction_sign() {
+    return cw_direction_sign;
 }
 
 

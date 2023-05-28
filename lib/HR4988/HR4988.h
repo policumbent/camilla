@@ -65,7 +65,7 @@ class HR4988 {
         uint8_t position_change;
         float rpm;
         int position_sixteenth;
-        int cw_direction_sign;
+        int8_t cw_direction_sign;
 
 
     protected:
@@ -94,6 +94,7 @@ class HR4988 {
 
         void setup();
         
+        void move_const_speed(int start_pos, int target_pos, float speed);
         void move(int start_pos, int target_pos);
         void step();
 
@@ -112,6 +113,7 @@ class HR4988 {
 
         int get_delta_position_360_degrees_rotation();
         int get_expected_step_time();
+        int8_t get_cw_direction_sign();
 
         void debug_serial_control();
         void print_status();
