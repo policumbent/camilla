@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import scipy.interpolate as sp_interp
 
 
 SIXTEENTH_MAX_RPM = 120
@@ -25,6 +24,7 @@ def main():
     plt.xlabel("Speed [RPM]")
     plt.ylabel("Delay off [microsec]")
     plt.grid('both', 'both')
+    plt.ylim(0, 1100)
 
     plt.plot(rpm, delay_off, label="Delay off f(rpm, microstepping)")
     plt.plot(rpm, avg_i2c_encoder_read_time, ':', label="Average I2C encoder read time")
