@@ -61,6 +61,3 @@ while (1)
 -> linear: correction on bigger scale
 	-> how to manage rotative/linear compatibility?
 -> wait in core1 can be done for a specified amount of time, not blocking the process if some problems occur
-
-
-
