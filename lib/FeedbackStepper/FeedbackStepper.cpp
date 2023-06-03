@@ -75,18 +75,35 @@ void FeedbackStepper :: move(int target_pos, uint8_t *limit_reached, AS5600 &rot
     int start_pos = position_sixteenth;
     long int elapsed_time, delay;
     int step_cnt;
-    int delta_angle, delta_linear;
+
+    const int DELTA_ANGLE_ARRAY_SIZE = 3;
+    int delta_angle[DELTA_ANGLE_ARRAY_SIZE];
+    int delta_linear;
+    int i;
     
     #if DEBUG_FEEDBACK_STEPPER
         Serial.print("[FeedbackStepper] Shift from "); Serial.print(start_pos); Serial.print(" to "); Serial.println(target_pos);
         long int debug_t = micros();
         int expected_delay = 0, tot_angle = 0, tot_linear = 0;
     #endif
+
+    // If the limit switch is not connected create a dummy variable to have the limit reached condition never triggered
+    uint8_t dummy_limit_reached = 0;
+    uint8_t *ptr_limit_reached = limit_reached;
+    if (ptr_limit_reached == NULL) {
+        ptr_limit_reached = &dummy_limit_reached;
+    }
+
+    disable_microstepping();
     
-    delta_angle = delta_linear = 0;
+    for (i=0; i<DELTA_ANGLE_ARRAY_SIZE; i++) {
+        delta_angle[i] = (i == 0) ? 0 : -4095;
+    }
+    
+    delta_linear = 0;
     step_cnt = 0;
 
-    while (position_sixteenth != target_pos && !(*limit_reached)) {
+    while (position_sixteenth != target_pos && !(*ptr_limit_reached)) {
 
         portDISABLE_INTERRUPTS();
         elapsed_time = micros();
@@ -97,8 +114,9 @@ void FeedbackStepper :: move(int target_pos, uint8_t *limit_reached, AS5600 &rot
         _step_no_delay_off();
 
         if (step_cnt % 2 == 0) {
-            delta_angle = rotative_encoder.get_angle();
-            delta_angle = rotative_encoder.read_angle() - delta_angle;      // USES INTERRUPTS (!!!)
+            for (i=0; i < DELTA_ANGLE_ARRAY_SIZE-1; i++) delta_angle[i] = delta_angle[i+1];
+            delta_angle[0] = rotative_encoder.get_angle();
+            delta_angle[0] = rotative_encoder.read_angle() - delta_angle[0];     // USES INTERRUPTS (!!!!)
         }
         else if (step_cnt % 5 == 0) {
             delta_linear = linear_potentiometer.get_position();
@@ -112,18 +130,18 @@ void FeedbackStepper :: move(int target_pos, uint8_t *limit_reached, AS5600 &rot
 
         delayMicroseconds(delay);
 
-        // TODO: include position correction
-
         _update_position();
 
         step_cnt++;
 
         #if DEBUG_FEEDBACK_STEPPER
             expected_delay += get_expected_step_time();
-            tot_angle += delta_angle;
+            tot_angle += delta_angle[0];
             tot_linear += delta_linear;
         #endif
     }
+
+    enable_microstepping();
 
     #if DEBUG_FEEDBACK_STEPPER
         debug_t = micros() - debug_t;

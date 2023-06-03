@@ -110,6 +110,8 @@ class HR4988 {
 
         void set_microstepping(uint8_t mode);
         uint8_t get_microstepping();
+        void disable_microstepping();
+        void enable_microstepping();
 
         int get_delta_position_360_degrees_rotation();
         int get_expected_step_time();

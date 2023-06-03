@@ -365,6 +365,18 @@ uint8_t HR4988 :: get_microstepping() {
 }
 
 
+void HR4988 :: disable_microstepping() {
+    set_microstepping(FULL_STEP_MODE);
+    microstepping_on = 0;
+}
+
+
+void HR4988 :: enable_microstepping() {
+    microstepping_on = 1;
+    set_speed(rpm);
+}
+
+
 int HR4988 :: get_delta_position_360_degrees_rotation() {
     return full_steps_per_turn * SIXTEENTH_STEP_MODE;
 }
