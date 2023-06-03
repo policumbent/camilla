@@ -70,11 +70,11 @@ class HR4988 {
 
     protected:
         void _move_set_speed_direction(int start_pos, int target_pos);
+        void _update_position();
+        void _step_no_delay_off();
 
 
     public:
-        void _update_position();
-        void _step_no_delay_off();
         HR4988 (uint8_t step_pin, uint8_t direction_pin,
                 uint8_t ms1_pin, uint8_t ms2_pin, uint8_t ms3_pin,
                 uint8_t enable_pin, uint8_t sleep_pin, uint8_t reset_pin,
@@ -94,8 +94,8 @@ class HR4988 {
 
         void setup();
         
-        void move_const_speed(int start_pos, int target_pos, float speed);
-        void move(int start_pos, int target_pos);
+        void move_const_speed(int target_pos, float speed);
+        void move(int target_pos);
         void step();
 
         void set_position(int position);

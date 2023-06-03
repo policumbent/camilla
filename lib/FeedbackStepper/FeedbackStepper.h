@@ -45,5 +45,5 @@ class FeedbackStepper : public HR4988 {
         void set_linear_potentiometer(Potentiometer *linear_potentiometer);
         void set_limit_switch(uint8_t *limit_reached);
 
-        void move(int start_pos, int target_pos);
+        void move(int target_pos);
 };

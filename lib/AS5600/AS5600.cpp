@@ -53,7 +53,7 @@ void AS5600 :: calibration(HR4988 &stepper_motor) {
         target_pos = start_pos - stepper_motor.get_delta_position_360_degrees_rotation() + 100;
     }
 
-    stepper_motor.move_const_speed(start_pos, target_pos, 10.0);
+    stepper_motor.move_const_speed(target_pos, 10.0);
 
     Serial.println("Resconnect the OUT pin, then press any key");
     while (!Serial.available()) delay(10); c = Serial.read();

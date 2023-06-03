@@ -66,7 +66,8 @@ void FeedbackStepper :: set_limit_switch(uint8_t *limit_reached) {
 }
 
 
-void FeedbackStepper :: move(int start_pos, int target_pos) {
+void FeedbackStepper :: move(int target_pos) {
+    int start_pos = position_sixteenth;
     long int elapsed_time, delay;
     int step_cnt;
     uint16_t delta_angle, delta_linear;

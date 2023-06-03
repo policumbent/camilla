@@ -64,6 +64,8 @@ void function_core_1 (void *parameters) {
 
     stepper_motor.set_limit_switch(&limit_reached);
 
+    //stepper_motor.set_rotative_encoder(&rotative_encoder);
+
     #if DEBUG_MEMORY >= 2
         for (int i=0; i<NUM_GEARS; i++)
             gears[i] = 4 * stepper_motor.get_delta_position_turn() * (i+1);
@@ -308,11 +310,9 @@ void shift(uint8_t next_gear) {
         return;
     }
 
-    int start_pos, target_pos;
-    start_pos = stepper_motor.get_position();
-    target_pos = gears[next_gear-1];
+    int target_pos = gears[next_gear-1];
 
-    stepper_motor.move(start_pos, target_pos);
+    stepper_motor.move(target_pos);
 
     g_current_gear = next_gear;
 
@@ -324,7 +324,7 @@ void shift(uint8_t next_gear) {
 
 void test_mode() {
     int pos;
-    int delta_pos = 4 * stepper_motor.get_delta_position_360_degrees_rotation();
+    int delta_pos = 10 * stepper_motor.get_delta_position_360_degrees_rotation();
     
     Serial.println("Test mode");
 
@@ -335,7 +335,7 @@ void test_mode() {
                 Serial.println("Shifting up");
             #endif
             pos = stepper_motor.get_position();
-            stepper_motor.move(pos, pos + delta_pos);
+            stepper_motor.move(pos + delta_pos);
 
             while ((shift_up_pressed = button_read_attach_interrupt(&shift_up_button_parameters)));
         }
@@ -345,7 +345,7 @@ void test_mode() {
                 Serial.println("Shifting down");
             #endif
             pos = stepper_motor.get_position();
-            stepper_motor.move(pos, pos - delta_pos);
+            stepper_motor.move(pos - delta_pos);
 
             while ((shift_down_pressed = button_read_attach_interrupt(&shift_down_button_parameters)));
         }
