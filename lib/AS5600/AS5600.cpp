@@ -4,14 +4,14 @@
 AS5600 :: AS5600 (uint8_t analog_pin) {
     this->analog_pin = analog_pin;
 
-    Wire.begin();
-    Wire.setClock(80000000);
-
     setup();
 }
 
 
 void AS5600 :: setup() {
+    Wire.begin();
+    Wire.setClock(80000000);
+
     pinMode(analog_pin, INPUT);
 }
 

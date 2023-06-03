@@ -62,7 +62,7 @@ void function_core_1 (void *parameters) {
     button_setup(&shift_up_button_parameters);
     button_setup(&shift_down_button_parameters);
 
-    stepper_motor.set_limit_switch(&limit_reached);
+    //stepper_motor.set_limit_switch(&limit_reached);
 
     //stepper_motor.set_rotative_encoder(&rotative_encoder);
 
@@ -312,7 +312,7 @@ void shift(uint8_t next_gear) {
 
     int target_pos = gears[next_gear-1];
 
-    stepper_motor.move(target_pos);
+    stepper_motor.move(target_pos, &limit_reached, rotative_encoder, linear_potentiometer);
 
     g_current_gear = next_gear;
 

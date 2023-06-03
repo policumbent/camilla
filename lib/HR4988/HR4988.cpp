@@ -170,7 +170,7 @@ void HR4988 :: move(int target_pos) {
         debug_t = micros() - debug_t;
         if (step_cnt == 0) return;
         Serial.print("Expected (avg) delay: "); Serial.print(expected_delay / step_cnt);
-        Serial.print("\tMeasured (avg) delay: "); Serial.print(debug_t / step_cnt);
+        Serial.print("\tMeasured (avg) delay: "); Serial.println(debug_t / step_cnt);
     #endif
 }
 
