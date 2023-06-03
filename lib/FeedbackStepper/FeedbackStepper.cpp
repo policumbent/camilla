@@ -75,7 +75,7 @@ void FeedbackStepper :: move(int target_pos, uint8_t *limit_reached, AS5600 &rot
     int start_pos = position_sixteenth;
     long int elapsed_time, delay;
     int step_cnt;
-    uint16_t delta_angle, delta_linear;
+    int delta_angle, delta_linear;
     
     #if DEBUG_FEEDBACK_STEPPER
         Serial.print("[FeedbackStepper] Shift from "); Serial.print(start_pos); Serial.print(" to "); Serial.println(target_pos);
@@ -90,6 +90,7 @@ void FeedbackStepper :: move(int target_pos, uint8_t *limit_reached, AS5600 &rot
 
         portDISABLE_INTERRUPTS();
         elapsed_time = micros();
+        portENABLE_INTERRUPTS();
 
         _move_set_speed_direction(start_pos, target_pos);
 
@@ -97,13 +98,14 @@ void FeedbackStepper :: move(int target_pos, uint8_t *limit_reached, AS5600 &rot
 
         if (step_cnt % 2 == 0) {
             delta_angle = rotative_encoder.get_angle();
-            delta_angle = rotative_encoder.read_angle() - delta_angle;
+            delta_angle = rotative_encoder.read_angle() - delta_angle;      // USES INTERRUPTS (!!!)
         }
         else if (step_cnt % 5 == 0) {
             delta_linear = linear_potentiometer.get_position();
             delta_linear = linear_potentiometer.read_position() - delta_linear;
         }
 
+        portDISABLE_INTERRUPTS();
         elapsed_time = micros() - elapsed_time;
         delay = (delay_off - elapsed_time > 0) ? (delay_off - elapsed_time) : (1);
         portENABLE_INTERRUPTS();

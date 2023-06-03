@@ -10,7 +10,7 @@ AS5600 :: AS5600 (uint8_t analog_pin) {
 
 void AS5600 :: setup() {
     Wire.begin();
-    Wire.setClock(80000000);
+    Wire.setClock(8000000);
 
     pinMode(analog_pin, INPUT);
 }
@@ -23,7 +23,7 @@ uint16_t AS5600 :: read_angle_output() {
 }
 
 
-uint16_t AS5600 :: get_angle() {
+int AS5600 :: get_angle() {
     return angle;
 }
 
@@ -69,8 +69,8 @@ void AS5600 :: calibration(HR4988 &stepper_motor) {
 }
 
 
-uint16_t AS5600 :: read_angle() {
-    uint16_t lowbyte, highbyte;
+int AS5600 :: read_angle() {
+    int lowbyte, highbyte;
 
     //7:0 - bits
     Wire.beginTransmission(0x36); //connect to the sensor
@@ -79,6 +79,7 @@ uint16_t AS5600 :: read_angle() {
     Wire.requestFrom(0x36, 1); //request from the sensor
 
     while (Wire.available() == 0); //wait until it becomes available
+
     lowbyte = Wire.read(); //Reading the data after the request
 
     //11:8 - 4 bits

@@ -12,7 +12,7 @@ void function_core_0 (void *parameters) {
 
     while (1) {
     
-        delay(100);
+        delay(10000);
 
     }
 }

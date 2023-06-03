@@ -1,8 +1,6 @@
 #pragma once
 #include <Arduino.h>
 
-#include <Wire.h>
-
 #include "debug.h"
 
 #include "FeedbackStepper.h"
