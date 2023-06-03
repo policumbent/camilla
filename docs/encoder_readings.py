@@ -17,11 +17,11 @@ def main():
     i2c_encoder_readings = []
     adc_encoder_readings = []
 
-    with open("serial_log.txt") as file:
+    with open("enc_read_log1.txt") as file:
         for line in file:
-            readings = line.split("ADC")
-            i2c = int(readings[0].split(':')[1])
-            adc = int(readings[1].split(':')[1])
+            readings = line.split(";")
+            i2c = int(readings[0])
+            adc = int(readings[1])
             i2c_encoder_readings.append(i2c)
             adc_encoder_readings.append(adc)
 

@@ -126,21 +126,45 @@ void function_core_1 (void *parameters) {
         #if DEBUG_ENCODER >= 2
             char c_enc = 'x';
 
+            stepper_motor.set_direction(CCW);
+            stepper_motor.set_speed(60);
             while (c_enc != 'e') {
                 if (Serial.available()) {
                     c_enc = Serial.read();
                 }
-
-                stepper_motor.set_direction(CCW);
-                stepper_motor.set_speed(400);
                 stepper_motor.step();
 
                 angle = rotative_encoder.read_angle();
 
-                sprintf(str_enc, "Encoder reading: %d", angle);
+                sprintf(str_enc, "I2C encoder reading: %d\t\tADC encoder reading: %d", angle, rotative_encoder.read_angle_output());
                 Serial.println(str_enc);
 
                 delay(250);
+            }
+        #endif
+
+        #if DEBUG_ENCODER <= -1
+            uint16_t i2c_readings[3200], adc_readings[3200];
+            int cnt_enc = 0;
+
+            stepper_motor.set_direction(CCW);
+            stepper_motor.set_speed(60);
+
+            for (int i=0; i<20; i++) {
+                stepper_motor.step();
+            }
+
+            stepper_motor.set_position(0);
+            while (stepper_motor.get_position() <= stepper_motor.get_delta_position_360_degrees_rotation()) {
+                stepper_motor._step_no_delay_off();     // protected method
+                stepper_motor._update_position();       // protected method
+                i2c_readings[cnt_enc] = rotative_encoder.read_angle();
+                adc_readings[cnt_enc] = rotative_encoder.read_angle_output();
+                cnt_enc++;
+            }
+
+            for (int i=0; i<3200; i++) {
+                Serial.print(i2c_readings[i]); Serial.print(";"); Serial.println(adc_readings[i]);
             }
         #endif
     #endif
