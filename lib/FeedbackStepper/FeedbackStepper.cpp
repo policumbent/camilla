@@ -127,6 +127,7 @@ void FeedbackStepper :: move(int target_pos, uint8_t *limit_reached, AS5600 &rot
         elapsed_time = micros() - elapsed_time;
         delay = (delay_off - elapsed_time > 0) ? (delay_off - elapsed_time) : (1);
         portENABLE_INTERRUPTS();
+        Serial.println(elapsed_time);
 
         delayMicroseconds(delay);
 
