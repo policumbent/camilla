@@ -19,6 +19,7 @@ class FeedbackStepper : public HR4988 {
         AS5600 *rotative_encoder;
         Potentiometer *linear_potentiometer;
         uint8_t *limit_reached;
+        int *gears;
 
 
     public:
@@ -40,11 +41,12 @@ class FeedbackStepper : public HR4988 {
                          int8_t cw_direction_sign);
 
         void setup();
-        /*
+        
         void set_rotative_encoder(AS5600 *rotative_encoder);
         void set_linear_potentiometer(Potentiometer *linear_potentiometer);
         void set_limit_switch(uint8_t *limit_reached);
-        */
+        void set_gears(int *gears);
+        
         void move(int target_pos);
-        void move(int target_pos, uint8_t *limit_reached, AS5600 &rotative_encoder, Potentiometer &linear_potentiometer);
+        void shift(int next_gear);
 };

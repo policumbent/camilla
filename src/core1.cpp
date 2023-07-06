@@ -62,9 +62,11 @@ void function_core_1 (void *parameters) {
     button_setup(&shift_up_button_parameters);
     button_setup(&shift_down_button_parameters);
 
-    //stepper_motor.set_limit_switch(&limit_reached);
-
-    //stepper_motor.set_rotative_encoder(&rotative_encoder);
+    stepper_motor.set_limit_switch(&limit_reached);
+    stepper_motor.set_rotative_encoder(&rotative_encoder);
+    stepper_motor.set_linear_potentiometer(&linear_potentiometer);
+    int *gears_ptr = gears;
+    stepper_motor.set_gears(gears_ptr);
 
     #if DEBUG_MEMORY >= 2
         for (int i=0; i<NUM_GEARS; i++)
@@ -310,9 +312,7 @@ void shift(uint8_t next_gear) {
         return;
     }
 
-    int target_pos = gears[next_gear-1];
-
-    stepper_motor.move(target_pos, &limit_reached, rotative_encoder, linear_potentiometer);
+    stepper_motor.shift(next_gear);
 
     g_current_gear = next_gear;
 

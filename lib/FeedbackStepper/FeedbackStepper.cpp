@@ -45,12 +45,13 @@ FeedbackStepper :: FeedbackStepper (uint8_t step_pin, uint8_t direction_pin,
 
 
 void FeedbackStepper :: setup() {
-    //rotative_encoder = NULL;
-    //linear_potentiometer = NULL;
-    //limit_reached = NULL;
+    rotative_encoder = NULL;
+    linear_potentiometer = NULL;
+    limit_reached = NULL;
+    gears = NULL;
 }
 
-/*
+
 void FeedbackStepper :: set_rotative_encoder(AS5600 *rotative_encoder) {
     this->rotative_encoder = rotative_encoder;
 }
@@ -64,14 +65,21 @@ void FeedbackStepper :: set_linear_potentiometer(Potentiometer *linear_potentiom
 void FeedbackStepper :: set_limit_switch(uint8_t *limit_reached) {
     this->limit_reached = limit_reached;
 }
-*/
+
+
+void FeedbackStepper :: set_gears(int *gears) {
+    this->gears = gears;
+}
+
 
 void FeedbackStepper :: move(int target_pos) {
     HR4988::move(target_pos);
 }
 
 
-void FeedbackStepper :: move(int target_pos, uint8_t *limit_reached, AS5600 &rotative_encoder, Potentiometer &linear_potentiometer) {
+void FeedbackStepper :: shift(int next_gear) {
+    int target_pos = gears[next_gear-1];
+
     int start_pos = position_sixteenth;
     long int elapsed_time, delay;
     int step_cnt;
@@ -94,7 +102,7 @@ void FeedbackStepper :: move(int target_pos, uint8_t *limit_reached, AS5600 &rot
         ptr_limit_reached = &dummy_limit_reached;
     }
 
-    disable_microstepping();
+    //disable_microstepping();
     
     for (i=0; i<DELTA_ANGLE_ARRAY_SIZE; i++) {
         delta_angle[i] = (i == 0) ? 0 : -4095;
@@ -115,12 +123,12 @@ void FeedbackStepper :: move(int target_pos, uint8_t *limit_reached, AS5600 &rot
 
         if (step_cnt % 2 == 0) {
             for (i=0; i < DELTA_ANGLE_ARRAY_SIZE-1; i++) delta_angle[i] = delta_angle[i+1];
-            delta_angle[0] = rotative_encoder.get_angle();
-            delta_angle[0] = rotative_encoder.read_angle() - delta_angle[0];     // USES INTERRUPTS (!!!!)
+            delta_angle[0] = rotative_encoder->get_angle();
+            delta_angle[0] = rotative_encoder->read_angle() - delta_angle[0];     // USES INTERRUPTS (!!!!)
         }
         else if (step_cnt % 5 == 0) {
-            delta_linear = linear_potentiometer.get_position();
-            delta_linear = linear_potentiometer.read_position() - delta_linear;
+            delta_linear = linear_potentiometer->get_position();
+            delta_linear = linear_potentiometer->read_position() - delta_linear;
         }
 
         portDISABLE_INTERRUPTS();
@@ -142,7 +150,7 @@ void FeedbackStepper :: move(int target_pos, uint8_t *limit_reached, AS5600 &rot
         #endif
     }
 
-    enable_microstepping();
+    //enable_microstepping();
 
     #if DEBUG_FEEDBACK_STEPPER
         debug_t = micros() - debug_t;
