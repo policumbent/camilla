@@ -88,7 +88,7 @@ void FeedbackStepper :: shift(int next_gear) {
     #if DEBUG_FEEDBACK_STEPPER
         Serial.print("[FeedbackStepper] Shift from "); Serial.print(start_pos); Serial.print(" to "); Serial.println(target_pos);
         long int debug_t = micros();
-        int expected_delay = 0, tot_angle = 0, step_cnt = 0;
+        int expected_delay = 0, tot_angle = 0, step_cnt = 0, avg_error = 0;
     #endif
 
     // If the limit switch is not connected create a dummy variable to have the limit reached condition never triggered
@@ -116,7 +116,8 @@ void FeedbackStepper :: shift(int next_gear) {
 
         _step_no_delay_off();
 
-        if (abs(delta_pos) >= 16 * 10) {
+
+        if (abs(delta_pos) >= 16 * 4) {
             delta_angle = rotative_encoder->get_angle();
             delta_angle = rotative_encoder->read_angle() - delta_angle;     // USES INTERRUPTS (!!!!)
 
@@ -124,23 +125,23 @@ void FeedbackStepper :: shift(int next_gear) {
                 start_pos = position_sixteenth;
             }
 
-            if (abs(delta_angle) > 2048) {
+            if (abs(delta_angle) > 100) {
                 continue;
             }
 
             error = delta_pos - ((float) delta_angle) * 0.7814;      // angle / 4095 * 200 * 16
 
-            if (error >= 16) {
-                position_sixteenth -= error;
+            if (error >= 8) {
+                position_sixteenth += (delta_pos > 0) ? (- error) : (error);
             }
 
-            Serial.print("Delta pos: "); Serial.print(delta_pos);
-            Serial.print("\tDelta angle: "); Serial.print(delta_angle);
-            Serial.print("\tError: "); Serial.println(error);
+            //Serial.print("Delta pos: "); Serial.print(delta_pos);
+            //Serial.print("\tDelta angle: "); Serial.print(delta_angle);
+            //Serial.print("\tError: "); Serial.println(error);
 
             delta_pos = 0;
         }
-
+        
 
         portDISABLE_INTERRUPTS();
         elapsed_time = micros() - elapsed_time;
@@ -155,6 +156,7 @@ void FeedbackStepper :: shift(int next_gear) {
         #if DEBUG_FEEDBACK_STEPPER
             expected_delay += get_expected_step_time();
             tot_angle += delta_angle;
+            avg_error += error;
             step_cnt++;
         #endif
     }
@@ -170,6 +172,7 @@ void FeedbackStepper :: shift(int next_gear) {
         if (step_cnt == 0) return;
         Serial.print("Expected (avg) delay: "); Serial.print(expected_delay / step_cnt);
         Serial.print("\tMeasured (avg) delay: "); Serial.print(debug_t / step_cnt);
-        Serial.print("\tEncoder reading: "); Serial.println(tot_angle);
+        Serial.print("\tEncoder reading: "); Serial.print(tot_angle);
+        Serial.print("\t\tAverage error: "); Serial.println(avg_error / step_cnt);
     #endif
 }
