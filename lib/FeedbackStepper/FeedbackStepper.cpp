@@ -79,20 +79,16 @@ void FeedbackStepper :: move(int target_pos) {
 
 void FeedbackStepper :: shift(int next_gear) {
     int target_pos = gears[next_gear-1];
-
     int start_pos = position_sixteenth;
-    long int elapsed_time, delay;
-    int step_cnt;
 
-    const int DELTA_ANGLE_ARRAY_SIZE = 3;
-    int delta_angle[DELTA_ANGLE_ARRAY_SIZE];
-    int delta_linear;
-    int i;
+    long int elapsed_time, delay;
+
+    int delta_pos, delta_angle, error;
     
     #if DEBUG_FEEDBACK_STEPPER
         Serial.print("[FeedbackStepper] Shift from "); Serial.print(start_pos); Serial.print(" to "); Serial.println(target_pos);
         long int debug_t = micros();
-        int expected_delay = 0, tot_angle = 0, tot_linear = 0;
+        int expected_delay = 0, tot_angle = 0, step_cnt = 0;
     #endif
 
     // If the limit switch is not connected create a dummy variable to have the limit reached condition never triggered
@@ -104,12 +100,11 @@ void FeedbackStepper :: shift(int next_gear) {
 
     //disable_microstepping();
     
-    for (i=0; i<DELTA_ANGLE_ARRAY_SIZE; i++) {
-        delta_angle[i] = (i == 0) ? 0 : -4095;
-    }
-    
-    delta_linear = 0;
-    step_cnt = 0;
+    delta_pos = 0;
+    delta_angle = 0;
+    error = 0;
+
+    rotative_encoder->read_angle();
 
     while (position_sixteenth != target_pos && !(*ptr_limit_reached)) {
 
@@ -121,15 +116,31 @@ void FeedbackStepper :: shift(int next_gear) {
 
         _step_no_delay_off();
 
-        if (step_cnt % 2 == 0) {
-            for (i=0; i < DELTA_ANGLE_ARRAY_SIZE-1; i++) delta_angle[i] = delta_angle[i+1];
-            delta_angle[0] = rotative_encoder->get_angle();
-            delta_angle[0] = rotative_encoder->read_angle() - delta_angle[0];     // USES INTERRUPTS (!!!!)
+        if (abs(delta_pos) >= 16 * 10) {
+            delta_angle = rotative_encoder->get_angle();
+            delta_angle = rotative_encoder->read_angle() - delta_angle;     // USES INTERRUPTS (!!!!)
+
+            if (delta_angle == 0) {
+                start_pos = position_sixteenth;
+            }
+
+            if (abs(delta_angle) > 2048) {
+                continue;
+            }
+
+            error = delta_pos - ((float) delta_angle) * 0.7814;      // angle / 4095 * 200 * 16
+
+            if (error >= 16) {
+                position_sixteenth -= error;
+            }
+
+            Serial.print("Delta pos: "); Serial.print(delta_pos);
+            Serial.print("\tDelta angle: "); Serial.print(delta_angle);
+            Serial.print("\tError: "); Serial.println(error);
+
+            delta_pos = 0;
         }
-        else if (step_cnt % 5 == 0) {
-            delta_linear = linear_potentiometer->get_position();
-            delta_linear = linear_potentiometer->read_position() - delta_linear;
-        }
+
 
         portDISABLE_INTERRUPTS();
         elapsed_time = micros() - elapsed_time;
@@ -139,25 +150,26 @@ void FeedbackStepper :: shift(int next_gear) {
 
         delayMicroseconds(delay);
 
-        _update_position();
-
-        step_cnt++;
+        delta_pos += _update_position();
 
         #if DEBUG_FEEDBACK_STEPPER
             expected_delay += get_expected_step_time();
-            tot_angle += delta_angle[0];
-            tot_linear += delta_linear;
+            tot_angle += delta_angle;
+            step_cnt++;
         #endif
     }
 
     //enable_microstepping();
+
+    // TODO
+    //  check using the linear potentiometer, if the position is correct
+    //  otherwise recall the method to complete the shift
 
     #if DEBUG_FEEDBACK_STEPPER
         debug_t = micros() - debug_t;
         if (step_cnt == 0) return;
         Serial.print("Expected (avg) delay: "); Serial.print(expected_delay / step_cnt);
         Serial.print("\tMeasured (avg) delay: "); Serial.print(debug_t / step_cnt);
-        Serial.print("\tEncoder reading: "); Serial.print(tot_angle);
-        Serial.print("\tPotentiometer reading: "); Serial.println(tot_linear);
+        Serial.print("\tEncoder reading: "); Serial.println(tot_angle);
     #endif
 }

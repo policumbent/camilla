@@ -70,7 +70,7 @@ class HR4988 {
 
     protected:
         void _move_set_speed_direction(int start_pos, int target_pos);
-        void _update_position();
+        int _update_position();
         void _step_no_delay_off();
 
 
