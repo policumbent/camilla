@@ -191,9 +191,8 @@ void FeedbackStepper :: shift(int next_gear) {
         #endif
     }
 
+    // If the linear position is not correct, continue the shift
     // TODO
-    //  check using the linear potentiometer, if the position is correct
-    //  otherwise recall the method to complete the shift
 
     #if DEBUG_FEEDBACK_STEPPER >= 2
         for (int i=0; i<array_pos; i++) {
