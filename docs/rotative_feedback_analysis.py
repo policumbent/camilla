@@ -14,9 +14,10 @@ def main():
             elem = line.strip().split("\t")
             pos = int(elem[0])
             ang = int(elem[1]) / 4095 * 3200
+            err = int(elem[2])
             delta_pos.append(pos)
             delta_angle.append(ang)
-            error.append(pos - ang)
+            error.append(err)
 
     index = [i for i in range(len(delta_pos))]
 

@@ -20,7 +20,7 @@ void setup() {
     g_semaphore = xSemaphoreCreateBinary();
     xSemaphoreGive(g_semaphore);
 
-    xTaskCreatePinnedToCore(function_core_1, "Core_1", 10000, NULL, configMAX_PRIORITIES-1, &task_core_1, 1);
+    xTaskCreatePinnedToCore(function_core_1, "Core_1", 20000, NULL, configMAX_PRIORITIES-1, &task_core_1, 1);
     delay(500);
     xTaskCreatePinnedToCore(function_core_0, "Core_0", 10000, NULL, configMAX_PRIORITIES-1, &task_core_0, 0);
     delay(500);
