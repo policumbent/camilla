@@ -91,6 +91,12 @@ void FeedbackStepper :: shift(int next_gear) {
         int expected_delay = 0, tot_angle = 0, step_cnt = 0, avg_error = 0;
     #endif
 
+    #if DEBUG_FEEDBACK_STEPPER >= 2
+        int ARRAY_SIZE = 1000;
+        int delta_pos_array[ARRAY_SIZE], delta_angle_array[ARRAY_SIZE];
+        int array_pos = 0;
+    #endif
+
     // If the limit switch is not connected create a dummy variable to have the limit reached condition never triggered
     uint8_t dummy_limit_reached = 0;
     uint8_t *ptr_limit_reached = limit_reached;
@@ -116,11 +122,11 @@ void FeedbackStepper :: shift(int next_gear) {
 
         _step_no_delay_off();
 
-
         if (abs(delta_pos) >= 16 * 4) {
             delta_angle = rotative_encoder->get_angle();
             delta_angle = rotative_encoder->read_angle() - delta_angle;     // USES INTERRUPTS (!!!!)
-
+            
+            /*
             if (delta_angle == 0) {
                 start_pos = position_sixteenth;
             }
@@ -134,10 +140,13 @@ void FeedbackStepper :: shift(int next_gear) {
             if (error >= 8) {
                 position_sixteenth += (delta_pos > 0) ? (- error) : (error);
             }
-
-            //Serial.print("Delta pos: "); Serial.print(delta_pos);
-            //Serial.print("\tDelta angle: "); Serial.print(delta_angle);
-            //Serial.print("\tError: "); Serial.println(error);
+            */
+           
+            #if DEBUG_FEEDBACK_STEPPER >= 2
+                delta_pos_array[array_pos] = delta_pos;
+                delta_angle_array[array_pos] = delta_angle;
+                array_pos++;
+            #endif
 
             delta_pos = 0;
         }
@@ -166,6 +175,13 @@ void FeedbackStepper :: shift(int next_gear) {
     // TODO
     //  check using the linear potentiometer, if the position is correct
     //  otherwise recall the method to complete the shift
+
+    #if DEBUG_FEEDBACK_STEPPER >= 2
+        Serial.println("Delta position\tDelta angle");
+        for (int i=0; i<array_pos; i++) {
+            Serial.print(delta_pos_array[i]); Serial.print("\t"); Serial.println(delta_angle_array[i]);
+        }
+    #endif
 
     #if DEBUG_FEEDBACK_STEPPER
         debug_t = micros() - debug_t;
