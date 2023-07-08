@@ -32,6 +32,7 @@ const float deg_per_full_step = 1.8;
 const int8_t cw_direction_sign = -1;
 
 const char gears_memory_key[] = "gears_key";
+const char gears_lin_memory_key[] = "gears_lin_key";
 
 
 extern FeedbackStepper stepper_motor;
@@ -39,6 +40,7 @@ extern AS5600 rotative_encoder;
 extern Potentiometer linear_potentiometer;
 extern Memory flash;
 extern int gears[];
+extern int gears_lin[];
 extern uint8_t limit_reached;
 extern uint8_t shift_up_pressed;
 extern uint8_t shift_down_pressed;

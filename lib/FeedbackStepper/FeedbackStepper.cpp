@@ -72,6 +72,11 @@ void FeedbackStepper :: set_gears(int *gears) {
 }
 
 
+void FeedbackStepper :: set_gears_lin(int *gears_lin) {
+    this->gears_lin = gears_lin;
+}
+
+
 void FeedbackStepper :: move(int target_pos) {
     HR4988::move(target_pos);
 }
@@ -103,8 +108,6 @@ void FeedbackStepper :: shift(int next_gear) {
     if (ptr_limit_reached == NULL) {
         ptr_limit_reached = &dummy_limit_reached;
     }
-
-    //disable_microstepping();
     
     delta_pos = 0;
     delta_angle = 0;
@@ -187,8 +190,6 @@ void FeedbackStepper :: shift(int next_gear) {
             step_cnt++;
         #endif
     }
-
-    //enable_microstepping();
 
     // TODO
     //  check using the linear potentiometer, if the position is correct

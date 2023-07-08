@@ -21,6 +21,7 @@ Potentiometer linear_potentiometer = Potentiometer (
 
 
 int gears[NUM_GEARS];
+int gears_lin[NUM_GEARS];
 
 
 uint8_t limit_reached = 0;
@@ -67,22 +68,28 @@ void function_core_1 (void *parameters) {
     stepper_motor.set_linear_potentiometer(&linear_potentiometer);
     int *gears_ptr = gears;
     stepper_motor.set_gears(gears_ptr);
+    int *gears_lin_ptr = gears_lin;
+    stepper_motor.set_gears_lin(gears_lin_ptr);
 
     #if DEBUG_MEMORY >= 2
-        for (int i=0; i<NUM_GEARS; i++)
-            gears[i] = 4 * stepper_motor.get_delta_position_turn() * (i+1);
+        for (int i=0; i<NUM_GEARS; i++) {
+            gears[i] = 10 * stepper_motor.get_delta_position_360_degrees_rotation() * (i+1);
+            gears_lin[i] = 0;
+        }
         flash.write_array(gears_memory_key, (void *) gears, NUM_GEARS, sizeof(int));
+        flash.write_array(gears_lin_memory_key, (void *) gears_lin, NUM_GEARS, sizeof(int));
         for (int i=0; i<NUM_GEARS; i++)
             gears[i] = 0;
     #endif    
 
     flash.read_array(gears_memory_key, (void *) gears, NUM_GEARS, sizeof(int));
+    flash.read_array(gears_lin_memory_key, (void *) gears_lin, NUM_GEARS, sizeof(int));
 
     #if DEBUG_MEMORY
         Serial.println("Gears read from memory");
         char str_mem[50];
         for (int i=0; i<NUM_GEARS; i++) {
-            sprintf(str_mem, "Gear: %d \tPosition: %d", i+1, gears[i]);
+            sprintf(str_mem, "Gear: %d \tPosition: %d \tLinear position: %d", i+1, gears[i], gears_lin[i]);
             Serial.println(str_mem);
         }
     #endif

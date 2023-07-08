@@ -83,7 +83,10 @@ void gears_calibration() {
                     if (gear < 1 || gear > NUM_GEARS)
                         break;
                     gears[gear-1] = stepper_motor.get_position();
-                    Serial.print("Saved gear: "); Serial.print(gear); Serial.print("\tPosition: "); Serial.println(gears[gear-1]);
+                    gears_lin[gear-1] = linear_potentiometer.read_position();
+                    Serial.println("GEAR SAVED");
+                    Serial.print(gear); Serial.print("\tPosition: "); Serial.println(gears[gear-1]);
+                    Serial.print("Linear position: "); Serial.println(gears_lin[gear-1]);
                     break;
                 case 'g':
                     on = 0;
@@ -108,6 +111,7 @@ void gears_calibration() {
                 end = 1; break;
             case 'y': case 'Y':
                 flash.write_array(gears_memory_key, (void *) gears, NUM_GEARS, sizeof(int));
+                flash.write_array(gears_lin_memory_key, (void *) gears_lin, NUM_GEARS, sizeof(int));
                 Serial.println("Changes saved");
                 end = 1; break;
             default:

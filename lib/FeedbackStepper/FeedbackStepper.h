@@ -4,7 +4,7 @@
 #include "HR4988.h"
 
 
-#define DEBUG_FEEDBACK_STEPPER 2
+#define DEBUG_FEEDBACK_STEPPER 1
 
 
 class AS5600;
@@ -20,6 +20,7 @@ class FeedbackStepper : public HR4988 {
         Potentiometer *linear_potentiometer;
         uint8_t *limit_reached;
         int *gears;
+        int *gears_lin;
 
 
     public:
@@ -46,6 +47,7 @@ class FeedbackStepper : public HR4988 {
         void set_linear_potentiometer(Potentiometer *linear_potentiometer);
         void set_limit_switch(uint8_t *limit_reached);
         void set_gears(int *gears);
+        void set_gears_lin(int *gears_lin);
         
         void move(int target_pos);
         void shift(int next_gear);
