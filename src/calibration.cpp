@@ -44,7 +44,7 @@ void gears_calibration() {
 
     Serial.println("\nGears calibration");
 
-    stepper_motor.set_direction((cw_direction_sign == 1) ? CCW : CW);
+    stepper_motor.set_direction(NEGATIVE_DIR);
     stepper_motor.set_speed(60);
     while (!limit_reached) {
         stepper_motor.step();

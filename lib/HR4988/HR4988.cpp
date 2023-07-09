@@ -93,7 +93,7 @@ void HR4988 :: setup() {
     }
 
     position_sixteenth = 0;
-    direction = 0;
+    direction = POSITIVE_DIR;
     microstepping = FULL_STEP_MODE;
     position_change = POSITION_CHANGE_FULL_MODE;
     rpm = 60.0;
@@ -109,12 +109,7 @@ void HR4988 :: move_const_speed(int target_pos, float rpm) {
 
     set_speed(rpm);
 
-    if (start_pos < target_pos) {
-        dir = (cw_direction_sign == 1) ? CW : CCW;
-    }
-    else {
-        dir = (cw_direction_sign == 1) ? CCW : CW;
-    }
+    dir = (start_pos < target_pos) ? POSITIVE_DIR : NEGATIVE_DIR;
 
     if (direction != dir) {
         set_direction(dir);
@@ -198,7 +193,7 @@ void HR4988 :: _move_set_speed_direction(int start_pos, int target_pos) {
     }
 
     if (start_pos < target_pos) {
-        dir = (cw_direction_sign == 1) ? CW : CCW;
+        dir = POSITIVE_DIR;
 
         if (position_sixteenth < start_pos + accel_steps) {
             speed = MIN_MOVE_RPM + ((float) (position_sixteenth - start_pos) / (float) (MAX_ACCELERATION_STEPS)) * (MAX_RPM - MIN_MOVE_RPM);
@@ -211,7 +206,7 @@ void HR4988 :: _move_set_speed_direction(int start_pos, int target_pos) {
         }
     }
     else {
-        dir = (cw_direction_sign == 1) ? CCW : CW;
+        dir = NEGATIVE_DIR;
 
         if (position_sixteenth > start_pos - accel_steps) {
             speed = MIN_MOVE_RPM + ((float) (start_pos - position_sixteenth) / (float) (MAX_ACCELERATION_STEPS)) * (MAX_RPM - MIN_MOVE_RPM);
@@ -236,13 +231,9 @@ void HR4988 :: _move_set_speed_direction(int start_pos, int target_pos) {
 int HR4988 :: _update_position() {
     int delta;
 
-    if (direction == CW) {
-        delta = cw_direction_sign * position_change;
-    } else {
-        delta = - cw_direction_sign * position_change;
-    }
-
+    delta = (direction == POSITIVE_DIR) ? (position_change) : (- position_change);
     position_sixteenth += delta;
+
     return delta;
 }
 
@@ -305,8 +296,16 @@ float HR4988 :: get_speed() {
 
 
 void HR4988 :: change_direction() {
-    direction = 1 - direction;
-    digitalWrite(direction_pin, direction);
+    direction = (direction == POSITIVE_DIR) ? NEGATIVE_DIR : POSITIVE_DIR;
+
+    uint8_t pin_value;
+    if (direction == POSITIVE_DIR) {
+        pin_value = (cw_direction_sign == 1) ? CW : CCW;
+    } else {
+        pin_value = (cw_direction_sign == 1) ? CCW : CW;
+    }
+
+    digitalWrite(direction_pin, pin_value);
     delayMicroseconds(DELAY_CHANGE_DIRECTION);
 }
 

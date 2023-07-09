@@ -49,6 +49,8 @@ void FeedbackStepper :: setup() {
     linear_potentiometer = NULL;
     limit_reached = NULL;
     gears = NULL;
+    gears_lin = NULL;
+    increase_pot_direction_sign = 0;
 }
 
 
@@ -72,8 +74,9 @@ void FeedbackStepper :: set_gears(int *gears) {
 }
 
 
-void FeedbackStepper :: set_gears_lin(int *gears_lin) {
+void FeedbackStepper :: set_gears_lin(int *gears_lin, int8_t increase_pot_direction_sign) {
     this->gears_lin = gears_lin;
+    this->increase_pot_direction_sign = increase_pot_direction_sign;
 }
 
 
@@ -191,8 +194,14 @@ void FeedbackStepper :: shift(int next_gear) {
         #endif
     }
 
-    // If the linear position is not correct, continue the shift
-    // TODO
+    // If the linear position is not correct, correct the shift
+    uint16_t ACCEPTABLE_ERROR = 5;
+    uint16_t pot_read = linear_potentiometer->read_position();
+    if (pot_read < gears_lin[next_gear-1] - ACCEPTABLE_ERROR) {
+        
+    } else if (pot_read > gears_lin[next_gear-1] + ACCEPTABLE_ERROR) {
+
+    }
 
     #if DEBUG_FEEDBACK_STEPPER >= 2
         for (int i=0; i<array_pos; i++) {

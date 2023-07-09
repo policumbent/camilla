@@ -31,6 +31,9 @@
 #define CW  0
 #define CCW 1
 
+#define POSITIVE_DIR 1
+#define NEGATIVE_DIR -1
+
 #define DELAY_CHANGE_DIRECTION 1e4
 
 

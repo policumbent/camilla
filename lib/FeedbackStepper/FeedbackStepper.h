@@ -21,6 +21,7 @@ class FeedbackStepper : public HR4988 {
         uint8_t *limit_reached;
         int *gears;
         int *gears_lin;
+        int8_t increase_pot_direction_sign;
 
 
     public:
@@ -47,7 +48,7 @@ class FeedbackStepper : public HR4988 {
         void set_linear_potentiometer(Potentiometer *linear_potentiometer);
         void set_limit_switch(uint8_t *limit_reached);
         void set_gears(int *gears);
-        void set_gears_lin(int *gears_lin);
+        void set_gears_lin(int *gears_lin, int8_t increase_pot_direction_sign);
         
         void move(int target_pos);
         void shift(int next_gear);

@@ -69,7 +69,7 @@ void function_core_1 (void *parameters) {
     int *gears_ptr = gears;
     stepper_motor.set_gears(gears_ptr);
     int *gears_lin_ptr = gears_lin;
-    stepper_motor.set_gears_lin(gears_lin_ptr);
+    stepper_motor.set_gears_lin(gears_lin_ptr, +1);
 
     #if DEBUG_MEMORY >= 2
         for (int i=0; i<NUM_GEARS; i++) {
@@ -223,7 +223,7 @@ void function_core_1 (void *parameters) {
             calibration();
         }
         else {
-            stepper_motor.set_direction((cw_direction_sign == 1) ? CCW : CW);
+            stepper_motor.set_direction(NEGATIVE_DIR);
             stepper_motor.set_speed(60);
             /*
             while (!limit_reached) {
