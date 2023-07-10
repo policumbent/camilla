@@ -129,7 +129,6 @@ void FeedbackStepper :: shift(int next_gear) {
         _step_no_delay_off();
 
         // The error is calculated in absolute value for simplicity
-        //  matching cw_direction_sign, direction, direction of AS5600 is too complex
         // The cost is that one is assuming that the motor cannot rotate in a direction opposite to the one, one wants to
         if (abs(delta_pos) >= 16 * 4) {
             delta_angle = rotative_encoder->get_angle();
@@ -196,11 +195,34 @@ void FeedbackStepper :: shift(int next_gear) {
 
     // If the linear position is not correct, correct the shift
     uint16_t ACCEPTABLE_ERROR = 5;
-    uint16_t pot_read = linear_potentiometer->read_position();
-    if (pot_read < gears_lin[next_gear-1] - ACCEPTABLE_ERROR) {
-        
-    } else if (pot_read > gears_lin[next_gear-1] + ACCEPTABLE_ERROR) {
+    uint16_t pot_read;
+    int8_t dir = 2;
 
+    set_speed(MIN_MOVE_RPM);
+
+    while (dir != 0 && !(*ptr_limit_reached)) {
+
+        portDISABLE_INTERRUPTS();
+        elapsed_time = micros();
+        portENABLE_INTERRUPTS();
+
+        pot_read = linear_potentiometer->read_position();
+
+        if (pot_read < gears_lin[next_gear-1] - ACCEPTABLE_ERROR) {
+            dir = (increase_pot_direction_sign == 1) ? POSITIVE_DIR : NEGATIVE_DIR;
+        } else if (pot_read > gears_lin[next_gear-1] + ACCEPTABLE_ERROR) {
+            dir = (increase_pot_direction_sign == 1) ? NEGATIVE_DIR : POSITIVE_DIR;
+        }
+        set_direction(dir);
+
+        _step_no_delay_off();
+        _update_position();
+
+        portDISABLE_INTERRUPTS();
+        elapsed_time = micros() - elapsed_time;
+        delay = (delay_off - elapsed_time > 0) ? (delay_off - elapsed_time) : (1);
+        portENABLE_INTERRUPTS();
+        //Serial.println(elapsed_time);
     }
 
     #if DEBUG_FEEDBACK_STEPPER >= 2
