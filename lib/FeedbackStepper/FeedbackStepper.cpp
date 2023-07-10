@@ -213,16 +213,23 @@ void FeedbackStepper :: shift(int next_gear) {
         } else if (pot_read > gears_lin[next_gear-1] + ACCEPTABLE_ERROR) {
             dir = (increase_pot_direction_sign == 1) ? NEGATIVE_DIR : POSITIVE_DIR;
         }
-        set_direction(dir);
 
-        _step_no_delay_off();
-        _update_position();
+        if (dir == POSITIVE_DIR || dir == NEGATIVE_DIR) {
+            set_direction(dir);
 
-        portDISABLE_INTERRUPTS();
-        elapsed_time = micros() - elapsed_time;
-        delay = (delay_off - elapsed_time > 0) ? (delay_off - elapsed_time) : (1);
-        portENABLE_INTERRUPTS();
-        //Serial.println(elapsed_time);
+            _step_no_delay_off();
+            _update_position();
+            
+
+            portDISABLE_INTERRUPTS();
+            elapsed_time = micros() - elapsed_time;
+            delay = (delay_off - elapsed_time > 0) ? (delay_off - elapsed_time) : (1);
+            portENABLE_INTERRUPTS();
+            //Serial.println(elapsed_time);
+        }
+        else {
+            dir = 0;
+        }
     }
 
     #if DEBUG_FEEDBACK_STEPPER >= 2
