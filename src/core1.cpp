@@ -64,12 +64,12 @@ void function_core_1 (void *parameters) {
     button_setup(&shift_down_button_parameters);
 
     stepper_motor.set_limit_switch(&limit_reached);
-    stepper_motor.set_rotative_encoder(&rotative_encoder);
-    stepper_motor.set_linear_potentiometer(&linear_potentiometer);
+    stepper_motor.set_rotative_encoder(&rotative_encoder, +1);
+    stepper_motor.set_linear_potentiometer(&linear_potentiometer, +1);
     int *gears_ptr = gears;
     stepper_motor.set_gears(gears_ptr);
     int *gears_lin_ptr = gears_lin;
-    stepper_motor.set_gears_lin(gears_lin_ptr, +1);
+    stepper_motor.set_gears_lin(gears_lin_ptr);
 
     #if DEBUG_MEMORY >= 2
         for (int i=0; i<NUM_GEARS; i++) {

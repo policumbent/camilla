@@ -16,11 +16,11 @@ def main():
             if line.strip() == "":
                 continue
             elem = line.strip().split("\t")
-            pos = int(elem[0])
-            ang = int(elem[1]) / 4095 * 3200
+            pos = abs(int(elem[0]))
+            ang = abs(int(elem[1]) / 4095 * 3200)
             err = int(elem[2])
 
-            if REMOVE_SPIKES and abs(ang) > 100:
+            if REMOVE_SPIKES and ang > 100:
                 continue
 
             delta_pos.append(pos)
