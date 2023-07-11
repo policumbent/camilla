@@ -130,7 +130,7 @@ void FeedbackStepper :: shift(int next_gear) {
 
         // The error is calculated in absolute value for simplicity
         // The cost is that one is assuming that the motor cannot rotate in a direction opposite to the one, one wants to
-        if (abs(delta_pos) >= 16 * 4) {
+        if (abs(delta_pos) >= 16 * 2) {
             delta_angle = rotative_encoder->get_angle();
             read_angle = rotative_encoder->read_angle();        // USES INTERRUPTS (!!!!)
 
@@ -200,6 +200,7 @@ void FeedbackStepper :: shift(int next_gear) {
 
     set_speed(MIN_MOVE_RPM);
 
+    /*
     while (dir != 0 && !(*ptr_limit_reached)) {
 
         portDISABLE_INTERRUPTS();
@@ -219,7 +220,6 @@ void FeedbackStepper :: shift(int next_gear) {
 
             _step_no_delay_off();
             _update_position();
-            
 
             portDISABLE_INTERRUPTS();
             elapsed_time = micros() - elapsed_time;
@@ -231,6 +231,7 @@ void FeedbackStepper :: shift(int next_gear) {
             dir = 0;
         }
     }
+    */
 
     #if DEBUG_FEEDBACK_STEPPER >= 2
         for (int i=0; i<array_pos; i++) {

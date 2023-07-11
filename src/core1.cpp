@@ -280,7 +280,11 @@ void function_core_1 (void *parameters) {
                 Serial.println("Limit reached");
             #endif
 
-            while((limit_reached = button_read_attach_interrupt(&limit_switch_parameters)));
+            stepper_motor.change_direction();
+            stepper_motor.set_speed(MIN_MOVE_RPM);
+            while ((limit_reached = button_read_attach_interrupt(&limit_switch_parameters))) {
+                stepper_motor.step();
+            }
         }
 
         delay(10);
