@@ -254,7 +254,6 @@ void function_core_1 (void *parameters) {
         stepper_motor.debug_serial_control();
     #endif
 
-
     while (1) {
 
         if (shift_up_pressed) {

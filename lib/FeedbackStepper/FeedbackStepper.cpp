@@ -96,12 +96,13 @@ void FeedbackStepper :: shift(int next_gear) {
     #if DEBUG_FEEDBACK_STEPPER
         Serial.print("[FeedbackStepper] Shift from "); Serial.print(start_pos); Serial.print(" to "); Serial.println(target_pos);
         long int debug_t = micros();
-        int expected_delay = 0, tot_angle = 0, step_cnt = 0, avg_error = 0, read_cnt = 0;
+        int expected_delay = 0, tot_angle = 0, step_cnt = 0, avg_error = 0, read_cnt = 0, tot_correction = 0;
     #endif
 
     #if DEBUG_FEEDBACK_STEPPER >= 2
-        int ARRAY_SIZE = 1000;
-        int delta_pos_array[ARRAY_SIZE], delta_angle_array[ARRAY_SIZE], error_array[ARRAY_SIZE];
+        int ARRAY_SIZE = 3000;
+        uint16_t delta_pos_array[ARRAY_SIZE], delta_angle_array[ARRAY_SIZE];
+        int16_t error_array[ARRAY_SIZE];
         int array_pos = 0;
     #endif
 
@@ -130,7 +131,7 @@ void FeedbackStepper :: shift(int next_gear) {
 
         // The error is calculated in absolute value for simplicity
         // The cost is that one is assuming that the motor cannot rotate in a direction opposite to the one, one wants to
-        if (abs(delta_pos) >= 16 * 2) {
+        if (abs(delta_pos) >= 4 * 16) {
             delta_angle = rotative_encoder->get_angle();
             read_angle = rotative_encoder->read_angle();        // USES INTERRUPTS (!!!!)
 
@@ -146,11 +147,13 @@ void FeedbackStepper :: shift(int next_gear) {
             
             // Cannot use 'continue;' statement (buggy behavior) (!!!!)
             // Remove faulty readings (see spikes in encoder_reasings.py in docs)
-            if (delta_angle < 150) {
+            if (1 || delta_angle < 150) {
                 
                 error = abs(delta_pos) - ((float) delta_angle) * 0.7814;      // angle / 4095 * 200 * 16
 
+                /*
                 if (error >= 8) {
+                    error = round((float) error / (float) microstepping) * microstepping;
                     position_sixteenth += (delta_pos > 0) ? (- error) : (error);
                 }
                 
@@ -158,6 +161,7 @@ void FeedbackStepper :: shift(int next_gear) {
                 if (delta_angle <= 16) {
                     start_pos = position_sixteenth;
                 }
+                */
             
                 #if DEBUG_FEEDBACK_STEPPER >= 2
                     delta_pos_array[array_pos] = abs(delta_pos);
@@ -170,6 +174,7 @@ void FeedbackStepper :: shift(int next_gear) {
                     tot_angle += delta_angle;
                     avg_error += error;
                     read_cnt++;
+                    if (error >= 8) tot_correction += (delta_pos > 0) ? (- error) : (error);
                 #endif
             }
 
@@ -245,8 +250,9 @@ void FeedbackStepper :: shift(int next_gear) {
         debug_t = micros() - debug_t;
         if (step_cnt == 0) return;
         Serial.print("Expected (avg) delay: "); Serial.print(expected_delay / step_cnt);
-        Serial.print("\tMeasured (avg) delay: "); Serial.print(debug_t / step_cnt);
-        Serial.print("\tEncoder reading: "); Serial.print(tot_angle);
+        Serial.print("\tMeasured (avg) delay: "); Serial.println(debug_t / step_cnt);
+        Serial.print("Encoder reading: "); Serial.print(tot_angle);
         Serial.print("\t\tAverage error: "); Serial.println(avg_error / read_cnt);
+        Serial.print("Total correction: "); Serial.println(tot_correction);
     #endif
 }

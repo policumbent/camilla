@@ -79,7 +79,6 @@ int AS5600 :: read_angle() {
     Wire.requestFrom(0x36, 1); //request from the sensor
 
     while (Wire.available() == 0); //wait until it becomes available
-
     lowbyte = Wire.read(); //Reading the data after the request
 
     //11:8 - 4 bits
