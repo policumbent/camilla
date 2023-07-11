@@ -2,12 +2,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
+FILENAME = "rotative_feedback_data_32.txt"
+REMOVE_SPIKES = True
+
+
 def main():
     delta_pos = []
     delta_angle = []
     error = []
 
-    with open("rotative_feedback_data.txt") as file:
+    with open(FILENAME) as file:
         for line in file:
             if line.strip() == "":
                 continue
@@ -15,9 +19,21 @@ def main():
             pos = int(elem[0])
             ang = int(elem[1]) / 4095 * 3200
             err = int(elem[2])
+
+            if REMOVE_SPIKES and abs(ang) > 100:
+                continue
+
             delta_pos.append(pos)
             delta_angle.append(ang)
             error.append(err)
+
+
+    print("ERROR STATISTICS")
+    print("Mean: ", np.mean(error))
+    print("Standard deviation: ", np.std(error))
+    print("Variance: ", np.var(error))
+    print("Maximum: ", np.max(error))
+
 
     index = [i for i in range(len(delta_pos))]
 
