@@ -4,7 +4,7 @@
 #include "HR4988.h"
 
 
-#define DEBUG_FEEDBACK_STEPPER 2
+#define DEBUG_FEEDBACK_STEPPER 1
 
 
 class AS5600;
