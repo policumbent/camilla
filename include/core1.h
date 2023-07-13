@@ -31,6 +31,9 @@ const int full_steps_per_turn = 200;
 const float deg_per_full_step = 1.8;
 const int8_t cw_direction_sign = -1;
 
+const int8_t increase_encoder_direction_sign = 1;
+const int8_t increase_potentiometer_direction_sign = 1;
+
 const char gears_memory_key[] = "gears_key";
 const char gears_lin_memory_key[] = "gears_lin_key";
 

@@ -118,8 +118,10 @@ void HR4988 :: move_const_speed(int target_pos, float rpm) {
         set_speed(rpm);
     }
 
-    while (position_sixteenth != target_pos) {
-        step();
+    if (dir == POSITIVE_DIR) {
+        while (position_sixteenth < target_pos) step();
+    } else {
+        while (position_sixteenth > target_pos) step();
     }
 }
 

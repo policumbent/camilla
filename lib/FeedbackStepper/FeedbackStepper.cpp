@@ -50,19 +50,20 @@ void FeedbackStepper :: setup() {
     limit_reached = NULL;
     gears = NULL;
     gears_lin = NULL;
-    increase_pot_direction_sign = 0;
+    increase_potentiometer_direction_sign = 0;
+    increase_encoder_direction_sign = 0;
 }
 
 
-void FeedbackStepper :: set_rotative_encoder(AS5600 *rotative_encoder, int8_t increase_enc_direction_sign) {
+void FeedbackStepper :: set_rotative_encoder(AS5600 *rotative_encoder, int8_t increase_encoder_direction_sign) {
     this->rotative_encoder = rotative_encoder;
-    this->increase_enc_direction_sign = increase_enc_direction_sign;
+    this->increase_encoder_direction_sign = increase_encoder_direction_sign;
 }
 
 
-void FeedbackStepper :: set_linear_potentiometer(Potentiometer *linear_potentiometer, int8_t increase_pot_direction_sign) {
+void FeedbackStepper :: set_linear_potentiometer(Potentiometer *linear_potentiometer, int8_t increase_potentiometer_direction_sign) {
     this->linear_potentiometer = linear_potentiometer;
-    this->increase_pot_direction_sign = increase_pot_direction_sign;
+    this->increase_potentiometer_direction_sign = increase_potentiometer_direction_sign;
 }
 
 
@@ -137,15 +138,15 @@ void FeedbackStepper :: shift(int next_gear) {
             // Calculate the difference between previous and current angle measurements
             if (abs(read_angle - delta_angle) < 3000) {
                 delta_angle = read_angle - delta_angle;
-                delta_angle = (increase_enc_direction_sign == 1) ? (delta_angle) : (- delta_angle);
+                delta_angle = (increase_encoder_direction_sign == 1) ? (delta_angle) : (- delta_angle);
             } else {
                 if (read_angle > delta_angle) {
                     delta_angle = 4095 - read_angle + delta_angle;
                 } else {
                     delta_angle = 4095 - delta_angle + read_angle;
                 }
-                delta_angle = (direction == POSITIVE_DIR && increase_enc_direction_sign == 1
-                                || direction == NEGATIVE_DIR && increase_enc_direction_sign == -1)
+                delta_angle = (direction == POSITIVE_DIR && increase_encoder_direction_sign == 1
+                                || direction == NEGATIVE_DIR && increase_encoder_direction_sign == -1)
                                 ? (delta_angle) : (- delta_angle);
             }
             
@@ -220,9 +221,9 @@ void FeedbackStepper :: shift(int next_gear) {
         pot_read = linear_potentiometer->read_position();
 
         if (pot_read < gears_lin[next_gear-1] - ACCEPTABLE_ERROR) {
-            dir = (increase_pot_direction_sign == 1) ? POSITIVE_DIR : NEGATIVE_DIR;
+            dir = (increase_potentiometer_direction_sign == 1) ? POSITIVE_DIR : NEGATIVE_DIR;
         } else if (pot_read > gears_lin[next_gear-1] + ACCEPTABLE_ERROR) {
-            dir = (increase_pot_direction_sign == 1) ? NEGATIVE_DIR : POSITIVE_DIR;
+            dir = (increase_potentiometer_direction_sign == 1) ? NEGATIVE_DIR : POSITIVE_DIR;
         }
 
         if (dir == POSITIVE_DIR || dir == NEGATIVE_DIR) {
