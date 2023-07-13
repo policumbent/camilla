@@ -2,6 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
+FILENAME = "encoder_readings_data_1.txt"
+
+
 SIXTEENTH_MAX_RPM = 120
 EIGHT_MODE_MAX_RPM = 180
 QUARTER_MODE_MAX_RPM = 240
@@ -17,7 +20,7 @@ def main():
     i2c_encoder_readings = []
     adc_encoder_readings = []
 
-    with open("enc_read_log1.txt") as file:
+    with open(FILENAME) as file:
         for line in file:
             readings = line.split(";")
             i2c = int(readings[0])

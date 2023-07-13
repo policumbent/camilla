@@ -65,37 +65,46 @@ void gears_calibration() {
             c = Serial.read();
 
             switch (c) {
-                case 'o': on = 1 - on; break;
-                case 'c': stepper_motor.change_direction(); break;
+                case 'o':
+                    on = 1 - on; break;
+
+                case 'c':
+                    stepper_motor.change_direction(); break;
+
                 case '+':
-                    for (int i=0; i<10; i++) {
-                        stepper_motor.step();
-                    }
+                    for (int i=0; i<10; i++) stepper_motor.step();
                     break;
+
                 case '*':
-                    for (int i=0; i<100; i++) {
-                        stepper_motor.step();
-                    }
+                    for (int i=0; i<100; i++) stepper_motor.step();
                     break;
+
                 case 's':
                     on = 0;
                     gear = read_int_serial();
                     if (gear < 1 || gear > NUM_GEARS)
                         break;
+
                     gears[gear-1] = stepper_motor.get_position();
                     gears_lin[gear-1] = linear_potentiometer.read_position();
+
                     Serial.println("GEAR SAVED");
                     Serial.print(gear); Serial.print("\tPosition: "); Serial.println(gears[gear-1]);
                     Serial.print("Linear position: "); Serial.println(gears_lin[gear-1]);
                     break;
+
                 case 'g':
                     on = 0;
                     gear = read_int_serial();
                     shift(gear);
-                    Serial.print("Shifter to gear: "); Serial.println(gear);
+                    Serial.print("Shifting to gear: "); Serial.println(gear);
                     break;
-                case 'e': end = 1; break;
-                default: break;
+
+                case 'e':
+                    end = 1; break;
+
+                default:
+                    break;
             }
         }
     }
@@ -109,17 +118,17 @@ void gears_calibration() {
             case 'n': case 'N':
                 Serial.println("Changes NOT saved");
                 end = 1; break;
+
             case 'y': case 'Y':
                 flash.write_array(gears_memory_key, (void *) gears, NUM_GEARS, sizeof(int));
                 flash.write_array(gears_lin_memory_key, (void *) gears_lin, NUM_GEARS, sizeof(int));
                 Serial.println("Changes saved");
                 end = 1; break;
+
             default:
-                Serial.println("Unrecognized command (use: y,Y/n,N)");
-                break;
+                Serial.println("Unrecognized command (use: y,Y/n,N)"); break;
         }
     }
-
 }
 
 
@@ -132,8 +141,7 @@ int read_int_serial() {
     input_str.trim();
 
     for (int i=0; i<input_str.length(); i++) {
-        if (!isdigit(input_str[i]))
-            return 0;
+        if (!isdigit(input_str[i])) return 0;
     }
 
     return input_str.toInt();
