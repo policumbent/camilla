@@ -264,9 +264,9 @@ void function_core_1 (void *parameters) {
         stepper_motor.debug_serial_control();
     #endif
 
+
     shift_up_pressed = shift_down_pressed = calibration_button_pressed = limit_reached = 0;
 
-    stepper_motor.set_direction(POSITIVE_DIR);
     shift(1);
 
     while (1) {

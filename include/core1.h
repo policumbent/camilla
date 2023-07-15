@@ -42,12 +42,18 @@ extern FeedbackStepper stepper_motor;
 extern AS5600 rotative_encoder;
 extern Potentiometer linear_potentiometer;
 extern Memory flash;
+
 extern int gears[];
 extern int gears_lin[];
+
 extern uint8_t limit_reached;
 extern uint8_t shift_up_pressed;
 extern uint8_t shift_down_pressed;
 extern uint8_t calibration_button_pressed;
+extern button_parameters limit_switch_parameters;
+extern button_parameters shift_up_button_parameters;
+extern button_parameters shift_down_button_parameters;
+extern button_parameters calibration_button_parameters;
 
 
 void shift(uint8_t next_gear);
