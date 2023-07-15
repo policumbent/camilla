@@ -5,7 +5,7 @@
 #define NUM_GEARS  12     // for Phoenix
 
 
-#define ENABLE_PIN       18
+#define ENABLE_PIN       13
 
 #define STEP_PIN         12
 #define DIRECTION_PIN    14
@@ -16,15 +16,15 @@
 #define MS3_PIN          32
 
 
-#define LIMIT_SWITCH_PIN 23
+#define LIMIT_SWITCH_PIN 18
 
 #define SHIFT_UP_BUTTON_PIN   16        // yellow
 #define SHIFT_DOWN_BUTTON_PIN 17        // green
 
+#define CALIBRATION_BUTTON_PIN 4
 
-#define MAGNETIC_ENCODER_PIN 27//34
 
-#define POTENTIOMETER_PIN 35
+#define POTENTIOMETER_PIN 36
 
 
 const int full_steps_per_turn = 200;
@@ -47,6 +47,7 @@ extern int gears_lin[];
 extern uint8_t limit_reached;
 extern uint8_t shift_up_pressed;
 extern uint8_t shift_down_pressed;
+extern uint8_t calibration_button_pressed;
 
 
 void shift(uint8_t next_gear);

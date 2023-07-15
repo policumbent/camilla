@@ -1,6 +1,13 @@
 #include "AS5600.h"
 
 
+AS5600 :: AS5600() {
+    analog_pin = 0;
+
+    setup();
+}
+
+
 AS5600 :: AS5600 (uint8_t analog_pin) {
     this->analog_pin = analog_pin;
 
@@ -12,7 +19,9 @@ void AS5600 :: setup() {
     Wire.begin();
     Wire.setClock(8000000);
 
-    pinMode(analog_pin, INPUT);
+    if (analog_pin != 0) {
+        pinMode(analog_pin, INPUT);
+    }
 }
 
 

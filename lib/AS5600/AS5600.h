@@ -19,6 +19,7 @@ class AS5600 {
         int angle;
 
     public:
+        AS5600();
         AS5600 (uint8_t analog_pin);
         void setup();
 

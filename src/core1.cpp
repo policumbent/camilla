@@ -10,9 +10,7 @@ FeedbackStepper stepper_motor = FeedbackStepper (
 );
 
 
-AS5600 rotative_encoder = AS5600 (
-    MAGNETIC_ENCODER_PIN
-);
+AS5600 rotative_encoder = AS5600 ();
 
 
 Potentiometer linear_potentiometer = Potentiometer (
@@ -45,6 +43,14 @@ button_parameters shift_down_button_parameters = {
 };
 
 
+uint8_t calibration_button_pressed = 0;
+void IRAM_ATTR calibration_button_isr();
+
+button_parameters calibration_button_parameters = {
+    CALIBRATION_BUTTON_PIN, INPUT_PULLUP, LOW, calibration_button_isr, FALLING
+};
+
+
 Memory flash = Memory();
 
 
@@ -62,6 +68,8 @@ void function_core_1 (void *parameters) {
 
     button_setup(&shift_up_button_parameters);
     button_setup(&shift_down_button_parameters);
+
+    button_setup(&calibration_button_parameters);
 
     stepper_motor.set_limit_switch(&limit_reached);
     stepper_motor.set_rotative_encoder(&rotative_encoder, increase_encoder_direction_sign);
@@ -211,30 +219,33 @@ void function_core_1 (void *parameters) {
         #endif
     #endif
 
-    shift_down_pressed = shift_up_pressed = 0;
-    while (!(shift_down_pressed || shift_up_pressed)) delay(10);
+    shift_down_pressed = shift_up_pressed = calibration_button_pressed = 0;
+    while (!(shift_down_pressed || shift_up_pressed || calibration_button_pressed)) delay(10);
 
-    if (shift_down_pressed) {
+    if (shift_up_pressed) {
         int time_long_press = millis();
-        while ((shift_down_pressed = button_read_attach_interrupt(&shift_down_button_parameters)));
+        while ((shift_up_pressed = button_read_attach_interrupt(&shift_up_button_parameters)));
         time_long_press = millis() - time_long_press;
         
         if (time_long_press >= 3000) {
-            calibration();
-        }
-        else {
             stepper_motor.set_direction(NEGATIVE_DIR);
             stepper_motor.set_speed(60);
-            /*
             while (!limit_reached) {
                 stepper_motor.step();
             }
-            */
+            stepper_motor.set_position(0);
+        }
+        else {
             stepper_motor.set_position(0);
         }
     }
-    else if (shift_up_pressed) {
+    else if (shift_down_pressed) {
+        while ((shift_down_pressed = button_read_attach_interrupt(&shift_down_button_parameters)));
         test_mode();
+    }
+    else if (calibration_button_pressed) {
+        while ((calibration_button_pressed = button_read_attach_interrupt(&calibration_button_parameters)));
+        calibration();
     }
 
     #if DEBUG_CORES
@@ -298,8 +309,7 @@ void function_core_1 (void *parameters) {
 void IRAM_ATTR limit_switch_isr() {
     limit_reached = button_interrupt_service_routine(&limit_switch_parameters);
     #if DEBUG_CORES
-        if (limit_reached)
-            limit_reached = xPortGetCoreID() + 1;
+        if (limit_reached) limit_reached = xPortGetCoreID() + 1;
     #endif
 }
 
@@ -311,6 +321,11 @@ void IRAM_ATTR shift_up_button_isr() {
 
 void IRAM_ATTR shift_down_button_isr() {
     shift_down_pressed = button_interrupt_service_routine(&shift_down_button_parameters);
+}
+
+
+void IRAM_ATTR calibration_button_isr() {
+    calibration_button_pressed = button_interrupt_service_routine(&calibration_button_parameters);
 }
 
 
