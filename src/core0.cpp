@@ -52,6 +52,10 @@ void function_core_0 (void *parameters) {
 
             CAN0.sendFrame(can_tx_msg_data);
         }
+
+        #if DEBUG_CAN >= 2
+            Serial.println("CAN still running");
+        #endif
     
         delay(1000);
     }

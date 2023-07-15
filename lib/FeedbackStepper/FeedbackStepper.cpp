@@ -118,7 +118,7 @@ void FeedbackStepper :: shift(int next_gear) {
     delta_angle = 0;
     error = 0;
 
-    rotative_encoder->read_angle();
+    if (rotative_encoder != NULL) rotative_encoder->read_angle();
 
     while (position_sixteenth != target_pos && !(*ptr_limit_reached)) {
 
@@ -131,7 +131,7 @@ void FeedbackStepper :: shift(int next_gear) {
         _step_no_delay_off();
 
 
-        if (abs(delta_pos) >= 2 * 16) {
+        if (rotative_encoder != NULL && abs(delta_pos) >= 2 * 16) {
             delta_angle = rotative_encoder->get_angle();
             read_angle = rotative_encoder->read_angle();        // USES INTERRUPTS (!!!!)
 
@@ -211,8 +211,8 @@ void FeedbackStepper :: shift(int next_gear) {
 
     set_speed(MIN_MOVE_RPM);
 
-    /*
-    while (dir != 0 && !(*ptr_limit_reached)) {
+    
+    while (linear_potentiometer != NULL && dir != 0 && !(*ptr_limit_reached)) {
 
         portDISABLE_INTERRUPTS();
         elapsed_time = micros();
@@ -242,7 +242,7 @@ void FeedbackStepper :: shift(int next_gear) {
             dir = 0;
         }
     }
-    */
+    
 
     #if DEBUG_FEEDBACK_STEPPER >= 2
         for (int i=0; i<array_pos; i++) {
@@ -256,9 +256,9 @@ void FeedbackStepper :: shift(int next_gear) {
         debug_t = micros() - debug_t;
         if (step_cnt == 0) return;
         Serial.print("Expected (avg) delay: "); Serial.print(expected_delay / step_cnt);
-        Serial.print("\tMeasured (avg) delay: "); Serial.println(debug_t / step_cnt);
+        Serial.print("\tMeasured (avg) delay: "); Serial.println((double) debug_t / (double) step_cnt);
         Serial.print("Encoder reading: "); Serial.print(tot_angle);
-        Serial.print("\t\tAverage error: "); Serial.println(avg_error / read_cnt);
+        Serial.print("\t\tAverage error: "); Serial.println((double) avg_error / (double) read_cnt);
         Serial.print("Total correction: "); Serial.println(tot_correction);
     #endif
 }
