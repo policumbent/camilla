@@ -93,11 +93,11 @@ void HR4988 :: setup() {
     }
 
     position_sixteenth = 0;
-    direction = POSITIVE_DIR;
+    direction = 0;
     microstepping = FULL_STEP_MODE;
     position_change = POSITION_CHANGE_FULL_MODE;
     rpm = 60.0;
-    set_direction(direction);
+    set_direction(POSITIVE_DIR);
     set_microstepping(microstepping);
     set_speed(rpm);
 }

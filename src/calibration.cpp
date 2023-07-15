@@ -54,12 +54,16 @@ void gears_calibration() {
     stepper_motor.change_direction();
     stepper_motor.set_speed(60);
 
+    shift_up_pressed = shift_down_pressed = 
+
     end = on = gear = 0;
     while (!end) {
 
         if (on) {
             stepper_motor.step();
         }
+
+        shift_up_pressed = shift_down_pressed = calibration_button_pressed = 0;
 
         if (Serial.available()) {
             c = Serial.read();

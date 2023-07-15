@@ -253,17 +253,21 @@ void function_core_1 (void *parameters) {
         Serial.println(limit_reached - 1);
     #endif
 
-    stepper_motor.change_direction();
-    while ((limit_reached = button_read_attach_interrupt(&limit_switch_parameters))) {
-        stepper_motor.step();
+    if (limit_reached) {
+        stepper_motor.change_direction();
+        while ((limit_reached = button_read_attach_interrupt(&limit_switch_parameters))) {
+            stepper_motor.step();
+        }
     }
     
-    shift(1);
-    
-
     #if DEBUG_MOTOR >= 2
         stepper_motor.debug_serial_control();
     #endif
+
+    shift_up_pressed = shift_down_pressed = calibration_button_pressed = limit_reached = 0;
+
+    stepper_motor.set_direction(POSITIVE_DIR);
+    shift(1);
 
     while (1) {
 
