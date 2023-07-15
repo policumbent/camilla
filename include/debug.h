@@ -11,4 +11,6 @@
     #define DEBUG_GEARS         1
     #define DEBUG_ENCODER       1
     #define DEBUG_POTENTIOMETER 1
+
+    #define DEBUG_CAN 1
 #endif
