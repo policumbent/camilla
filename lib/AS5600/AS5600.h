@@ -12,11 +12,23 @@ class Potentiometer;
 #include "Potentiometer.h"
 
 
+#define I2C_MASTER_SDA_IO 21
+#define I2C_MASTER_SCL_IO 22
+#define I2C_MASTER_FREQ_HZ 1000000
+
+#define AS5600_I2C_ADDRESS 0x36
+#define AS5600_I2C_LOW_BYTE_CMD 0x0D//F
+#define AS5600_I2C_HIGH_BYTE_CMD 0x0C//E
+
+
 class AS5600 {
     
     private:
         uint8_t analog_pin;
         int angle;
+
+        int i2c_master_port;
+        i2c_config_t i2c_conf;
 
     public:
         AS5600();
