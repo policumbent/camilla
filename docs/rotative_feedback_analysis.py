@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-FILENAME = "rotative_feedback_data_32.txt"
+FILENAME = "rotative_feedback_data_32_espi2c.txt"
 REMOVE_SPIKES = True
 
 

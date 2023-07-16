@@ -15,6 +15,7 @@ AS5600 :: AS5600 (uint8_t analog_pin) {
 }
 
 
+#if I2C_ESP
 void AS5600 :: setup() {
     i2c_master_port = 0;
     i2c_conf = {
@@ -33,8 +34,9 @@ void AS5600 :: setup() {
         pinMode(analog_pin, INPUT);
     }
 }
+#endif
 
-/*
+#if WIRE_H
 void AS5600 :: setup() {
     Wire.begin();
     Wire.setClock(8000000);
@@ -43,7 +45,7 @@ void AS5600 :: setup() {
         pinMode(analog_pin, INPUT);
     }
 }
-*/
+#endif
 
 
 uint16_t AS5600 :: read_angle_output() {
@@ -99,6 +101,7 @@ void AS5600 :: calibration(HR4988 &stepper_motor) {
 }
 
 
+#if I2C_ESP
 int AS5600 :: read_angle() {
     uint8_t write_byte;
     uint8_t low_byte, high_byte;
@@ -115,8 +118,9 @@ int AS5600 :: read_angle() {
 
     return angle;
 }
+#endif
 
-/*
+#if WIRE_H
 int AS5600 :: read_angle() {
     int lowbyte, highbyte;
 
@@ -162,4 +166,33 @@ int AS5600 :: read_angle() {
 
     return angle;
 }
-*/
+#endif
+
+
+#if I2C_ESP
+int8_t AS5600 :: get_magnet_distance() {
+    uint8_t write_byte;
+    uint8_t status_byte;
+
+    write_byte = AS5600_I2C_STATUS_BYTE_CMD;
+    i2c_master_write_to_device(i2c_master_port, AS5600_I2C_ADDRESS, &write_byte, 1, 1000/portTICK_RATE_MS);
+    i2c_master_read_from_device(i2c_master_port, AS5600_I2C_ADDRESS, &status_byte, 1, 1000/portTICK_RATE_MS);
+
+    // Magnet to strong
+    if (status_byte & 0b00001000) {
+        return 1;
+    }
+
+    // Magnet to weak
+    if (status_byte & 0b00010000) {
+        return -1;
+    }
+
+    // Magnet detected
+    if (status_byte & 0b00100000) {
+        return 0;
+    }
+
+    return -2;
+}
+#endif

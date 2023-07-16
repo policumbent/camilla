@@ -12,13 +12,19 @@ class Potentiometer;
 #include "Potentiometer.h"
 
 
+#define WIRE_H  0
+#define I2C_ESP 1
+
+
 #define I2C_MASTER_SDA_IO 21
 #define I2C_MASTER_SCL_IO 22
 #define I2C_MASTER_FREQ_HZ 1000000
 
 #define AS5600_I2C_ADDRESS 0x36
-#define AS5600_I2C_LOW_BYTE_CMD 0x0D//F
-#define AS5600_I2C_HIGH_BYTE_CMD 0x0C//E
+#define AS5600_I2C_LOW_BYTE_CMD 0x0D//D//F
+#define AS5600_I2C_HIGH_BYTE_CMD 0x0C//C//E
+
+#define AS5600_I2C_STATUS_BYTE_CMD 0x0B
 
 
 class AS5600 {
@@ -34,6 +40,10 @@ class AS5600 {
         AS5600();
         AS5600 (uint8_t analog_pin);
         void setup();
+
+        #if I2C_ESP
+            int8_t get_magnet_distance();
+        #endif
 
         int read_angle();
         int get_angle();

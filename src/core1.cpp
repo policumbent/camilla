@@ -72,7 +72,7 @@ void function_core_1 (void *parameters) {
     button_setup(&calibration_button_parameters);
 
     stepper_motor.set_limit_switch(&limit_reached);
-    //stepper_motor.set_rotative_encoder(&rotative_encoder, increase_encoder_direction_sign);
+    stepper_motor.set_rotative_encoder(&rotative_encoder, increase_encoder_direction_sign);
     //stepper_motor.set_linear_potentiometer(&linear_potentiometer, increase_potentiometer_direction_sign);
     int *gears_ptr = gears;
     stepper_motor.set_gears(gears_ptr);
@@ -163,28 +163,8 @@ void function_core_1 (void *parameters) {
         #endif
 
         #if DEBUG_ENCODER <= -1
-            uint16_t i2c_readings[3200], adc_readings[3200];
-            int cnt_enc = 0;
-
-            stepper_motor.set_direction(CCW);
-            stepper_motor.set_speed(60);
-
-            for (int i=0; i<20; i++) {
-                stepper_motor.step();
-            }
-
-            stepper_motor.set_position(0);
-            while (stepper_motor.get_position() <= stepper_motor.get_delta_position_360_degrees_rotation()) {
-                stepper_motor._step_no_delay_off();     // protected method
-                stepper_motor._update_position();       // protected method
-                i2c_readings[cnt_enc] = rotative_encoder.read_angle();
-                adc_readings[cnt_enc] = rotative_encoder.read_angle_output();
-                cnt_enc++;
-            }
-
-            for (int i=0; i<3200; i++) {
-                Serial.print(i2c_readings[i]); Serial.print(";"); Serial.println(adc_readings[i]);
-            }
+            Serial.print("Encoder magnet status: ");
+            Serial.println(rotative_encoder.get_magnet_distance());
         #endif
     #endif
 

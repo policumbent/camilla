@@ -153,12 +153,12 @@ void FeedbackStepper :: shift(int next_gear) {
             // Cannot use 'continue;' statement (buggy behavior) (!!!!)
 
             // Remove faulty readings (see spikes in encoder_reasings.py in docs)
-            if (abs(delta_angle) < 150) {
+            if (1 || abs(delta_angle) < 150) {
                 
                 error = delta_pos - ((float) delta_angle) * 0.7814;      // angle / 4095 * 200 * 16
 
                 
-                if (error >= 8) {
+                if (abs(delta_angle) < 150 && error >= 8) {
                     error = round((float) error / (float) microstepping) * microstepping;
                     position_sixteenth -= error;
                 }
@@ -204,6 +204,25 @@ void FeedbackStepper :: shift(int next_gear) {
         #endif
     }
 
+    #if DEBUG_FEEDBACK_STEPPER
+        debug_t = micros() - debug_t;
+        if (step_cnt == 0) return;
+        Serial.print("Expected (avg) delay: "); Serial.print(expected_delay / step_cnt);
+        Serial.print("\tMeasured (avg) delay: "); Serial.println((double) debug_t / (double) step_cnt);
+        Serial.print("Encoder reading: "); Serial.print(tot_angle);
+        Serial.print("\t\tAverage error: "); Serial.println((double) avg_error / (double) read_cnt);
+        Serial.print("Total correction: "); Serial.println(tot_correction);
+    #endif
+
+    #if DEBUG_FEEDBACK_STEPPER >= 2
+        for (int i=0; i<array_pos; i++) {
+            Serial.print(delta_pos_array[i]); Serial.print("\t");
+            Serial.print(delta_angle_array[i]); Serial.print("\t");
+            Serial.print(error_array[i]); Serial.print("\n");
+        }
+    #endif
+
+
     // If the linear position is not correct, correct the shift
     uint16_t ACCEPTABLE_ERROR = 5;
     uint16_t pot_read;
@@ -242,23 +261,4 @@ void FeedbackStepper :: shift(int next_gear) {
             dir = 0;
         }
     }
-    
-
-    #if DEBUG_FEEDBACK_STEPPER >= 2
-        for (int i=0; i<array_pos; i++) {
-            Serial.print(delta_pos_array[i]); Serial.print("\t");
-            Serial.print(delta_angle_array[i]); Serial.print("\t");
-            Serial.print(error_array[i]); Serial.print("\n");
-        }
-    #endif
-
-    #if DEBUG_FEEDBACK_STEPPER
-        debug_t = micros() - debug_t;
-        if (step_cnt == 0) return;
-        Serial.print("Expected (avg) delay: "); Serial.print(expected_delay / step_cnt);
-        Serial.print("\tMeasured (avg) delay: "); Serial.println((double) debug_t / (double) step_cnt);
-        Serial.print("Encoder reading: "); Serial.print(tot_angle);
-        Serial.print("\t\tAverage error: "); Serial.println((double) avg_error / (double) read_cnt);
-        Serial.print("Total correction: "); Serial.println(tot_correction);
-    #endif
 }
