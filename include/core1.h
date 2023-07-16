@@ -24,7 +24,7 @@
 #define CALIBRATION_BUTTON_PIN 4
 
 
-#define POTENTIOMETER_PIN 36
+#define POTENTIOMETER_ADC_CHANNEL ADC1_CHANNEL_6
 
 
 const int full_steps_per_turn = 200;

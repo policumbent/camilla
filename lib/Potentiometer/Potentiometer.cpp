@@ -1,20 +1,20 @@
 #include "Potentiometer.h"
 
 
-Potentiometer :: Potentiometer(uint8_t analog_pin) {
-    this->analog_pin = analog_pin;
+Potentiometer :: Potentiometer(adc1_channel_t adc_channel) {
+    this->adc_channel = adc_channel;
 
     setup();
 }
 
 
 void Potentiometer :: setup() {
-    pinMode(analog_pin, INPUT);
+    adc1_config_width(ADC_WIDTH_BIT_12);
 }
 
 
 uint16_t Potentiometer :: read_position() {
-    position = analogRead(analog_pin);
+    position = adc1_get_raw(adc_channel);
     return position;
 }
 

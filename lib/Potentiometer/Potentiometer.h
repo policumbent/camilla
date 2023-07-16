@@ -2,6 +2,7 @@
 #include <Arduino.h>
 
 #include <Wire.h>
+#include <driver/adc.h>
 
 
 // Circular reference solution
@@ -15,11 +16,11 @@ class AS5600;
 class Potentiometer {
 
     private:
-        uint8_t analog_pin;
+        adc1_channel_t adc_channel;
         uint16_t position;
 
     public:
-        Potentiometer(uint8_t pin);
+        Potentiometer(adc1_channel_t adc_channel);
         void setup();
 
         uint16_t read_position();

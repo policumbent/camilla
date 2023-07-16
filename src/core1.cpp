@@ -14,7 +14,7 @@ AS5600 rotative_encoder = AS5600 ();
 
 
 Potentiometer linear_potentiometer = Potentiometer (
-    POTENTIOMETER_PIN
+    POTENTIOMETER_ADC_CHANNEL
 );
 
 
