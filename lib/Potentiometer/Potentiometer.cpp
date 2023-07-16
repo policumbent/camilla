@@ -14,7 +14,37 @@ void Potentiometer :: setup() {
 
 
 uint16_t Potentiometer :: read_position() {
-    position = adc1_get_raw(adc_channel);
+    const uint8_t ARRAY_SIZE = 3;
+    uint16_t readings[ARRAY_SIZE], avg;
+    uint16_t biggest_distance, biggest_distance_index, current_distance;
+    int i;
+
+    avg = 0;
+    for (i=0; i<ARRAY_SIZE; i++) {
+        readings[i] = adc1_get_raw(adc_channel);
+        avg += readings[i];
+    }
+    avg = avg / ARRAY_SIZE;
+
+    biggest_distance = abs(readings[0] - avg);
+    biggest_distance_index = 0;
+    for (i=1; i<ARRAY_SIZE; i++) {
+        current_distance = abs(readings[i] - avg);
+        if (current_distance > biggest_distance) {
+            biggest_distance = current_distance;
+            biggest_distance_index = i;
+        }
+    }
+
+    avg = 0;
+    for (i=0; i<ARRAY_SIZE; i++) {
+        if (i != biggest_distance_index) {
+            avg += readings[i];
+        }
+    }
+    avg = avg / (ARRAY_SIZE - 1);
+
+    position = avg;
     return position;
 }
 
