@@ -178,6 +178,11 @@ int8_t AS5600 :: get_magnet_distance() {
     i2c_master_write_to_device(i2c_master_port, AS5600_I2C_ADDRESS, &write_byte, 1, 1000/portTICK_RATE_MS);
     i2c_master_read_from_device(i2c_master_port, AS5600_I2C_ADDRESS, &status_byte, 1, 1000/portTICK_RATE_MS);
 
+    // Magnet NOT detected
+    if (!(status_byte & 0b00100000)) {
+        return 0;
+    }
+
     // Magnet to strong
     if (status_byte & 0b00001000) {
         return 1;
@@ -188,11 +193,6 @@ int8_t AS5600 :: get_magnet_distance() {
         return -1;
     }
 
-    // Magnet detected
-    if (status_byte & 0b00100000) {
-        return 0;
-    }
-
-    return -2;
+    return -128;
 }
 #endif

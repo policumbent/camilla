@@ -12,8 +12,8 @@ class Potentiometer;
 #include "Potentiometer.h"
 
 
-#define WIRE_H  0
-#define I2C_ESP 1
+#define I2C_ESP 0
+#define WIRE_H  1
 
 
 #define I2C_MASTER_SDA_IO 21
