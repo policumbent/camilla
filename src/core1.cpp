@@ -189,7 +189,7 @@ void function_core_1 (void *parameters) {
                 if (Serial.available()) {
                     c_pot = Serial.read();
                 }
-                lin_pos = linear_potentiometer.read_position();
+                lin_pos = linear_potentiometer.raw_read();
 
                 sprintf(str_pot, "Potentiometer reading: %d", lin_pos);
                 Serial.println(str_pot);

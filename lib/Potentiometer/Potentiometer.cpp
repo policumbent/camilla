@@ -49,6 +49,11 @@ uint16_t Potentiometer :: read_position() {
 }
 
 
+uint16_t Potentiometer :: raw_read() {
+    return adc1_get_raw(adc_channel);
+}
+
+
 uint16_t Potentiometer :: get_position() {
     return position;
 }

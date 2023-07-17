@@ -26,5 +26,7 @@ class Potentiometer {
         uint16_t read_position();
         uint16_t get_position();
 
+        uint16_t raw_read();
+
         void calibration(HR4988 &stepper_motor);
 };
