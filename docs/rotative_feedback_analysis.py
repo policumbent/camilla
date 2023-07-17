@@ -1,9 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.fft import fft
 
 
-FILENAME = "rotative_feedback_data_32_espi2c.txt"
-REMOVE_SPIKES = True
+FILENAME = "rotative_feedback_data_32_espi2c_spikes.txt"
+REMOVE_SPIKES = False
 
 
 def main():
@@ -13,7 +14,7 @@ def main():
 
     with open(FILENAME) as file:
         for line in file:
-            if line.strip() == "":
+            if line.strip() == "" or line[0] not in "0123456789-":
                 continue
             elem = line.strip().split("\t")
             pos = abs(int(elem[0]))
@@ -44,6 +45,17 @@ def main():
     plt.plot(index, delta_pos, label="Delta position expected")
     plt.plot(index, delta_angle, label="Delta angle measured")
     plt.plot(index, error, label="Error")
+
+    
+    x = np.array(delta_angle)
+    y = fft(x)
+    
+    plt.figure(2)
+    plt.title("Delta angle fft")
+    plt.grid('both', 'both')
+
+    plt.plot(abs(y))
+
 
     plt.legend()
     plt.show()

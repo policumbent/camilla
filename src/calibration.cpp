@@ -17,7 +17,7 @@ void calibration() {
 
     Serial.println("Select: Gears, Encoder or Potentiometer calibration (g,G/e,E/p,P)");
 
-    while(!end) {
+    while (!end) {
         while (!Serial.available()) delay(1);
         c = Serial.read();
         switch (c) {
@@ -39,7 +39,7 @@ void calibration() {
 
 
 void gears_calibration() {
-    uint8_t end, on, gear;
+    uint8_t end, gear;
     char c;
 
     Serial.println("\nGears calibration");
@@ -56,29 +56,25 @@ void gears_calibration() {
 
     shift_up_pressed = shift_down_pressed = calibration_button_pressed = 0;
 
-    end = on = gear = 0;
+    end = gear = 0;
+
     while (!end) {
 
-        if (on) {
-            stepper_motor.step();
-        }
-
         if (shift_up_pressed) {
-            on = 0;
-            shift(g_current_gear + 1);
-            Serial.println(g_current_gear);
-            while ((shift_up_pressed = button_read_attach_interrupt(&shift_up_button_parameters)));
+            stepper_motor.set_direction(POSITIVE_DIR);
+            while ((shift_up_pressed = button_read_attach_interrupt(&shift_up_button_parameters))) {
+                stepper_motor.step();
+            }
         }
 
         if (shift_down_pressed) {
-            on = 0;
-            shift(g_current_gear - 1);
-            Serial.println(g_current_gear);
-            while ((shift_down_pressed = button_read_attach_interrupt(&shift_down_button_parameters)));
+            stepper_motor.set_direction(NEGATIVE_DIR);
+            while ((shift_down_pressed = button_read_attach_interrupt(&shift_down_button_parameters))) {
+                stepper_motor.step();
+            }
         }
 
         if (limit_reached) {
-            on = 0;
             stepper_motor.change_direction();
             stepper_motor.set_speed(MIN_MOVE_RPM);
             while ((limit_reached = button_read_attach_interrupt(&limit_switch_parameters))) {
@@ -95,22 +91,29 @@ void gears_calibration() {
             c = Serial.read();
 
             switch (c) {
-                case 'o':
-                    on = 1 - on; break;
-
-                case 'c':
-                    stepper_motor.change_direction(); break;
 
                 case '+':
-                    for (int i=0; i<10; i++) stepper_motor.step();
+                    stepper_motor.set_direction(POSITIVE_DIR);
+                    for (int i=0; i<16; i++) stepper_motor.step();
                     break;
 
                 case '*':
-                    for (int i=0; i<100; i++) stepper_motor.step();
+                    stepper_motor.set_direction(POSITIVE_DIR);
+                    for (int i=0; i<160; i++) stepper_motor.step();
                     break;
 
-                case 's':
-                    on = 0;
+                case '-':
+                    stepper_motor.set_direction(NEGATIVE_DIR);
+                    for (int i=0; i<16; i++) stepper_motor.step();
+                    break;
+
+                case '/':
+                    stepper_motor.set_direction(NEGATIVE_DIR);
+                    for (int i=0; i<160; i++) stepper_motor.step();
+                    break;
+
+                case 's': case 'S':
+                    Serial.print("Enter the number of the gear to be saved: ");
                     gear = read_int_serial();
                     if (gear < 1 || gear > NUM_GEARS)
                         break;
@@ -121,16 +124,17 @@ void gears_calibration() {
                     Serial.println("GEAR SAVED");
                     Serial.print(gear); Serial.print("\tPosition: "); Serial.println(gears[gear-1]);
                     Serial.print("Linear position: "); Serial.println(gears_lin[gear-1]);
+                    Serial.println();
                     break;
 
-                case 'g':
-                    on = 0;
+                case 'g': case 'G':
+                    Serial.print("Enter the number of the gear to shift to: ");
                     gear = read_int_serial();
                     shift(gear);
-                    Serial.print("Shifting to gear: "); Serial.println(gear);
+                    Serial.print("Shifted to gear: "); Serial.println(gear);
                     break;
 
-                case 'e':
+                case 'e': case 'E':
                     end = 1; break;
 
                 default:
@@ -139,9 +143,9 @@ void gears_calibration() {
         }
     }
 
-    Serial.println("Confirm changes? (Y/n)");
+    Serial.println("Confirm changes? (y/n)");
     end = 0;
-    while(!end) {
+    while (!end) {
         while (!Serial.available()) delay(1);
         c = Serial.read();
         switch (c) {
@@ -159,6 +163,9 @@ void gears_calibration() {
                 Serial.println("Unrecognized command (use: y,Y/n,N)"); break;
         }
     }
+
+    flash.read_array(gears_memory_key, (void *) gears, NUM_GEARS, sizeof(int));
+    flash.read_array(gears_lin_memory_key, (void *) gears_lin, NUM_GEARS, sizeof(int));
 }
 
 
