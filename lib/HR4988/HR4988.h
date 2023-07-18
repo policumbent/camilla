@@ -35,6 +35,7 @@
 #define NEGATIVE_DIR -1
 
 #define DELAY_CHANGE_DIRECTION 1e4
+#define DELAY_SETUP            1
 
 
 class HR4988 {
@@ -59,7 +60,7 @@ class HR4988 {
         uint8_t reset;
         uint8_t _sleep;
 
-        const uint8_t delay_on = 1;
+        const uint8_t delay_on = 10;
         int delay_off;
 
         uint8_t direction;
@@ -75,6 +76,7 @@ class HR4988 {
         void _move_set_speed_direction(int start_pos, int target_pos);
         int _update_position();
         void _step_no_delay_off();
+        void _set_delay_off();
 
 
     public:
@@ -122,4 +124,6 @@ class HR4988 {
 
         void debug_serial_control();
         void print_status();
+
+        void driver_calibration();
 };

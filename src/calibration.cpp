@@ -15,7 +15,7 @@ void calibration() {
     char c;
     uint8_t end = 0;
 
-    Serial.println("Select: Gears, Encoder or Potentiometer calibration (g,G/e,E/p,P)");
+    Serial.println("Select: Gears, Encoder, Potentiometer or Driver calibration (g,G / e,E / p,P / d,D)");
 
     while (!end) {
         while (!Serial.available()) delay(1);
@@ -30,8 +30,11 @@ void calibration() {
             case 'p': case 'P':
                 linear_potentiometer.calibration(stepper_motor);
                 end = 1; break;
+            case 'd': case 'D':
+                stepper_motor.driver_calibration();
+                end = 1; break;
             default:
-                Serial.println("Unrecognized command (use: g,G/e,E/p,P)");
+                Serial.println("Unrecognized command (use: g,G / e,E / p,P / d,D)");
                 break;
         }
     }    
@@ -39,20 +42,21 @@ void calibration() {
 
 
 void gears_calibration() {
+    const int SPEED = 30;
     uint8_t end, gear;
     char c;
 
     Serial.println("\nGears calibration");
 
     stepper_motor.set_direction(NEGATIVE_DIR);
-    stepper_motor.set_speed(60);
+    stepper_motor.set_speed(SPEED);
     while (!limit_reached) {
         stepper_motor.step();
     }
     stepper_motor.set_position(0);
 
     stepper_motor.change_direction();
-    stepper_motor.set_speed(60);
+    stepper_motor.set_speed(SPEED);
 
     shift_up_pressed = shift_down_pressed = calibration_button_pressed = 0;
 
@@ -76,7 +80,7 @@ void gears_calibration() {
 
         if (limit_reached) {
             stepper_motor.change_direction();
-            stepper_motor.set_speed(MIN_MOVE_RPM);
+            stepper_motor.set_speed(SPEED);
             while ((limit_reached = button_read_attach_interrupt(&limit_switch_parameters))) {
                 stepper_motor.step();
             }
@@ -113,7 +117,7 @@ void gears_calibration() {
                     break;
 
                 case 's': case 'S':
-                    Serial.print("Enter the number of the gear to be saved: ");
+                    Serial.println("Enter the number of the gear to be saved: ");
                     gear = read_int_serial();
                     if (gear < 1 || gear > NUM_GEARS)
                         break;
@@ -128,7 +132,7 @@ void gears_calibration() {
                     break;
 
                 case 'g': case 'G':
-                    Serial.print("Enter the number of the gear to shift to: ");
+                    Serial.println("Enter the number of the gear to shift to: ");
                     gear = read_int_serial();
                     shift(gear);
                     Serial.print("Shifted to gear: "); Serial.println(gear);

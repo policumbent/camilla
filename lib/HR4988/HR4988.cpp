@@ -139,7 +139,7 @@ void HR4988 :: move(int target_pos) {
     
     step_cnt = 0;
 
-    while (position_sixteenth != target_pos) {
+    while ((direction == POSITIVE_DIR) ? (position_sixteenth < target_pos) : (position_sixteenth > target_pos)) {
 
         portDISABLE_INTERRUPTS();
         elapsed_time = micros();
@@ -265,6 +265,13 @@ int HR4988 :: get_position() {
 }
 
 
+void HR4988 :: _set_delay_off() {
+    delay_off = (int) ((((float) deg_per_full_step / (float) microstepping) * 60.0e6) / (360.0 * rpm) - (float) delay_on);
+    //delay_off = ((float) 1000000 / ((float) full_steps_per_turn * (float) microstepping * 60.0 * rpm));
+    delay_off = (delay_off < 1000000) ? delay_off : 1000000;
+}
+
+
 void HR4988 :: set_speed(float speed) {
     uint8_t ms;
 
@@ -286,9 +293,7 @@ void HR4988 :: set_speed(float speed) {
         set_microstepping(ms);
     }
 
-    delay_off = (int) ((((float) deg_per_full_step / (float) microstepping) * 60.0e6) / (360.0 * rpm) - (float) delay_on);
-    //delay_off = ((float) 1000000 / ((float) full_steps_per_turn * (float) microstepping * 60.0 * rpm));
-    delay_off = (delay_off < 1000000) ? delay_off : 1000000;
+    _set_delay_off();
 }
 
 
@@ -361,8 +366,11 @@ void HR4988 :: set_microstepping(uint8_t mode) {
     digitalWrite(ms1_pin, ms1);
     digitalWrite(ms2_pin, ms2);
     digitalWrite(ms3_pin, ms3);
+    delayMicroseconds(DELAY_SETUP);
     
-    set_speed(rpm);
+    // Since the delay off depends on the microstepping, thus if one calls the
+    //  function without calling set_speed, the delay off will be wrong
+    _set_delay_off();
 }
 
 
@@ -405,10 +413,6 @@ void HR4988 :: debug_serial_control() {
     Serial.println("Debug from serial initialized (read switch case from HR4988.cpp)");
 
     while (!end) {
-        
-        for (int i=0; i<steps_per_activation; i++) {
-            step();
-        }
 
         if (Serial.available()) {
             char c;
@@ -416,12 +420,12 @@ void HR4988 :: debug_serial_control() {
 
             switch (c) {
                 case 'c': change_direction(); break;
-                case '^': steps_per_activation += 1; break;
-                case 'i': steps_per_activation += 10; break;
-                case 'I': steps_per_activation += 100; break;
-                case 'v': steps_per_activation -= 1; break;
-                case 'd': steps_per_activation -= 10; break;
-                case 'D': steps_per_activation -= 100; break;
+                case '^': steps_per_activation = 1; break;
+                case 'i': steps_per_activation = 10; break;
+                case 'I': steps_per_activation = 200; break;
+                case 'v': steps_per_activation = -1; break;
+                case 'd': steps_per_activation = -10; break;
+                case 'D': steps_per_activation = -200; break;
                 case '*': rpm += 100; set_speed(rpm); break;
                 case '/': rpm -= 100; set_speed(rpm); break;
                 case '+': rpm += 10; set_speed(rpm); break;
@@ -436,6 +440,15 @@ void HR4988 :: debug_serial_control() {
                 case 'e': end = 1; break;
                 default: break;
             }
+
+            if (steps_per_activation != 0) {
+                set_direction((steps_per_activation > 0) ? POSITIVE_DIR : NEGATIVE_DIR);
+
+                for (int i=0; i<steps_per_activation; i++) step();
+
+                steps_per_activation = 0;
+            }
+
             print_status();
         }
     }
@@ -450,4 +463,29 @@ void HR4988 :: print_status() {
     sprintf(str, "Position: %d\tRPM: %.2f\tDirection: %d\tMicrostepping: %d\tSleep: %d\tDelay off: %d",
             position_sixteenth, rpm, direction, microstepping, _sleep, delay_off);
     Serial.println(str);
+}
+
+
+void HR4988 :: driver_calibration() {
+    uint8_t end;
+
+    Serial.println("Driver calibration (set the encoder potentiometer) ('e' to end): ");
+
+    end = 0;
+    while (!end) {
+
+        if (Serial.available()) {
+            char c;
+            c = Serial.read();
+
+            switch (c) {
+                case 'e':
+                    end = 1; break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    Serial.println("Calibration ended");
 }

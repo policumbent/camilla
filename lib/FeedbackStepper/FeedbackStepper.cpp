@@ -120,7 +120,7 @@ void FeedbackStepper :: shift(int next_gear) {
 
     if (rotative_encoder != NULL) rotative_encoder->read_angle();
 
-    while (position_sixteenth != target_pos && !(*ptr_limit_reached)) {
+    while (((direction == POSITIVE_DIR) ? (position_sixteenth < target_pos) : (position_sixteenth > target_pos)) && !(*ptr_limit_reached)) {
 
         portDISABLE_INTERRUPTS();
         elapsed_time = micros();
