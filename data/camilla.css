@@ -1,0 +1,74 @@
+body{
+    background: aqua;
+}
+
+h1{
+    text-align: center;
+    font-size: xxx-large;
+    font-family: "Arial Black";
+}
+
+table{
+    align-content: center;
+    align-self: center;
+    margin: auto;
+    padding: 20px;
+    width:50%;
+}
+
+tr{
+    font-size: x-large;
+}
+
+td{
+    border: 1px solid #333;
+}
+
+thead{
+    font-size: xx-large;
+    font-family: "Arial Black";
+}
+
+button{
+    background-color: dodgerblue;
+    border: none;
+    color: white;
+    padding: 10px 32px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 22px;
+    position: relative;
+    cursor: pointer;
+    border-radius: 8px;
+    width: 25%;
+}
+
+/* CSS per personalizzare il menu a tendina */
+select {
+    width: 200px;
+    padding: 8px;
+    font-size: 22px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+label {
+    width: 200px;
+    padding: 8px;
+    font-size: 22px;
+    border-radius: 4px;
+}
+
+input {
+    width: 200px;
+    padding: 8px;
+    font-size: 16px;
+    border-radius: 4px;
+}
+
+/* Stile per gli elementi <option> */
+option {
+    font-size: 16px;
+    background-color: #f0f0f0;
+    color: #333;
+}
