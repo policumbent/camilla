@@ -14,7 +14,7 @@ WebServer::~WebServer() {
     delete server;
 }
 
-void WebServer::init_webserver(Data *data){
+void WebServer::init_webserver(){
     WiFi.softAP(AP_SSID, AP_PASSWORD);
 
     this->server = new AsyncWebServer(80);
@@ -24,22 +24,16 @@ void WebServer::init_webserver(Data *data){
     });
 
     // API REQUESTS
-    this->server->on("/api/refresh", HTTP_GET, [data](AsyncWebServerRequest *request) {
-        auto response = new AsyncJsonResponse();
-        auto json = response->getRoot();
+    this->server->on("/api/get_gear", HTTP_GET, [](AsyncWebServerRequest *request) {
+        request->send(200, "text/plain", get_gear_position());
+    });
 
-        json["temperature"] = data->temperature;
-        json["humidity"] = data->humidity;
-        json["pressure"] = data->pressure;
-        json["wind_speed"] = data->wind_speed;
-        json["wind_direction"] = data->wind_direction;
+    this->server->on("/api/position", HTTP_GET, [](AsyncWebServerRequest *request){
+        request->send(200, "text/plain", get_linear() + ";" + get_rotative());
+    });
 
-        response->setLength();
-        response->setCode(200);
-
-        request->send(response);
-
-        delete response;
+    this->server->on("/api/calibrate", HTTP_GET, [](AsyncWebServerRequest *request){
+        calibrate(request->getParam("gear"), get_linear(), get_rotative());
     });
 
     this->server->serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
