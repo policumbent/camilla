@@ -4,7 +4,7 @@
 FeedbackStepper stepper_motor = FeedbackStepper (
     STEP_PIN, DIRECTION_PIN,
     MS1_PIN, MS2_PIN, MS3_PIN,
-    ENABLE_PIN,
+    ENABLE_PIN, SLEEP_PIN, RESET_PIN,
     full_steps_per_turn, deg_per_full_step,
     cw_direction_sign
 );
@@ -72,7 +72,7 @@ void function_core_1 (void *parameters) {
     button_setup(&calibration_button_parameters);
 
     stepper_motor.set_limit_switch(&limit_reached);
-    //stepper_motor.set_rotative_encoder(&rotative_encoder, increase_encoder_direction_sign);
+    stepper_motor.set_rotative_encoder(&rotative_encoder, increase_encoder_direction_sign);
     //stepper_motor.set_linear_potentiometer(&linear_potentiometer, increase_potentiometer_direction_sign);
     int *gears_ptr = gears;
     stepper_motor.set_gears(gears_ptr);
@@ -282,9 +282,6 @@ void function_core_1 (void *parameters) {
         }
 
         delay(10);
-
-        
-        // TODO: signal to core0 the need to pass the gear to CAN-BUS
 
     }
 }
