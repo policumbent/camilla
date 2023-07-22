@@ -30,12 +30,13 @@ void WebServer::init_webserver(){
 
     // API REQUESTS
     this->server->on("/api/get_gear", HTTP_GET, [this](AsyncWebServerRequest *request) {
-        request->send(200, "text/plain", get_gear_position());
+        if(request->hasArg("gear"))
+            request->send(200, "text/plain", get_gear_position(request->arg("gear").toInt()));
     });
 
     this->server->on("/api/position", HTTP_GET, [this](AsyncWebServerRequest *request){
         char response[20]; 
-        sprintf(response, "%d;%d", linear_potentiometer->read_position(), stepper_motor->get_position());
+        sprintf(response, "%d,%d", linear_potentiometer->read_position(), stepper_motor->get_position());
         request->send(200, "text/plain", response);
     });
 
@@ -43,8 +44,9 @@ void WebServer::init_webserver(){
         if(request->hasArg("gear")){
             String arg = request->arg("gear");
             save_gear(arg.toInt());
+            request->send(200, "text/plain", get_gear_position(arg.toInt()));
         }
-
+        
     });
 
     this->server->serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
@@ -56,6 +58,6 @@ void WebServer::save_gear(int gear){
 
 }
 
-String WebServer::get_gear_position(){
+String WebServer::get_gear_position(int gear){
 
 }
