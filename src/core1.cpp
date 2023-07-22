@@ -72,7 +72,7 @@ void function_core_1 (void *parameters) {
     button_setup(&calibration_button_parameters);
 
     stepper_motor.set_limit_switch(&limit_reached);
-    stepper_motor.set_rotative_encoder(&rotative_encoder, increase_encoder_direction_sign);
+    //stepper_motor.set_rotative_encoder(&rotative_encoder, increase_encoder_direction_sign);
     //stepper_motor.set_linear_potentiometer(&linear_potentiometer, increase_potentiometer_direction_sign);
     int *gears_ptr = gears;
     stepper_motor.set_gears(gears_ptr);
@@ -81,7 +81,7 @@ void function_core_1 (void *parameters) {
 
     #if DEBUG_MEMORY >= 2
         for (int i=0; i<NUM_GEARS; i++) {
-            gears[i] = 2 * stepper_motor.get_delta_position_360_degrees_rotation() * (i+1);
+            gears[i] = 4 * stepper_motor.get_delta_position_360_degrees_rotation() * (i+1);
             gears_lin[i] = 0;
         }
         flash.write_array(gears_memory_key, (void *) gears, NUM_GEARS, sizeof(int));
