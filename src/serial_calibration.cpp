@@ -1,6 +1,9 @@
 #include "core1.h"
 
 
+#if SERIAL_CALIBRATION
+
+
 void gears_calibration();
 int read_int_serial();
 
@@ -81,7 +84,6 @@ void gears_calibration() {
 
         if (calibration_button_pressed) {
             end = 1;
-            while ((calibration_button_pressed = button_read_attach_interrupt(&calibration_button_parameters)));
         }
 
         if (Serial.available()) {
@@ -180,3 +182,8 @@ int read_int_serial() {
 
     return input_str.toInt();
 }
+
+void webserver_calibration() {
+    // just to not have a #if in core0.cpp
+}
+#endif

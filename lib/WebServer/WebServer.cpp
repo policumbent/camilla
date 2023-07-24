@@ -1,12 +1,12 @@
 #include "WebServer.h"
-#include <WiFi.h>
-#include <WiFiAP.h>
-#include <Arduino.h>
 
-WebServer::WebServer(FeedbackStepper *stepper_motor, Potentiometer *linear_potentiometer, Memory *mem) {
+
+WebServer::WebServer(FeedbackStepper *stepper_motor, Potentiometer *linear_potentiometer, int *gears, int *gears_lin, int num_gears) {
     this->stepper_motor = stepper_motor;
     this->linear_potentiometer = linear_potentiometer;
-    this->mem = mem;
+    this->gears = gears;
+    this->gears_lin;
+    this->num_gears = num_gears;
     
     init_webserver();
 }
@@ -20,6 +20,8 @@ WebServer::~WebServer() {
 }
 
 void WebServer::init_webserver(){
+    SPIFFS.begin();
+
     WiFi.softAP(AP_SSID, AP_PASSWORD);
 
     this->server = new AsyncWebServer(80);

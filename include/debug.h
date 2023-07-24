@@ -13,4 +13,6 @@
     #define DEBUG_POTENTIOMETER 0
 
     #define DEBUG_CAN 1
+
+    #define SERIAL_CALIBRATION  0
 #endif

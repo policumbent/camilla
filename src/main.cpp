@@ -7,6 +7,7 @@ TaskHandle_t task_core_0;
 SemaphoreHandle_t g_semaphore;
 
 uint8_t g_current_gear;
+uint8_t g_calibration_flag;
 
 
 void setup() {
@@ -20,9 +21,11 @@ void setup() {
     g_semaphore = xSemaphoreCreateBinary();
     xSemaphoreGive(g_semaphore);
 
+    g_calibration_flag = 0;
+
     xTaskCreatePinnedToCore(function_core_1, "Core_1", 20000, NULL, configMAX_PRIORITIES-1, &task_core_1, 1);
     delay(500);
-    xTaskCreatePinnedToCore(function_core_0, "Core_0", 10000, NULL, configMAX_PRIORITIES-1, &task_core_0, 0);
+    xTaskCreatePinnedToCore(function_core_0, "Core_0", 20000, NULL, configMAX_PRIORITIES-1, &task_core_0, 0);
     delay(500);
 }
 

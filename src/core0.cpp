@@ -56,6 +56,11 @@ void function_core_0 (void *parameters) {
         #if DEBUG_CAN >= 2
             Serial.println("CAN still running");
         #endif
+
+        if (g_calibration_flag) {
+            webserver_calibration();
+            g_calibration_flag = 0;
+        }
     
         delay(1000);
     }

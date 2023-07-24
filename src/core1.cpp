@@ -210,7 +210,10 @@ void function_core_1 (void *parameters) {
 
     if (calibration_button_pressed) {
         while ((calibration_button_pressed = button_read_attach_interrupt(&calibration_button_parameters)));
+
+        g_calibration_flag = 1;
         calibration();
+        while ((calibration_button_pressed = button_read_attach_interrupt(&calibration_button_parameters)));
     }
 
 

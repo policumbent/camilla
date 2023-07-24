@@ -1,29 +1,38 @@
 # pragma once
 
+#include <Arduino.h>
 #include <SPIFFS.h>
+#include <FS.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
-#include <FeedbackStepper.h>
-#include <Potentiometer.h>
-#include <Memory.h>
+#include <WiFi.h>
+#include <WiFiAP.h>
 
-#define AP_SSID "***"
-#define AP_PASSWORD "***"
+#include "FeedbackStepper.h"
+#include "Potentiometer.h"
+#include "Memory.h"
+
+
+#define AP_SSID "ESP_CAMILLA"
+#define AP_PASSWORD "camilla123"
 
 class WebServer {
 
-    AsyncWebServer *server;
-    FeedbackStepper *stepper_motor;
-    Potentiometer *linear_potentiometer;
-    Memory *mem;
+    private:
+        AsyncWebServer *server;
+        FeedbackStepper *stepper_motor;
+        Potentiometer *linear_potentiometer;
+        int *gears;
+        int *gears_lin;
+        int num_gears;
 
-public:
-    WebServer(FeedbackStepper *stepper_motor, Potentiometer *linear_potentiometer, Memory *mem);
-    ~ WebServer();
+    public:
+        WebServer(FeedbackStepper *stepper_motor, Potentiometer *linear_potentiometer, int *gears, int *gears_lin, int num_gears);
+        ~ WebServer();
 
-private:
-    void init_webserver();
-    void save_gear(int gear);
-    String get_gear_position(int gear);
+    private:
+        void init_webserver();
+        void save_gear(int gear);
+        String get_gear_position(int gear);
 
 };
