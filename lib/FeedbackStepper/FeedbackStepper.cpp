@@ -82,11 +82,6 @@ void FeedbackStepper :: set_gears_lin(int *gears_lin) {
 }
 
 
-void FeedbackStepper :: move(int target_pos) {
-    HR4988::move(target_pos);
-}
-
-
 void FeedbackStepper :: shift(int next_gear) {
     int target_pos = gears[next_gear-1];
     int start_pos = position_sixteenth;
@@ -153,12 +148,12 @@ void FeedbackStepper :: shift(int next_gear) {
             // Cannot use 'continue;' statement (buggy behavior) (!!!!)
 
             // Remove faulty readings (see spikes in encoder_reasings.py in docs)
-            if (1 || abs(delta_angle) < 150) {
+            if (abs(delta_angle) < 150) {
                 
                 error = delta_pos - ((float) delta_angle) * 0.7814;      // angle / 4095 * 200 * 16
 
                 
-                if (abs(delta_angle) < 150 && error >= 8) {
+                if (error >= 8) {
                     error = round((float) error / (float) microstepping) * microstepping;
                     position_sixteenth -= error;
                 }

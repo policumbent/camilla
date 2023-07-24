@@ -42,7 +42,7 @@ void calibration() {
 
 
 void gears_calibration() {
-    const int SPEED = 30;
+    const int SPEED = 100;
     uint8_t end, gear;
     char c;
 

@@ -51,6 +51,5 @@ class FeedbackStepper : public HR4988 {
         void set_gears(int *gears);
         void set_gears_lin(int *gears_lin);
         
-        void move(int target_pos);
         void shift(int next_gear);
 };

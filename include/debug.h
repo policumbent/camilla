@@ -9,8 +9,8 @@
     #define DEBUG_BUTTONS       1
     #define DEBUG_LIMIT_SWITCH  1
     #define DEBUG_GEARS         1
-    #define DEBUG_ENCODER       0
-    #define DEBUG_POTENTIOMETER 1
+    #define DEBUG_ENCODER       2
+    #define DEBUG_POTENTIOMETER 0
 
     #define DEBUG_CAN 1
 #endif

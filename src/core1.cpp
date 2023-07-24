@@ -72,7 +72,7 @@ void function_core_1 (void *parameters) {
     button_setup(&calibration_button_parameters);
 
     stepper_motor.set_limit_switch(&limit_reached);
-    //stepper_motor.set_rotative_encoder(&rotative_encoder, increase_encoder_direction_sign);
+    stepper_motor.set_rotative_encoder(&rotative_encoder, increase_encoder_direction_sign);
     //stepper_motor.set_linear_potentiometer(&linear_potentiometer, increase_potentiometer_direction_sign);
     int *gears_ptr = gears;
     stepper_motor.set_gears(gears_ptr);
@@ -143,6 +143,11 @@ void function_core_1 (void *parameters) {
         Serial.println(str_enc);
 
         #if DEBUG_ENCODER >= 2
+            Serial.print("Encoder magnet status: ");
+            Serial.println(rotative_encoder.get_magnet_distance());
+        #endif
+
+        #if DEBUG_ENCODER >= 3
             char c_enc = 'x';
 
             stepper_motor.set_direction(CCW);
@@ -155,17 +160,13 @@ void function_core_1 (void *parameters) {
 
                 angle = rotative_encoder.read_angle();
 
-                sprintf(str_enc, "I2C encoder reading: %d\t\tADC encoder reading: %d", angle, rotative_encoder.read_angle_output());
+                sprintf(str_enc, "Encoder reading: %d", angle);
                 Serial.println(str_enc);
 
                 delay(250);
             }
         #endif
 
-        #if DEBUG_ENCODER <= -1
-            Serial.print("Encoder magnet status: ");
-            Serial.println(rotative_encoder.get_magnet_distance());
-        #endif
     #endif
 
     #if DEBUG_POTENTIOMETER
@@ -202,43 +203,37 @@ void function_core_1 (void *parameters) {
     shift_down_pressed = shift_up_pressed = calibration_button_pressed = 0;
     while (!(shift_down_pressed || shift_up_pressed || calibration_button_pressed)) delay(10);
 
-    if (shift_up_pressed) {
-        int time_long_press = millis();
-        while ((shift_up_pressed = button_read_attach_interrupt(&shift_up_button_parameters)));
-        time_long_press = millis() - time_long_press;
-        
-        if (time_long_press >= 3000) {
-            stepper_motor.set_direction(NEGATIVE_DIR);
-            stepper_motor.set_speed(60);
-            while (!limit_reached) {
-                stepper_motor.step();
-            }
-            stepper_motor.set_position(0);
-        }
-        else {
-            stepper_motor.set_position(0);
-        }
-    }
-    else if (shift_down_pressed) {
+    if (shift_down_pressed) {
         while ((shift_down_pressed = button_read_attach_interrupt(&shift_down_button_parameters)));
         test_mode();
     }
-    else if (calibration_button_pressed) {
+
+    if (calibration_button_pressed) {
         while ((calibration_button_pressed = button_read_attach_interrupt(&calibration_button_parameters)));
         calibration();
     }
+
+
+    while (!shift_up_pressed) delay(10);
+    while ((shift_up_pressed = button_read_attach_interrupt(&shift_up_button_parameters)));
+
+    stepper_motor.set_direction(NEGATIVE_DIR);
+    stepper_motor.set_speed(100);
+    while (!limit_reached) {
+        stepper_motor.step();
+    }
+    stepper_motor.set_position(0);
 
     #if DEBUG_CORES
         Serial.print("The limit switch isr has runned on core: ");
         Serial.println(limit_reached - 1);
     #endif
 
-    if (limit_reached) {
-        stepper_motor.change_direction();
-        while ((limit_reached = button_read_attach_interrupt(&limit_switch_parameters))) {
-            stepper_motor.step();
-        }
+    stepper_motor.change_direction();
+    while ((limit_reached = button_read_attach_interrupt(&limit_switch_parameters))) {
+        stepper_motor.step();
     }
+
     
     #if DEBUG_MOTOR >= 2
         stepper_motor.debug_serial_control();
@@ -331,41 +326,48 @@ void shift(uint8_t next_gear) {
 
 
 void test_mode() {
-    int pos;
-    int delta_pos = 10 * stepper_motor.get_delta_position_360_degrees_rotation();
-    
-    Serial.println("Test mode");
+    const int SPEED = 300;
+    uint8_t end;
 
-    while (1) {
+    #if DEBUG
+        Serial.println("TEST MODE");
+    #endif
+
+    stepper_motor.set_speed(SPEED);
+
+    shift_up_pressed = shift_down_pressed = calibration_button_pressed = 0;
+
+    end = 0;
+    while (!end) {
 
         if (shift_up_pressed) {
-            #if DEBUG_BUTTONS
-                Serial.println("Shifting up");
-            #endif
-            pos = stepper_motor.get_position();
-            stepper_motor.move(pos + delta_pos);
-
-            while ((shift_up_pressed = button_read_attach_interrupt(&shift_up_button_parameters)));
+            stepper_motor.set_direction(POSITIVE_DIR);
+            while ((shift_up_pressed = button_read_attach_interrupt(&shift_up_button_parameters))) {
+                stepper_motor.step();
+            }
         }
 
         if (shift_down_pressed) {
-            #if DEBUG_BUTTONS
-                Serial.println("Shifting down");
-            #endif
-            pos = stepper_motor.get_position();
-            stepper_motor.move(pos - delta_pos);
-
-            while ((shift_down_pressed = button_read_attach_interrupt(&shift_down_button_parameters)));
+            stepper_motor.set_direction(NEGATIVE_DIR);
+            while ((shift_down_pressed = button_read_attach_interrupt(&shift_down_button_parameters))) {
+                stepper_motor.step();
+            }
         }
 
         if (limit_reached) {
-            #if DEBUG_LIMIT_SWITCH
-                Serial.println("Limit reached");
-            #endif
+            stepper_motor.change_direction();
+            stepper_motor.set_speed(SPEED);
+            while ((limit_reached = button_read_attach_interrupt(&limit_switch_parameters))) {
+                stepper_motor.step();
+            }
+        }
 
-            while((limit_reached = button_read_attach_interrupt(&limit_switch_parameters)));
+        if (calibration_button_pressed) {
+            end = 1;
+            while ((calibration_button_pressed = button_read_attach_interrupt(&calibration_button_parameters)));
         }
 
         delay(10);
+
     }
 }
