@@ -82,11 +82,6 @@ void FeedbackStepper :: set_gears_lin(int *gears_lin) {
 }
 
 
-void FeedbackStepper :: move(int target_pos) {
-    HR4988::move(target_pos);
-}
-
-
 void FeedbackStepper :: shift(int next_gear) {
     int target_pos = gears[next_gear-1];
     int start_pos = position_sixteenth;
@@ -120,7 +115,7 @@ void FeedbackStepper :: shift(int next_gear) {
 
     if (rotative_encoder != NULL) rotative_encoder->read_angle();
 
-    while (((direction == POSITIVE_DIR) ? (position_sixteenth < target_pos) : (position_sixteenth > target_pos)) && !(*ptr_limit_reached)) {
+    while (position_sixteenth != target_pos && !(*ptr_limit_reached)) {
 
         portDISABLE_INTERRUPTS();
         elapsed_time = micros();
@@ -153,12 +148,12 @@ void FeedbackStepper :: shift(int next_gear) {
             // Cannot use 'continue;' statement (buggy behavior) (!!!!)
 
             // Remove faulty readings (see spikes in encoder_reasings.py in docs)
-            if (1 || abs(delta_angle) < 150) {
+            if (abs(delta_angle) < 150) {
                 
                 error = delta_pos - ((float) delta_angle) * 0.7814;      // angle / 4095 * 200 * 16
 
                 
-                if (abs(delta_angle) < 150 && error >= 8) {
+                if (error >= 8) {
                     error = round((float) error / (float) microstepping) * microstepping;
                     position_sixteenth -= error;
                 }
@@ -261,4 +256,36 @@ void FeedbackStepper :: shift(int next_gear) {
             dir = 0;
         }
     }
+}
+
+
+void FeedbackStepper :: move_while_button_pressed(float speed, uint8_t *button_pressed, button_parameters *bp) {
+    uint8_t end = 0;
+    long int elapsed_time, delay;
+
+    set_speed(speed);
+
+    while (!end) {
+
+        portDISABLE_INTERRUPTS();
+        elapsed_time = micros();
+
+        *button_pressed = button_read_attach_interrupt(bp);
+
+        if (!(*button_pressed)) {
+            end = 1;
+            portENABLE_INTERRUPTS();
+        }
+        else {
+            _step_no_delay_off();
+
+            elapsed_time = micros() - elapsed_time;
+            delay = (delay_off - elapsed_time > 0) ? (delay_off - elapsed_time) : (1);
+            portENABLE_INTERRUPTS();
+
+            delayMicroseconds(delay);
+
+            _update_position();
+        }
+    }    
 }

@@ -5,15 +5,18 @@
 #define NUM_GEARS  12     // for Phoenix
 
 
-#define ENABLE_PIN       13
+// Stepper pins
+#define ENABLE_PIN      13
 
-#define STEP_PIN         12
-#define DIRECTION_PIN    14
+#define MS1_PIN         12
+#define MS2_PIN         14
+#define MS3_PIN         27
 
-// microstepping pins
-#define MS1_PIN          25
-#define MS2_PIN          33
-#define MS3_PIN          32
+#define RESET_PIN       26
+#define SLEEP_PIN       25
+
+#define STEP_PIN        33
+#define DIRECTION_PIN   32
 
 
 #define LIMIT_SWITCH_PIN 18
@@ -29,7 +32,7 @@
 
 const int full_steps_per_turn = 200;
 const float deg_per_full_step = 1.8;
-const int8_t cw_direction_sign = -1;
+const int8_t cw_direction_sign = 1;
 
 const int8_t increase_encoder_direction_sign = 1;
 const int8_t increase_potentiometer_direction_sign = 1;

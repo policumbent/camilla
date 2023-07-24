@@ -139,7 +139,7 @@ void HR4988 :: move(int target_pos) {
     
     step_cnt = 0;
 
-    while ((direction == POSITIVE_DIR) ? (position_sixteenth < target_pos) : (position_sixteenth > target_pos)) {
+    while (position_sixteenth != target_pos) {
 
         portDISABLE_INTERRUPTS();
         elapsed_time = micros();
