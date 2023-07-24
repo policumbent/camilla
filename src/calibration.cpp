@@ -66,24 +66,17 @@ void gears_calibration() {
 
         if (shift_up_pressed) {
             stepper_motor.set_direction(POSITIVE_DIR);
-            while ((shift_up_pressed = button_read_attach_interrupt(&shift_up_button_parameters))) {
-                stepper_motor.step();
-            }
+            stepper_motor.move_while_button_pressed(SPEED, &shift_up_pressed, &shift_up_button_parameters);
         }
 
         if (shift_down_pressed) {
             stepper_motor.set_direction(NEGATIVE_DIR);
-            while ((shift_down_pressed = button_read_attach_interrupt(&shift_down_button_parameters))) {
-                stepper_motor.step();
-            }
+            stepper_motor.move_while_button_pressed(SPEED, &shift_down_pressed, &shift_down_button_parameters);
         }
 
         if (limit_reached) {
             stepper_motor.change_direction();
-            stepper_motor.set_speed(SPEED);
-            while ((limit_reached = button_read_attach_interrupt(&limit_switch_parameters))) {
-                stepper_motor.step();
-            }
+            stepper_motor.move_while_button_pressed(SPEED, &limit_reached, &limit_switch_parameters);
         }
 
         if (calibration_button_pressed) {

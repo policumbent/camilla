@@ -230,9 +230,7 @@ void function_core_1 (void *parameters) {
     #endif
 
     stepper_motor.change_direction();
-    while ((limit_reached = button_read_attach_interrupt(&limit_switch_parameters))) {
-        stepper_motor.step();
-    }
+    stepper_motor.move_while_button_pressed(100, &limit_reached, &limit_switch_parameters);
 
     
     #if DEBUG_MOTOR >= 2
@@ -270,10 +268,7 @@ void function_core_1 (void *parameters) {
             #endif
 
             stepper_motor.change_direction();
-            stepper_motor.set_speed(MIN_MOVE_RPM);
-            while ((limit_reached = button_read_attach_interrupt(&limit_switch_parameters))) {
-                stepper_motor.step();
-            }
+            stepper_motor.move_while_button_pressed(100, &limit_reached, &limit_switch_parameters);
         }
 
         delay(10);
@@ -326,7 +321,7 @@ void shift(uint8_t next_gear) {
 
 
 void test_mode() {
-    const int SPEED = 300;
+    const int SPEED = 200;
     uint8_t end;
 
     #if DEBUG
@@ -342,24 +337,17 @@ void test_mode() {
 
         if (shift_up_pressed) {
             stepper_motor.set_direction(POSITIVE_DIR);
-            while ((shift_up_pressed = button_read_attach_interrupt(&shift_up_button_parameters))) {
-                stepper_motor.step();
-            }
+            stepper_motor.move_while_button_pressed(SPEED, &shift_up_pressed, &shift_up_button_parameters);
         }
 
         if (shift_down_pressed) {
             stepper_motor.set_direction(NEGATIVE_DIR);
-            while ((shift_down_pressed = button_read_attach_interrupt(&shift_down_button_parameters))) {
-                stepper_motor.step();
-            }
+            stepper_motor.move_while_button_pressed(SPEED, &shift_down_pressed, &shift_down_button_parameters);
         }
 
         if (limit_reached) {
             stepper_motor.change_direction();
-            stepper_motor.set_speed(SPEED);
-            while ((limit_reached = button_read_attach_interrupt(&limit_switch_parameters))) {
-                stepper_motor.step();
-            }
+            stepper_motor.move_while_button_pressed(SPEED, &limit_reached, &limit_switch_parameters);
         }
 
         if (calibration_button_pressed) {

@@ -257,3 +257,35 @@ void FeedbackStepper :: shift(int next_gear) {
         }
     }
 }
+
+
+void FeedbackStepper :: move_while_button_pressed(float speed, uint8_t *button_pressed, button_parameters *bp) {
+    uint8_t end = 0;
+    long int elapsed_time, delay;
+
+    set_speed(speed);
+
+    while (!end) {
+
+        portDISABLE_INTERRUPTS();
+        elapsed_time = micros();
+
+        *button_pressed = button_read_attach_interrupt(bp);
+
+        if (!(*button_pressed)) {
+            end = 1;
+            portENABLE_INTERRUPTS();
+        }
+        else {
+            _step_no_delay_off();
+
+            elapsed_time = micros() - elapsed_time;
+            delay = (delay_off - elapsed_time > 0) ? (delay_off - elapsed_time) : (1);
+            portENABLE_INTERRUPTS();
+
+            delayMicroseconds(delay);
+
+            _update_position();
+        }
+    }    
+}
