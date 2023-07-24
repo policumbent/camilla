@@ -25,9 +25,10 @@ class WebServer {
         int *gears;
         int *gears_lin;
         int num_gears;
+        SemaphoreHandle_t *semaphore;
 
     public:
-        WebServer(FeedbackStepper *stepper_motor, Potentiometer *linear_potentiometer, int *gears, int *gears_lin, int num_gears);
+        WebServer(FeedbackStepper *stepper_motor, Potentiometer *linear_potentiometer, int *gears, int *gears_lin, int num_gears, SemaphoreHandle_t *semaphore);
         ~ WebServer();
 
     private:

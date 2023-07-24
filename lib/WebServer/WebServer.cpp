@@ -1,17 +1,18 @@
 #include "WebServer.h"
 
 
-WebServer::WebServer(FeedbackStepper *stepper_motor, Potentiometer *linear_potentiometer, int *gears, int *gears_lin, int num_gears) {
+WebServer :: WebServer(FeedbackStepper *stepper_motor, Potentiometer *linear_potentiometer, int *gears, int *gears_lin, int num_gears, SemaphoreHandle_t *semaphore) {
     this->stepper_motor = stepper_motor;
     this->linear_potentiometer = linear_potentiometer;
     this->gears = gears;
     this->gears_lin;
     this->num_gears = num_gears;
+    this->semaphore = semaphore;
     
     init_webserver();
 }
 
-WebServer::~WebServer() {
+WebServer :: ~ WebServer() {
     server->end();
     server->reset();
     SPIFFS.end(); // this may cause problems TODO: test
@@ -19,7 +20,7 @@ WebServer::~WebServer() {
     delete server;
 }
 
-void WebServer::init_webserver(){
+void WebServer :: init_webserver() {
     SPIFFS.begin();
 
     WiFi.softAP(AP_SSID, AP_PASSWORD);
@@ -56,10 +57,23 @@ void WebServer::init_webserver(){
     this->server->begin();
 }
 
-void WebServer::save_gear(int gear){
+void WebServer :: save_gear(int gear) {
+    xSemaphoreTake(*semaphore, portMAX_DELAY);
 
+    gears[gear-1] = stepper_motor->get_position();
+    gears_lin[gear-1] = linear_potentiometer->get_position();
+
+    xSemaphoreGive(*semaphore);
 }
 
-String WebServer::get_gear_position(int gear){
+String WebServer :: get_gear_position(int gear) {
+    String tmp;
 
+    xSemaphoreTake(*semaphore, portMAX_DELAY);
+
+    tmp = String(gears_lin[gear-1]) + String(",") + String(gears[gear-1]);
+
+    xSemaphoreGive(*semaphore);
+
+    return tmp;
 }

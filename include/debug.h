@@ -15,4 +15,5 @@
     #define DEBUG_CAN 1
 
     #define SERIAL_CALIBRATION  0
+    #define DEBUG_CALIBRATION   1
 #endif

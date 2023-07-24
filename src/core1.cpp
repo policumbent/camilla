@@ -225,7 +225,6 @@ void function_core_1 (void *parameters) {
     while (!limit_reached) {
         stepper_motor.step();
     }
-    stepper_motor.set_position(0);
 
     #if DEBUG_CORES
         Serial.print("The limit switch isr has runned on core: ");
@@ -234,6 +233,8 @@ void function_core_1 (void *parameters) {
 
     stepper_motor.change_direction();
     stepper_motor.move_while_button_pressed(100, &limit_reached, &limit_switch_parameters);
+    
+    stepper_motor.set_position(0);
 
     
     #if DEBUG_MOTOR >= 2
