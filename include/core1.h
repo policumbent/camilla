@@ -19,10 +19,11 @@
 #define DIRECTION_PIN   32
 
 
-#define LIMIT_SWITCH_PIN 18
+#define LIMIT_SWITCH_END_PIN    18
+#define LIMIT_SWITCH_BEGIN_PIN   5
 
-#define SHIFT_UP_BUTTON_PIN   16        // yellow
-#define SHIFT_DOWN_BUTTON_PIN 17        // green
+#define SHIFT_UP_BUTTON_PIN     16        // yellow
+#define SHIFT_DOWN_BUTTON_PIN   17        // green
 
 #define CALIBRATION_BUTTON_PIN 4
 
@@ -49,17 +50,20 @@ extern Memory flash;
 extern int gears[];
 extern int gears_lin[];
 
-extern uint8_t limit_reached;
+extern uint8_t switch_begin_pressed;
+extern uint8_t switch_end_pressed;
 extern uint8_t shift_up_pressed;
 extern uint8_t shift_down_pressed;
 extern uint8_t calibration_button_pressed;
-extern button_parameters limit_switch_parameters;
+extern button_parameters limit_switch_begin_parameters;
+extern button_parameters limit_switch_end_parameters;
 extern button_parameters shift_up_button_parameters;
 extern button_parameters shift_down_button_parameters;
 extern button_parameters calibration_button_parameters;
 
 
 void shift(uint8_t next_gear);
+void go_to_limit_switch(uint8_t limit_switch_pin);
 
 void test_mode();
 

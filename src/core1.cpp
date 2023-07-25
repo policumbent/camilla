@@ -22,11 +22,16 @@ int gears[NUM_GEARS];
 int gears_lin[NUM_GEARS];
 
 
-uint8_t limit_reached = 0;
-void IRAM_ATTR limit_switch_isr();
+uint8_t switch_begin_pressed = 0;
+uint8_t switch_end_pressed = 0;
+void IRAM_ATTR limit_switch_begin_isr();
+void IRAM_ATTR limit_switch_end_isr();
 
-button_parameters limit_switch_parameters = {
-    LIMIT_SWITCH_PIN, INPUT_PULLUP, LOW, limit_switch_isr, FALLING
+button_parameters limit_switch_begin_parameters = {
+    LIMIT_SWITCH_BEGIN_PIN, INPUT_PULLUP, LOW, limit_switch_begin_isr, FALLING
+};
+button_parameters limit_switch_end_parameters = {
+    LIMIT_SWITCH_END_PIN, INPUT_PULLUP, LOW, limit_switch_end_isr, FALLING
 };
 
 
@@ -64,7 +69,8 @@ void function_core_1 (void *parameters) {
 
     delay(1000);
 
-    button_setup(&limit_switch_parameters);
+    button_setup(&limit_switch_begin_parameters);
+    button_setup(&limit_switch_end_parameters);
 
     button_setup(&shift_up_button_parameters);
     button_setup(&shift_down_button_parameters);
@@ -220,20 +226,7 @@ void function_core_1 (void *parameters) {
     while (!shift_up_pressed) delay(10);
     while ((shift_up_pressed = button_read_attach_interrupt(&shift_up_button_parameters)));
 
-    stepper_motor.set_direction(NEGATIVE_DIR);
-    stepper_motor.set_speed(100);
-    while (!limit_reached) {
-        stepper_motor.step();
-    }
-
-    #if DEBUG_CORES
-        Serial.print("The limit switch isr has runned on core: ");
-        Serial.println(limit_reached - 1);
-    #endif
-
-    stepper_motor.change_direction();
-    stepper_motor.move_while_button_pressed(100, &limit_reached, &limit_switch_parameters);
-    
+    go_to_limit_switch(LIMIT_SWITCH_BEGIN_PIN);
     stepper_motor.set_position(0);
 
     
@@ -242,7 +235,8 @@ void function_core_1 (void *parameters) {
     #endif
 
 
-    shift_up_pressed = shift_down_pressed = calibration_button_pressed = limit_reached = 0;
+    shift_up_pressed = shift_down_pressed = calibration_button_pressed = 0;
+    switch_begin_pressed = switch_end_pressed = 0;
 
     shift(1);
 
@@ -266,13 +260,22 @@ void function_core_1 (void *parameters) {
             while ((shift_down_pressed = button_read_attach_interrupt(&shift_down_button_parameters)));
         }
 
-        if (limit_reached) {
+        if (switch_begin_pressed) {
             #if DEBUG_LIMIT_SWITCH
-                Serial.println("Limit reached");
+                Serial.println("Begin limit reached");
             #endif
 
             stepper_motor.change_direction();
-            stepper_motor.move_while_button_pressed(100, &limit_reached, &limit_switch_parameters);
+            stepper_motor.move_while_button_pressed(100, &switch_begin_pressed, &limit_switch_begin_parameters);
+        }
+
+        if (switch_end_pressed) {
+            #if DEBUG_LIMIT_SWITCH
+                Serial.println("End limit reached");
+            #endif
+
+            stepper_motor.change_direction();
+            stepper_motor.move_while_button_pressed(100, &switch_end_pressed, &limit_switch_end_parameters);
         }
 
         delay(10);
@@ -281,11 +284,13 @@ void function_core_1 (void *parameters) {
 }
 
 
-void IRAM_ATTR limit_switch_isr() {
-    limit_reached = button_interrupt_service_routine(&limit_switch_parameters);
-    #if DEBUG_CORES
-        if (limit_reached) limit_reached = xPortGetCoreID() + 1;
-    #endif
+void IRAM_ATTR limit_switch_begin_isr() {
+    switch_begin_pressed = button_interrupt_service_routine(&limit_switch_begin_parameters);
+}
+
+
+void IRAM_ATTR limit_switch_end_isr() {
+    switch_end_pressed = button_interrupt_service_routine(&limit_switch_end_parameters);
 }
 
 
@@ -324,6 +329,39 @@ void shift(uint8_t next_gear) {
 }
 
 
+void go_to_limit_switch(uint8_t limit_switch_pin) {
+    const uint8_t SPEED = 100;
+
+    switch (limit_switch_pin) {
+
+        case LIMIT_SWITCH_BEGIN_PIN:
+
+            stepper_motor.set_direction(NEGATIVE_DIR);
+            stepper_motor.set_speed(SPEED);
+            while (!switch_begin_pressed) stepper_motor.step();
+
+            stepper_motor.change_direction();
+            stepper_motor.move_while_button_pressed(SPEED, &switch_begin_pressed, &limit_switch_begin_parameters);
+
+            break;
+
+        case LIMIT_SWITCH_END_PIN:
+
+            stepper_motor.set_direction(POSITIVE_DIR);
+            stepper_motor.set_speed(SPEED);
+            while (!switch_end_pressed) stepper_motor.step();
+
+            stepper_motor.change_direction();
+            stepper_motor.move_while_button_pressed(SPEED, &switch_end_pressed, &limit_switch_end_parameters);
+
+            break;
+
+        default:
+            break;
+    }
+}
+
+
 void test_mode() {
     const int SPEED = 200;
     uint8_t end;
@@ -349,9 +387,14 @@ void test_mode() {
             stepper_motor.move_while_button_pressed(SPEED, &shift_down_pressed, &shift_down_button_parameters);
         }
 
-        if (limit_reached) {
+        if (switch_begin_pressed) {
             stepper_motor.change_direction();
-            stepper_motor.move_while_button_pressed(SPEED, &limit_reached, &limit_switch_parameters);
+            stepper_motor.move_while_button_pressed(SPEED, &switch_begin_pressed, &limit_switch_begin_parameters);
+        }
+
+        if (switch_end_pressed) {
+            stepper_motor.change_direction();
+            stepper_motor.move_while_button_pressed(SPEED, &switch_end_pressed, &limit_switch_end_parameters);
         }
 
         if (calibration_button_pressed) {

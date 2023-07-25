@@ -51,15 +51,8 @@ void gears_calibration() {
 
     Serial.println("\nGears calibration");
 
-    stepper_motor.set_direction(NEGATIVE_DIR);
-    stepper_motor.set_speed(SPEED);
-    while (!limit_reached) {
-        stepper_motor.step();
-    }
+    go_to_limit_switch(LIMIT_SWITCH_BEGIN_PIN);
     stepper_motor.set_position(0);
-
-    stepper_motor.change_direction();
-    stepper_motor.set_speed(SPEED);
 
     shift_up_pressed = shift_down_pressed = calibration_button_pressed = 0;
 
@@ -77,9 +70,14 @@ void gears_calibration() {
             stepper_motor.move_while_button_pressed(SPEED, &shift_down_pressed, &shift_down_button_parameters);
         }
 
-        if (limit_reached) {
+        if (switch_begin_pressed) {
             stepper_motor.change_direction();
-            stepper_motor.move_while_button_pressed(SPEED, &limit_reached, &limit_switch_parameters);
+            stepper_motor.move_while_button_pressed(SPEED, &switch_begin_pressed, &limit_switch_begin_parameters);
+        }
+
+        if (switch_end_pressed) {
+            stepper_motor.change_direction();
+            stepper_motor.move_while_button_pressed(SPEED, &switch_end_pressed, &limit_switch_end_parameters);
         }
 
         if (calibration_button_pressed) {
