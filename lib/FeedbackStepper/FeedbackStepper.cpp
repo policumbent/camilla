@@ -47,7 +47,8 @@ FeedbackStepper :: FeedbackStepper (uint8_t step_pin, uint8_t direction_pin,
 void FeedbackStepper :: setup() {
     rotative_encoder = NULL;
     linear_potentiometer = NULL;
-    limit_reached = NULL;
+    limit_begin_reached = NULL;
+    limit_end_reached = NULL;
     gears = NULL;
     gears_lin = NULL;
     increase_potentiometer_direction_sign = 0;
@@ -67,8 +68,13 @@ void FeedbackStepper :: set_linear_potentiometer(Potentiometer *linear_potentiom
 }
 
 
-void FeedbackStepper :: set_limit_switch(uint8_t *limit_reached) {
-    this->limit_reached = limit_reached;
+void FeedbackStepper :: set_limit_switch_begin(uint8_t *limit_begin_reached) {
+    this->limit_begin_reached = limit_begin_reached;
+}
+
+
+void FeedbackStepper :: set_limit_switch_end(uint8_t *limit_end_reached) {
+    this->limit_end_reached = limit_end_reached;
 }
 
 
@@ -103,10 +109,16 @@ void FeedbackStepper :: shift(int next_gear) {
     #endif
 
     // If the limit switch is not connected create a dummy variable to have the limit reached condition never triggered
-    uint8_t dummy_limit_reached = 0;
-    uint8_t *ptr_limit_reached = limit_reached;
-    if (ptr_limit_reached == NULL) {
-        ptr_limit_reached = &dummy_limit_reached;
+    uint8_t dummy_limit_begin_reached = 0;
+    uint8_t *ptr_limit_begin_reached = limit_begin_reached;
+    if (ptr_limit_begin_reached == NULL) {
+        ptr_limit_begin_reached = &dummy_limit_begin_reached;
+    }
+
+    uint8_t dummy_limit_end_reached = 0;
+    uint8_t *ptr_limit_end_reached = limit_end_reached;
+    if (ptr_limit_end_reached == NULL) {
+        ptr_limit_end_reached = &dummy_limit_end_reached;
     }
     
     delta_pos = 0;
@@ -115,7 +127,7 @@ void FeedbackStepper :: shift(int next_gear) {
 
     if (rotative_encoder != NULL) rotative_encoder->read_angle();
 
-    while (position_sixteenth != target_pos && !(*ptr_limit_reached)) {
+    while (position_sixteenth != target_pos && !(*ptr_limit_begin_reached) && !(*ptr_limit_end_reached)) {
 
         portDISABLE_INTERRUPTS();
         elapsed_time = micros();
@@ -226,7 +238,7 @@ void FeedbackStepper :: shift(int next_gear) {
     set_speed(MIN_MOVE_RPM);
 
     
-    while (linear_potentiometer != NULL && dir != 0 && !(*ptr_limit_reached)) {
+    while (linear_potentiometer != NULL && dir != 0 && !(*ptr_limit_begin_reached) && !(*ptr_limit_end_reached)) {
 
         portDISABLE_INTERRUPTS();
         elapsed_time = micros();
