@@ -1,14 +1,14 @@
-body{
+body {
     background: aqua;
 }
 
-h1{
+h1 {
     text-align: center;
     font-size: xxx-large;
     font-family: "Arial Black";
 }
 
-table{
+table {
     align-content: center;
     align-self: center;
     margin: auto;
@@ -16,20 +16,20 @@ table{
     width:50%;
 }
 
-tr{
+tr {
     font-size: x-large;
 }
 
-td{
+td {
     border: 1px solid #333;
 }
 
-thead{
+thead {
     font-size: xx-large;
     font-family: "Arial Black";
 }
 
-button{
+button {
     background-color: dodgerblue;
     border: none;
     color: white;
@@ -71,4 +71,9 @@ option {
     font-size: 16px;
     background-color: #f0f0f0;
     color: #333;
+}
+
+.center-flexbox {
+    display: flex;
+    justify-content: center;
 }

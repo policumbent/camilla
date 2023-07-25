@@ -77,10 +77,17 @@ void function_core_1 (void *parameters) {
 
     button_setup(&calibration_button_parameters);
 
+
+#if ENCODER_CONNECTED
+    stepper_motor.set_rotative_encoder(&rotative_encoder, increase_encoder_direction_sign);
+#endif
+#if POTENTIOMETER_CONNECTED
+    stepper_motor.set_linear_potentiometer(&linear_potentiometer, increase_potentiometer_direction_sign);
+#endif
+
     stepper_motor.set_limit_switch_begin(&switch_begin_pressed);
     stepper_motor.set_limit_switch_end(&switch_end_pressed);
-    stepper_motor.set_rotative_encoder(&rotative_encoder, increase_encoder_direction_sign);
-    //stepper_motor.set_linear_potentiometer(&linear_potentiometer, increase_potentiometer_direction_sign);
+    
     int *gears_ptr = gears;
     stepper_motor.set_gears(gears_ptr);
     int *gears_lin_ptr = gears_lin;
