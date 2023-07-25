@@ -19,7 +19,7 @@ void calibration() {
     stepper_motor.set_direction(NEGATIVE_DIR);
     stepper_motor.set_speed(SPEED);
     while (!limit_reached) stepper_motor.step();
-    
+
     stepper_motor.change_direction();
     stepper_motor.move_while_button_pressed(SPEED, &limit_reached, &limit_switch_parameters);
 
@@ -30,6 +30,8 @@ void calibration() {
     end = 0;
 
     while (!end) {
+
+        xSemaphoreTake(g_semaphore, portMAX_DELAY);
 
         if (shift_up_pressed) {
             stepper_motor.set_direction(POSITIVE_DIR);
@@ -50,8 +52,9 @@ void calibration() {
             end = 1;
         }
 
-        xSemaphoreTake(g_semaphore, portMAX_DELAY);
         xSemaphoreGive(g_semaphore);
+
+        delay(10);
 
     }
 }
@@ -62,7 +65,7 @@ void webserver_calibration() {
     int *gears_lin_ptr = gears_lin;
     WebServer webserver = WebServer(&stepper_motor, &linear_potentiometer, gears_ptr, gears_lin_ptr, NUM_GEARS, &g_semaphore);
 
-    while (!calibration_button_pressed) delay(10);
+    while (!calibration_button_pressed) delay(100);
 
     flash.write_array(gears_memory_key, (void *) gears, NUM_GEARS, sizeof(int));
     flash.write_array(gears_lin_memory_key, (void *) gears_lin, NUM_GEARS, sizeof(int));

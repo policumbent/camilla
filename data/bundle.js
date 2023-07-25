@@ -5,8 +5,8 @@ function gear(){
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === XMLHttpRequest.DONE) {
                     if (xhr.status === 200) {
-                        var responseData = xhr.responseText;
-                        document.getElementById("selectedGear").value = responseData;
+                        var responseData = xhr.responseText.split(",");
+                        document.getElementById("selectedGear").value = responseData[0];
                         console.log(responseData);
                     } else {
                         document.getElementById("selectedGear").value = "error";
@@ -14,8 +14,6 @@ function gear(){
                 }
             };
             xhr.send();
-    
-    
 }
 
 function calibrate(){
@@ -25,8 +23,8 @@ function calibrate(){
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === XMLHttpRequest.DONE) {
                     if (xhr.status === 200) {
-                        var responseData = xhr.responseText;
-                        document.getElementById("selectedGear").value = responseData;
+                        var responseData = xhr.responseText.split(",");
+                        document.getElementById("selectedGear").value = responseData[0];
                         console.log(responseData);
                     } else {
                         document.getElementById("selectedGear").value = "error";
@@ -43,11 +41,11 @@ function position(){
                 if (xhr.readyState === XMLHttpRequest.DONE) {
                     if (xhr.status === 200) {
                         var responseData = xhr.responseText.split(",");
-                        document.getElementById("lineare").value = responseData[0];
-                        document.getElementById("rotativo").value = responseData[1];
+                        document.getElementById("rotativo").value = responseData[0];
+                        document.getElementById("lineare").value = responseData[1];
                     } else {
-                        document.getElementById("lineare").value = "error";
                         document.getElementById("rotativo").value = "error";
+                        document.getElementById("lineare").value = "error";
                     }
                 }
             };

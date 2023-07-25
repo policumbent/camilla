@@ -35,5 +35,6 @@ class WebServer {
         void init_webserver();
         void save_gear(int gear);
         String get_gear_position(int gear);
+        String get_current_position();
 
 };

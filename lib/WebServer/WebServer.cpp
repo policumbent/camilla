@@ -12,6 +12,7 @@ WebServer :: WebServer(FeedbackStepper *stepper_motor, Potentiometer *linear_pot
     init_webserver();
 }
 
+
 WebServer :: ~ WebServer() {
     server->end();
     server->reset();
@@ -19,6 +20,7 @@ WebServer :: ~ WebServer() {
     WiFi.softAPdisconnect(true);
     delete server;
 }
+
 
 void WebServer :: init_webserver() {
     SPIFFS.begin();
@@ -33,18 +35,16 @@ void WebServer :: init_webserver() {
 
     // API REQUESTS
     this->server->on("/api/get_gear", HTTP_GET, [this](AsyncWebServerRequest *request) {
-        if(request->hasArg("gear"))
+        if (request->hasArg("gear"))
             request->send(200, "text/plain", get_gear_position(request->arg("gear").toInt()));
     });
 
     this->server->on("/api/position", HTTP_GET, [this](AsyncWebServerRequest *request){
-        char response[20]; 
-        sprintf(response, "%d,%d", linear_potentiometer->read_position(), stepper_motor->get_position());
-        request->send(200, "text/plain", response);
+        request->send(200, "text/plain", get_current_position());
     });
 
     this->server->on("/api/calibrate", HTTP_GET, [this](AsyncWebServerRequest *request){
-        if(request->hasArg("gear")){
+        if (request->hasArg("gear")) {
             String arg = request->arg("gear");
             save_gear(arg.toInt());
             request->send(200, "text/plain", get_gear_position(arg.toInt()));
@@ -57,6 +57,7 @@ void WebServer :: init_webserver() {
     this->server->begin();
 }
 
+
 void WebServer :: save_gear(int gear) {
     xSemaphoreTake(*semaphore, portMAX_DELAY);
 
@@ -66,13 +67,23 @@ void WebServer :: save_gear(int gear) {
     xSemaphoreGive(*semaphore);
 }
 
+
+String WebServer :: get_current_position() {
+    String tmp;
+
+    xSemaphoreTake(*semaphore, portMAX_DELAY);
+    tmp = String(stepper_motor->get_position()) + String(",") + String(linear_potentiometer->get_position());
+    xSemaphoreGive(*semaphore);
+
+    return tmp;
+}
+
+
 String WebServer :: get_gear_position(int gear) {
     String tmp;
 
     xSemaphoreTake(*semaphore, portMAX_DELAY);
-
-    tmp = String(gears_lin[gear-1]) + String(",") + String(gears[gear-1]);
-
+    tmp = String(gears[gear-1]) + String(",") + String(gears_lin[gear-1]);
     xSemaphoreGive(*semaphore);
 
     return tmp;
