@@ -5,7 +5,7 @@ WebServer :: WebServer(FeedbackStepper *stepper_motor, Potentiometer *linear_pot
     this->stepper_motor = stepper_motor;
     this->linear_potentiometer = linear_potentiometer;
     this->gears = gears;
-    this->gears_lin;
+    this->gears_lin = gears_lin;
     this->num_gears = num_gears;
     this->semaphore = semaphore;
     
