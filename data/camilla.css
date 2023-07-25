@@ -1,11 +1,13 @@
 body {
-    background: aqua;
+    background: #ebebeb;
 }
 
 h1 {
     text-align: center;
-    font-size: xxx-large;
-    font-family: "Arial Black";
+    font-size: 90px;
+    font-family: "American Typewriter Black";
+    margin: 1em;
+    color: #296985;
 }
 
 table {
@@ -30,45 +32,54 @@ thead {
 }
 
 button {
-    background-color: dodgerblue;
+    background-color: #296985;
     border: none;
     color: white;
-    padding: 10px 32px;
+    padding: 20px 32px;
+    margin: 1em;
     text-align: center;
     text-decoration: none;
-    font-size: 22px;
+    font-size: 50px;
     position: relative;
     cursor: pointer;
     border-radius: 8px;
-    width: 25%;
+    width: 40%;
+    font-family: "American Typewriter";
 }
 
 /* CSS per personalizzare il menu a tendina */
 select {
-    width: 200px;
+    width: 320px;
+    height: 60px;
     padding: 8px;
-    font-size: 22px;
-    border: 1px solid #ccc;
+    font-size: 40px;
+    border: 1.5px solid #000000;
     border-radius: 4px;
+    margin: 1em;
+    font-family: "American Typewriter";
 }
 
 label {
-    width: 200px;
+    width: 320px;
     padding: 8px;
-    font-size: 22px;
-    border-radius: 4px;
+    font-size: 40px;
+    margin: 1em;
+    text-align: start;
 }
 
 input {
-    width: 200px;
+    width: 300px;
+    height: 60px;
     padding: 8px;
-    font-size: 16px;
+    font-size: 40px;
     border-radius: 4px;
+    margin: 1em;
+    font-family: "American Typewriter";
 }
 
 /* Stile per gli elementi <option> */
 option {
-    font-size: 16px;
+    font-size: 40px;
     background-color: #f0f0f0;
     color: #333;
 }
@@ -76,4 +87,6 @@ option {
 .center-flexbox {
     display: flex;
     justify-content: center;
+    font-family: "American Typewriter";
+    flex-direction: row;
 }

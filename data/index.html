@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="UTF-8">
     <title>Gears Shift Calibration</title>
@@ -7,42 +7,49 @@
     <script type="text/javascript" src="bundle.js"></script>
 </head>
 <body>
-    <h1> Camilla calibration service </h1>
+    <h1> Camilla Calibration Service </h1>
+    <div>
+        <div class="center-flexbox">
+            <label for="gear">Marcia:</label>
+            <select id="gear" onchange="gear()">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+                <option value="11">11</option>
+                <option value="12">12</option>
+            </select>
+        </div>
 
-    <div class="center-flexbox">
-        <select id="gear" onchange="gear()">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-            <option value="7">7</option>
-            <option value="8">8</option>
-            <option value="9">9</option>
-            <option value="10">10</option>
-            <option value="11">11</option>
-            <option value="12">12</option>
-        </select>
 
-        <label for="selectedGear">Posizione salvata</label>
-        <input type="text" id="selectedGear" readonly>
-    </div>
+        <div class="center-flexbox">
+            <label for="selectedGear">Posizione salvata:</label>
+            <input type="text" id="selectedGear" readonly>
+        </div>
 
-    <br></br>
 
-    <div class="center-flexbox">
-        <label for="rotativo">Posizione attuale rotativo</label>
-        <input type="text" id="rotativo" readonly>
-        <label for="lineare">Posizione attuale lineare</label>
-        <input type="text" id="lineare" readonly>
-    </div>
+        <div class="center-flexbox">
+            <label for="rotativo">Posizione attuale rotativo:</label>
+            <input type="text" id="rotativo" readonly>
+        </div>
 
-    <br></br>
 
-    <div class="center-flexbox">
-        <button onclick="position()">refresh</button>
-        <button onclick="calibrate()">calibrate</button>
+        <div class="center-flexbox">
+            <label for="lineare">Posizione attuale lineare:</label>
+            <input type="text" id="lineare" readonly>
+        </div>
+
+
+        <div class="center-flexbox">
+            <button onclick="position()">refresh</button>
+            <button onclick="calibrate()">calibrate</button>
+        </div>
     </div>
 
 </body>
