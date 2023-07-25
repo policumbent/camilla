@@ -94,10 +94,10 @@ void HR4988 :: setup() {
 
     position_sixteenth = 0;
     direction = 0;
-    microstepping = FULL_STEP_MODE;
-    position_change = POSITION_CHANGE_FULL_MODE;
+    microstepping = HR4988_FULL_STEP_MODE;
+    position_change = HR4988_POSITION_CHANGE_FULL_MODE;
     rpm = 60.0;
-    set_direction(POSITIVE_DIR);
+    set_direction(HR4988_POSITIVE_DIR);
     set_microstepping(microstepping);
     set_speed(rpm);
 }
@@ -109,7 +109,7 @@ void HR4988 :: move_const_speed(int target_pos, float rpm) {
 
     set_speed(rpm);
 
-    dir = (start_pos < target_pos) ? POSITIVE_DIR : NEGATIVE_DIR;
+    dir = (start_pos < target_pos) ? HR4988_POSITIVE_DIR : HR4988_NEGATIVE_DIR;
 
     if (direction != dir) {
         set_direction(dir);
@@ -118,7 +118,7 @@ void HR4988 :: move_const_speed(int target_pos, float rpm) {
         set_speed(rpm);
     }
 
-    if (dir == POSITIVE_DIR) {
+    if (dir == HR4988_POSITIVE_DIR) {
         while (position_sixteenth < target_pos) step();
     } else {
         while (position_sixteenth > target_pos) step();
@@ -131,7 +131,7 @@ void HR4988 :: move(int target_pos) {
     long int elapsed_time, delay;
     int step_cnt;
     
-    #if DEBUG_HR4988
+    #if HR4988_DEBUG
         Serial.print("[HR4988] Shift from "); Serial.print(start_pos); Serial.print(" to "); Serial.println(target_pos);
         long int debug_t = micros();
         int expected_delay = 0;
@@ -158,12 +158,12 @@ void HR4988 :: move(int target_pos) {
 
         step_cnt++;
 
-        #if DEBUG_HR4988
+        #if HR4988_DEBUG
             expected_delay += get_expected_step_time();
         #endif
     }
 
-    #if DEBUG_HR4988
+    #if HR4988_DEBUG
         debug_t = micros() - debug_t;
         if (step_cnt == 0) return;
         Serial.print("Expected (avg) delay: "); Serial.print(expected_delay / step_cnt);
@@ -188,36 +188,36 @@ void HR4988 :: _move_set_speed_direction(int start_pos, int target_pos) {
             to be performed
     */
 
-    if (abs(target_pos - start_pos) < 2 * MAX_ACCELERATION_STEPS) {
+    if (abs(target_pos - start_pos) < 2 * HR4988_MAX_ACCELERATION_STEPS) {
         accel_steps = abs(target_pos - start_pos) / 2;
     } else {
-        accel_steps = MAX_ACCELERATION_STEPS;
+        accel_steps = HR4988_MAX_ACCELERATION_STEPS;
     }
 
     if (start_pos < target_pos) {
-        dir = POSITIVE_DIR;
+        dir = HR4988_POSITIVE_DIR;
 
         if (position_sixteenth < start_pos + accel_steps) {
-            speed = MIN_MOVE_RPM + ((float) (position_sixteenth - start_pos) / (float) (MAX_ACCELERATION_STEPS)) * (MAX_RPM - MIN_MOVE_RPM);
+            speed = HR4988_MIN_MOVE_RPM + ((float) (position_sixteenth - start_pos) / (float) (HR4988_MAX_ACCELERATION_STEPS)) * (HR4988_MAX_RPM - HR4988_MIN_MOVE_RPM);
         }
         else if (position_sixteenth > target_pos - accel_steps) {
-            speed = MIN_MOVE_RPM + ((float) (target_pos - position_sixteenth) / (float) (MAX_ACCELERATION_STEPS)) * (MAX_RPM - MIN_MOVE_RPM);
+            speed = HR4988_MIN_MOVE_RPM + ((float) (target_pos - position_sixteenth) / (float) (HR4988_MAX_ACCELERATION_STEPS)) * (HR4988_MAX_RPM - HR4988_MIN_MOVE_RPM);
         }
         else {
-            speed = MAX_RPM;
+            speed = HR4988_MAX_RPM;
         }
     }
     else {
-        dir = NEGATIVE_DIR;
+        dir = HR4988_NEGATIVE_DIR;
 
         if (position_sixteenth > start_pos - accel_steps) {
-            speed = MIN_MOVE_RPM + ((float) (start_pos - position_sixteenth) / (float) (MAX_ACCELERATION_STEPS)) * (MAX_RPM - MIN_MOVE_RPM);
+            speed = HR4988_MIN_MOVE_RPM + ((float) (start_pos - position_sixteenth) / (float) (HR4988_MAX_ACCELERATION_STEPS)) * (HR4988_MAX_RPM - HR4988_MIN_MOVE_RPM);
         }
         else if (position_sixteenth < target_pos + accel_steps) {
-            speed = MIN_MOVE_RPM + ((float) (position_sixteenth - target_pos) / (float) (MAX_ACCELERATION_STEPS)) * (MAX_RPM - MIN_MOVE_RPM);
+            speed = HR4988_MIN_MOVE_RPM + ((float) (position_sixteenth - target_pos) / (float) (HR4988_MAX_ACCELERATION_STEPS)) * (HR4988_MAX_RPM - HR4988_MIN_MOVE_RPM);
         }
         else {
-            speed = MAX_RPM;
+            speed = HR4988_MAX_RPM;
         }
     }
 
@@ -233,7 +233,7 @@ void HR4988 :: _move_set_speed_direction(int start_pos, int target_pos) {
 int HR4988 :: _update_position() {
     int delta;
 
-    delta = (direction == POSITIVE_DIR) ? (position_change) : (- position_change);
+    delta = (direction == HR4988_POSITIVE_DIR) ? (position_change) : (- position_change);
     position_sixteenth += delta;
 
     return delta;
@@ -277,16 +277,16 @@ void HR4988 :: set_speed(float speed) {
 
     rpm = speed;
 
-    if (rpm <= SIXTEENTH_MAX_RPM) {
-        ms = SIXTEENTH_STEP_MODE;
-    } else if (rpm <= EIGHT_MODE_MAX_RPM) {
-        ms = EIGHT_STEP_MODE;
-    } else if (rpm <= QUARTER_MODE_MAX_RPM) {
-        ms = QUARTER_STEP_MODE;     // check vibrations
-    } else if (rpm <= HALF_MODE_MAX_RPM) {
-        ms = HALF_STEP_MODE;        // check vibrations
+    if (rpm <= HR4988_SIXTEENTH_MAX_RPM) {
+        ms = HR4988_SIXTEENTH_STEP_MODE;
+    } else if (rpm <= HR4988_EIGHT_MODE_MAX_RPM) {
+        ms = HR4988_EIGHT_STEP_MODE;
+    } else if (rpm <= HR4988_QUARTER_MODE_MAX_RPM) {
+        ms = HR4988_QUARTER_STEP_MODE;     // check vibrations
+    } else if (rpm <= HR4988_HALF_MODE_MAX_RPM) {
+        ms = HR4988_HALF_STEP_MODE;        // check vibrations
     } else {
-        ms = FULL_STEP_MODE;
+        ms = HR4988_FULL_STEP_MODE;
     }
 
     if (microstepping != ms) {
@@ -303,17 +303,17 @@ float HR4988 :: get_speed() {
 
 
 void HR4988 :: change_direction() {
-    direction = (direction == POSITIVE_DIR) ? NEGATIVE_DIR : POSITIVE_DIR;
+    direction = (direction == HR4988_POSITIVE_DIR) ? HR4988_NEGATIVE_DIR : HR4988_POSITIVE_DIR;
 
     uint8_t pin_value;
-    if (direction == POSITIVE_DIR) {
-        pin_value = (cw_direction_sign == 1) ? CW : CCW;
+    if (direction == HR4988_POSITIVE_DIR) {
+        pin_value = (cw_direction_sign == 1) ? HR4988_CW : HR4988_CCW;
     } else {
-        pin_value = (cw_direction_sign == 1) ? CCW : CW;
+        pin_value = (cw_direction_sign == 1) ? HR4988_CCW : HR4988_CW;
     }
 
     digitalWrite(direction_pin, pin_value);
-    delayMicroseconds(DELAY_CHANGE_DIRECTION);
+    delayMicroseconds(HR4988_DELAY_CHANGE_DIRECTION);
 }
 
 
@@ -337,36 +337,35 @@ void HR4988 :: set_microstepping(uint8_t mode) {
         return;
 
     if (!microstepping_on) {
-        microstepping = FULL_STEP_MODE;
-        position_change = POSITION_CHANGE_FULL_MODE;
+        microstepping = HR4988_FULL_STEP_MODE;
+        position_change = HR4988_POSITION_CHANGE_FULL_MODE;
         return;
     }
 
     microstepping = mode;
 
     switch (mode) {
-        case FULL_STEP_MODE:
+        case HR4988_FULL_STEP_MODE:
             ms1 = 0; ms2 = 0; ms3 = 0;
-            position_change = POSITION_CHANGE_FULL_MODE; break;
-        case HALF_STEP_MODE:
+            position_change = HR4988_POSITION_CHANGE_FULL_MODE; break;
+        case HR4988_HALF_STEP_MODE:
             ms1 = 1; ms2 = 0; ms3 = 0;
-            position_change = POSITION_CHANGE_HALF_MODE; break;
-        case QUARTER_STEP_MODE:
+            position_change = HR4988_POSITION_CHANGE_HALF_MODE; break;
+        case HR4988_QUARTER_STEP_MODE:
             ms1 = 0; ms2 = 1; ms3 = 0;
-            position_change = POSITION_CHANGE_QUARTER_MODE; break;
-        case EIGHT_STEP_MODE:
+            position_change = HR4988_POSITION_CHANGE_QUARTER_MODE; break;
+        case HR4988_EIGHT_STEP_MODE:
             ms1 = 1; ms2 = 1; ms3 = 0;
-            position_change = POSITION_CHANGE_EIGHT_MODE; break;
-        case SIXTEENTH_STEP_MODE:
+            position_change = HR4988_POSITION_CHANGE_EIGHT_MODE; break;
+        case HR4988_SIXTEENTH_STEP_MODE:
             ms1 = 1; ms2 = 1; ms3 = 1;
-            position_change = POSITION_CHANGE_SIXTEENTH_MODE; break;
+            position_change = HR4988_POSITION_CHANGE_SIXTEENTH_MODE; break;
         default: break;
     }
 
     digitalWrite(ms1_pin, ms1);
     digitalWrite(ms2_pin, ms2);
     digitalWrite(ms3_pin, ms3);
-    delayMicroseconds(DELAY_SETUP);
     
     // Since the delay off depends on the microstepping, thus if one calls the
     //  function without calling set_speed, the delay off will be wrong
@@ -380,7 +379,7 @@ uint8_t HR4988 :: get_microstepping() {
 
 
 void HR4988 :: disable_microstepping() {
-    set_microstepping(FULL_STEP_MODE);
+    set_microstepping(HR4988_FULL_STEP_MODE);
     microstepping_on = 0;
 }
 
@@ -392,7 +391,7 @@ void HR4988 :: enable_microstepping() {
 
 
 int HR4988 :: get_delta_position_360_degrees_rotation() {
-    return full_steps_per_turn * SIXTEENTH_STEP_MODE;
+    return full_steps_per_turn * HR4988_SIXTEENTH_STEP_MODE;
 }
 
 
@@ -432,17 +431,17 @@ void HR4988 :: debug_serial_control() {
                 case '-': rpm -= 10; set_speed(rpm); break;
                 case ',': rpm += 1; set_speed(rpm); break;
                 case '.': rpm -= 1; set_speed(rpm); break;
-                case '1': set_microstepping(FULL_STEP_MODE); break;
-                case '2': set_microstepping(HALF_STEP_MODE); break;
-                case '4': set_microstepping(QUARTER_STEP_MODE); break;
-                case '8': set_microstepping(EIGHT_STEP_MODE); break;
-                case '6': set_microstepping(SIXTEENTH_STEP_MODE); break;
+                case '1': set_microstepping(HR4988_FULL_STEP_MODE); break;
+                case '2': set_microstepping(HR4988_HALF_STEP_MODE); break;
+                case '4': set_microstepping(HR4988_QUARTER_STEP_MODE); break;
+                case '8': set_microstepping(HR4988_EIGHT_STEP_MODE); break;
+                case '6': set_microstepping(HR4988_SIXTEENTH_STEP_MODE); break;
                 case 'e': end = 1; break;
                 default: break;
             }
 
             if (steps_per_activation != 0) {
-                set_direction((steps_per_activation > 0) ? POSITIVE_DIR : NEGATIVE_DIR);
+                set_direction((steps_per_activation > 0) ? HR4988_POSITIVE_DIR : HR4988_NEGATIVE_DIR);
 
                 for (int i=0; i<steps_per_activation; i++) step();
 

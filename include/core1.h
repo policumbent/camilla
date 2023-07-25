@@ -66,6 +66,3 @@ void shift(uint8_t next_gear);
 void go_to_limit_switch(uint8_t limit_switch_pin);
 
 void test_mode();
-
-
-void calibration();

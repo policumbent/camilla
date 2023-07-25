@@ -14,7 +14,7 @@ int IRAM_ATTR button_interrupt_service_routine (button_parameters *bp) {
 
     // debouncing
     t_begin = millis();
-    while (millis() - t_begin < DEBOUNCING_TIME);
+    while (millis() - t_begin < BUTTON_DEBOUNCING_TIME);
 
     if (digitalRead(bp->pin) != bp->pressed_state) {
         attachInterrupt(bp->pin, bp->external_isr, bp->interrupt_mode);

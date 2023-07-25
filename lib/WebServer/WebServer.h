@@ -13,8 +13,8 @@
 #include "Memory.h"
 
 
-#define AP_SSID "ESP_CAMILLA"
-#define AP_PASSWORD "camilla123"
+#define WEBSERVER_AP_SSID "ESP_CAMILLA"
+#define WEBSERVER_AP_PASSWORD "camilla123"
 
 class WebServer {
 

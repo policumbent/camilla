@@ -61,12 +61,12 @@ void gears_calibration() {
     while (!end) {
 
         if (shift_up_pressed) {
-            stepper_motor.set_direction(POSITIVE_DIR);
+            stepper_motor.set_direction(HR4988_POSITIVE_DIR);
             stepper_motor.move_while_button_pressed(SPEED, &shift_up_pressed, &shift_up_button_parameters);
         }
 
         if (shift_down_pressed) {
-            stepper_motor.set_direction(NEGATIVE_DIR);
+            stepper_motor.set_direction(HR4988_NEGATIVE_DIR);
             stepper_motor.move_while_button_pressed(SPEED, &shift_down_pressed, &shift_down_button_parameters);
         }
 
@@ -90,22 +90,22 @@ void gears_calibration() {
             switch (c) {
 
                 case '+':
-                    stepper_motor.set_direction(POSITIVE_DIR);
+                    stepper_motor.set_direction(HR4988_POSITIVE_DIR);
                     for (int i=0; i<16; i++) stepper_motor.step();
                     break;
 
                 case '*':
-                    stepper_motor.set_direction(POSITIVE_DIR);
+                    stepper_motor.set_direction(HR4988_POSITIVE_DIR);
                     for (int i=0; i<160; i++) stepper_motor.step();
                     break;
 
                 case '-':
-                    stepper_motor.set_direction(NEGATIVE_DIR);
+                    stepper_motor.set_direction(HR4988_NEGATIVE_DIR);
                     for (int i=0; i<16; i++) stepper_motor.step();
                     break;
 
                 case '/':
-                    stepper_motor.set_direction(NEGATIVE_DIR);
+                    stepper_motor.set_direction(HR4988_NEGATIVE_DIR);
                     for (int i=0; i<160; i++) stepper_motor.step();
                     break;
 

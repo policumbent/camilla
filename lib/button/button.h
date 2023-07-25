@@ -1,7 +1,7 @@
 #pragma once
 #include <Arduino.h>
 
-#define DEBOUNCING_TIME (int)50
+#define BUTTON_DEBOUNCING_TIME (int)50
 
 struct button_parameters {
     uint8_t pin;

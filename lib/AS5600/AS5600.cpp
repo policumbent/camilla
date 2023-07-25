@@ -15,17 +15,17 @@ AS5600 :: AS5600 (uint8_t analog_pin) {
 }
 
 
-#if I2C_ESP
+#if AS5600_I2C_ESP
 void AS5600 :: setup() {
     i2c_master_port = 0;
     i2c_conf = {
         .mode = I2C_MODE_MASTER,
-        .sda_io_num = I2C_MASTER_SDA_IO,
-        .scl_io_num = I2C_MASTER_SCL_IO,
+        .sda_io_num = AS5600_I2C_MASTER_SDA_IO,
+        .scl_io_num = AS5600_I2C_MASTER_SCL_IO,
         .sda_pullup_en = GPIO_PULLUP_ENABLE,
         .scl_pullup_en = GPIO_PULLUP_ENABLE
     };
-    i2c_conf.master.clk_speed = I2C_MASTER_FREQ_HZ;
+    i2c_conf.master.clk_speed = AS5600_I2C_MASTER_FREQ_HZ;
     i2c_param_config(i2c_master_port, &i2c_conf);
 
     i2c_driver_install(i2c_master_port, I2C_MODE_MASTER, 0, 0, 0);      // other parameters set to 0 since ignored in master mode
@@ -36,7 +36,7 @@ void AS5600 :: setup() {
 }
 #endif
 
-#if WIRE_H
+#if !AS5600_I2C_ESP
 void AS5600 :: setup() {
     Wire.begin();
     Wire.setClock(8000000);
@@ -101,7 +101,7 @@ void AS5600 :: calibration(HR4988 &stepper_motor) {
 }
 
 
-#if I2C_ESP
+#if AS5600_I2C_ESP
 int AS5600 :: read_angle() {
     uint8_t write_byte;
     uint8_t low_byte, high_byte;
@@ -120,7 +120,7 @@ int AS5600 :: read_angle() {
 }
 #endif
 
-#if WIRE_H
+#if !AS5600_I2C_ESP
 int AS5600 :: read_angle() {
     int lowbyte, highbyte;
 
@@ -169,7 +169,7 @@ int AS5600 :: read_angle() {
 #endif
 
 
-#if I2C_ESP
+#if AS5600_I2C_ESP
 int8_t AS5600 :: get_magnet_distance() {
     uint8_t write_byte;
     uint8_t status_byte;

@@ -96,13 +96,13 @@ void FeedbackStepper :: shift(int next_gear) {
 
     int delta_pos, delta_angle, read_angle, error;
     
-    #if DEBUG_FEEDBACK_STEPPER
+    #if FEEDBACKSTEPPER_DEBUG
         Serial.print("[FeedbackStepper] Shift from "); Serial.print(start_pos); Serial.print(" to "); Serial.println(target_pos);
         long int debug_t = micros();
         int expected_delay = 0, tot_angle = 0, step_cnt = 0, avg_error = 0, read_cnt = 0, tot_correction = 0;
     #endif
 
-    #if DEBUG_FEEDBACK_STEPPER >= 2
+    #if FEEDBACKSTEPPER_DEBUG >= 2
         int ARRAY_SIZE = 3000;
         int16_t delta_pos_array[ARRAY_SIZE], delta_angle_array[ARRAY_SIZE], error_array[ARRAY_SIZE];
         int array_pos = 0;
@@ -152,8 +152,8 @@ void FeedbackStepper :: shift(int next_gear) {
                 } else {
                     delta_angle = 4095 - delta_angle + read_angle;
                 }
-                delta_angle = (direction == POSITIVE_DIR && increase_encoder_direction_sign == 1
-                                || direction == NEGATIVE_DIR && increase_encoder_direction_sign == -1)
+                delta_angle = (direction == HR4988_POSITIVE_DIR && increase_encoder_direction_sign == 1
+                                || direction == HR4988_NEGATIVE_DIR && increase_encoder_direction_sign == -1)
                                 ? (delta_angle) : (- delta_angle);
             }
             
@@ -176,14 +176,14 @@ void FeedbackStepper :: shift(int next_gear) {
                 }
                 
             
-                #if DEBUG_FEEDBACK_STEPPER >= 2
+                #if FEEDBACKSTEPPER_DEBUG >= 2
                     delta_pos_array[array_pos] = delta_pos;
                     delta_angle_array[array_pos] = delta_angle;
                     error_array[array_pos] = error;
                     array_pos++;
                 #endif
 
-                #if DEBUG_FEEDBACK_STEPPER
+                #if FEEDBACKSTEPPER_DEBUG
                     tot_angle += delta_angle;
                     avg_error += error;
                     read_cnt++;
@@ -205,13 +205,13 @@ void FeedbackStepper :: shift(int next_gear) {
 
         delta_pos += _update_position();
 
-        #if DEBUG_FEEDBACK_STEPPER
+        #if FEEDBACKSTEPPER_DEBUG
             expected_delay += get_expected_step_time();
             step_cnt++;
         #endif
     }
 
-    #if DEBUG_FEEDBACK_STEPPER
+    #if FEEDBACKSTEPPER_DEBUG
         debug_t = micros() - debug_t;
         if (step_cnt == 0) return;
         Serial.print("Expected (avg) delay: "); Serial.print(expected_delay / step_cnt);
@@ -221,7 +221,7 @@ void FeedbackStepper :: shift(int next_gear) {
         Serial.print("Total correction: "); Serial.println(tot_correction);
     #endif
 
-    #if DEBUG_FEEDBACK_STEPPER >= 2
+    #if FEEDBACKSTEPPER_DEBUG >= 2
         for (int i=0; i<array_pos; i++) {
             Serial.print(delta_pos_array[i]); Serial.print("\t");
             Serial.print(delta_angle_array[i]); Serial.print("\t");
@@ -235,7 +235,7 @@ void FeedbackStepper :: shift(int next_gear) {
     uint16_t pot_read;
     int8_t dir = 2;
 
-    set_speed(MIN_MOVE_RPM);
+    set_speed(HR4988_MIN_MOVE_RPM);
 
     
     while (linear_potentiometer != NULL && dir != 0 && !(*ptr_limit_begin_reached) && !(*ptr_limit_end_reached)) {
@@ -247,12 +247,12 @@ void FeedbackStepper :: shift(int next_gear) {
         pot_read = linear_potentiometer->read_position();
 
         if (pot_read < gears_lin[next_gear-1] - ACCEPTABLE_ERROR) {
-            dir = (increase_potentiometer_direction_sign == 1) ? POSITIVE_DIR : NEGATIVE_DIR;
+            dir = (increase_potentiometer_direction_sign == 1) ? HR4988_POSITIVE_DIR : HR4988_NEGATIVE_DIR;
         } else if (pot_read > gears_lin[next_gear-1] + ACCEPTABLE_ERROR) {
-            dir = (increase_potentiometer_direction_sign == 1) ? NEGATIVE_DIR : POSITIVE_DIR;
+            dir = (increase_potentiometer_direction_sign == 1) ? HR4988_NEGATIVE_DIR : HR4988_POSITIVE_DIR;
         }
 
-        if (dir == POSITIVE_DIR || dir == NEGATIVE_DIR) {
+        if (dir == HR4988_POSITIVE_DIR || dir == HR4988_NEGATIVE_DIR) {
             set_direction(dir);
 
             _step_no_delay_off();

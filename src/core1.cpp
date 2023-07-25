@@ -157,7 +157,7 @@ void function_core_1 (void *parameters) {
         #if DEBUG_ENCODER >= 3
             char c_enc = 'x';
 
-            stepper_motor.set_direction(CCW);
+            stepper_motor.set_direction(HR4988_POSITIVE_DIR);
             stepper_motor.set_speed(60);
             while (c_enc != 'e') {
                 if (Serial.available()) {
@@ -337,7 +337,7 @@ void go_to_limit_switch(uint8_t limit_switch_pin) {
 
         case LIMIT_SWITCH_BEGIN_PIN:
 
-            stepper_motor.set_direction(NEGATIVE_DIR);
+            stepper_motor.set_direction(HR4988_NEGATIVE_DIR);
             stepper_motor.set_speed(SPEED);
             while (!switch_begin_pressed) stepper_motor.step();
 
@@ -348,7 +348,7 @@ void go_to_limit_switch(uint8_t limit_switch_pin) {
 
         case LIMIT_SWITCH_END_PIN:
 
-            stepper_motor.set_direction(POSITIVE_DIR);
+            stepper_motor.set_direction(HR4988_POSITIVE_DIR);
             stepper_motor.set_speed(SPEED);
             while (!switch_end_pressed) stepper_motor.step();
 
@@ -379,12 +379,12 @@ void test_mode() {
     while (!end) {
 
         if (shift_up_pressed) {
-            stepper_motor.set_direction(POSITIVE_DIR);
+            stepper_motor.set_direction(HR4988_POSITIVE_DIR);
             stepper_motor.move_while_button_pressed(SPEED, &shift_up_pressed, &shift_up_button_parameters);
         }
 
         if (shift_down_pressed) {
-            stepper_motor.set_direction(NEGATIVE_DIR);
+            stepper_motor.set_direction(HR4988_NEGATIVE_DIR);
             stepper_motor.move_while_button_pressed(SPEED, &shift_down_pressed, &shift_down_button_parameters);
         }
 

@@ -25,7 +25,7 @@ WebServer :: ~ WebServer() {
 void WebServer :: init_webserver() {
     SPIFFS.begin();
 
-    WiFi.softAP(AP_SSID, AP_PASSWORD);
+    WiFi.softAP(WEBSERVER_AP_SSID, WEBSERVER_AP_PASSWORD);
 
     this->server = new AsyncWebServer(80);
 
