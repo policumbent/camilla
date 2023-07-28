@@ -51,7 +51,7 @@ void gears_calibration() {
 
     Serial.println("\nGears calibration");
 
-    go_to_limit_switch(LIMIT_SWITCH_BEGIN_PIN);
+    stepper_motor.go_to_limit_switch(FEEDBACKSTEPPER_LIMIT_SWITCH_BEGIN_TYPE);
     stepper_motor.set_position(0);
 
     shift_up_pressed = shift_down_pressed = calibration_button_pressed = 0;

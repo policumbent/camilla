@@ -68,13 +68,15 @@ void FeedbackStepper :: set_linear_potentiometer(Potentiometer *linear_potentiom
 }
 
 
-void FeedbackStepper :: set_limit_switch_begin(uint8_t *limit_begin_reached) {
+void FeedbackStepper :: set_limit_switch_begin(uint8_t *limit_begin_reached, button_parameters *switch_begin_parameters) {
     this->limit_begin_reached = limit_begin_reached;
+    this->switch_begin_paramters = switch_begin_parameters;
 }
 
 
-void FeedbackStepper :: set_limit_switch_end(uint8_t *limit_end_reached) {
+void FeedbackStepper :: set_limit_switch_end(uint8_t *limit_end_reached, button_parameters *switch_end_parameters) {
     this->limit_end_reached = limit_end_reached;
+    this->switch_end_parameters = switch_end_parameters;
 }
 
 
@@ -300,4 +302,41 @@ void FeedbackStepper :: move_while_button_pressed(float speed, uint8_t *button_p
             _update_position();
         }
     }    
+}
+
+
+void FeedbackStepper :: go_to_limit_switch(uint8_t limit_switch_type) {
+    const uint8_t SPEED = 100;
+
+    switch (limit_switch_type) {
+
+        case FEEDBACKSTEPPER_LIMIT_SWITCH_BEGIN_TYPE:
+
+            if (limit_begin_reached == NULL) break;
+
+            set_direction(HR4988_NEGATIVE_DIR);
+            set_speed(SPEED);
+            while (!(*limit_begin_reached)) step();
+
+            change_direction();
+            move_while_button_pressed(SPEED, limit_begin_reached, switch_begin_paramters);
+
+            break;
+
+        case FEEDBACKSTEPPER_LIMIT_SWITCH_END_TYPE:
+
+            if (limit_end_reached == NULL) break;
+
+            set_direction(HR4988_POSITIVE_DIR);
+            set_speed(SPEED);
+            while (!(*limit_end_reached)) step();
+
+            change_direction();
+            move_while_button_pressed(SPEED, limit_end_reached, switch_end_parameters);
+
+            break;
+
+        default:
+            break;
+    }
 }

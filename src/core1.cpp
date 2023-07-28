@@ -85,8 +85,8 @@ void function_core_1 (void *parameters) {
     stepper_motor.set_linear_potentiometer(&linear_potentiometer, increase_potentiometer_direction_sign);
 #endif
 
-    stepper_motor.set_limit_switch_begin(&switch_begin_pressed);
-    stepper_motor.set_limit_switch_end(&switch_end_pressed);
+    stepper_motor.set_limit_switch_begin(&switch_begin_pressed, &limit_switch_begin_parameters);
+    stepper_motor.set_limit_switch_end(&switch_end_pressed, &limit_switch_end_parameters);
     
     int *gears_ptr = gears;
     stepper_motor.set_gears(gears_ptr);
@@ -234,7 +234,11 @@ void function_core_1 (void *parameters) {
     while (!shift_up_pressed) delay(10);
     while ((shift_up_pressed = button_read_attach_interrupt(&shift_up_button_parameters)));
 
-    go_to_limit_switch(LIMIT_SWITCH_BEGIN_PIN);
+    #if DEBUG
+        Serial.println("GEARS MODE");
+    #endif
+
+    stepper_motor.go_to_limit_switch(FEEDBACKSTEPPER_LIMIT_SWITCH_BEGIN_TYPE);
     stepper_motor.set_position(0);
 
     
@@ -334,39 +338,6 @@ void shift(uint8_t next_gear) {
     #if DEBUG_GEARS
         Serial.print("Gear: "); Serial.println(g_current_gear);
     #endif
-}
-
-
-void go_to_limit_switch(uint8_t limit_switch_pin) {
-    const uint8_t SPEED = 100;
-
-    switch (limit_switch_pin) {
-
-        case LIMIT_SWITCH_BEGIN_PIN:
-
-            stepper_motor.set_direction(HR4988_NEGATIVE_DIR);
-            stepper_motor.set_speed(SPEED);
-            while (!switch_begin_pressed) stepper_motor.step();
-
-            stepper_motor.change_direction();
-            stepper_motor.move_while_button_pressed(SPEED, &switch_begin_pressed, &limit_switch_begin_parameters);
-
-            break;
-
-        case LIMIT_SWITCH_END_PIN:
-
-            stepper_motor.set_direction(HR4988_POSITIVE_DIR);
-            stepper_motor.set_speed(SPEED);
-            while (!switch_end_pressed) stepper_motor.step();
-
-            stepper_motor.change_direction();
-            stepper_motor.move_while_button_pressed(SPEED, &switch_end_pressed, &limit_switch_end_parameters);
-
-            break;
-
-        default:
-            break;
-    }
 }
 
 
