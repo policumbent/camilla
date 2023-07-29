@@ -11,6 +11,9 @@
 #include "Memory.h"
 
 
+#define BUILT_IN_LED_PIN 2
+
+
 extern TaskHandle_t task_core_1;
 extern TaskHandle_t task_core_0;
 extern TaskHandle_t task_webserver_calibration;

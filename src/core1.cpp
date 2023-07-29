@@ -214,25 +214,33 @@ void function_core_1 (void *parameters) {
         #endif
     #endif
 
+    digitalWrite(BUILT_IN_LED_PIN, HIGH);
+
     shift_down_pressed = shift_up_pressed = calibration_button_pressed = 0;
     while (!(shift_down_pressed || shift_up_pressed || calibration_button_pressed)) delay(10);
 
     if (shift_down_pressed) {
         while ((shift_down_pressed = button_read_attach_interrupt(&shift_down_button_parameters)));
+        digitalWrite(BUILT_IN_LED_PIN, LOW);
+
         test_mode();
     }
 
     if (calibration_button_pressed) {
         while ((calibration_button_pressed = button_read_attach_interrupt(&calibration_button_parameters)));
+        digitalWrite(BUILT_IN_LED_PIN, LOW);
 
         g_calibration_flag = 1;
         calibration();
         while ((calibration_button_pressed = button_read_attach_interrupt(&calibration_button_parameters)));
     }
 
+    digitalWrite(BUILT_IN_LED_PIN, HIGH);
 
     while (!shift_up_pressed) delay(10);
     while ((shift_up_pressed = button_read_attach_interrupt(&shift_up_button_parameters)));
+
+    digitalWrite(BUILT_IN_LED_PIN, LOW);
 
     #if DEBUG
         Serial.println("GEARS MODE");

@@ -18,6 +18,9 @@ void setup() {
         Serial.println("Serial initialized");
     #endif
 
+    pinMode(BUILT_IN_LED_PIN, OUTPUT);
+    digitalWrite(BUILT_IN_LED_PIN, LOW);
+
     g_semaphore = xSemaphoreCreateBinary();
     xSemaphoreGive(g_semaphore);
 
