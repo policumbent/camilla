@@ -39,17 +39,16 @@ void WebServer :: init_webserver() {
             request->send(200, "text/plain", get_gear_position(request->arg("gear").toInt()));
     });
 
-    this->server->on("/api/position", HTTP_GET, [this](AsyncWebServerRequest *request){
+    this->server->on("/api/position", HTTP_GET, [this](AsyncWebServerRequest *request) {
         request->send(200, "text/plain", get_current_position());
     });
 
-    this->server->on("/api/calibrate", HTTP_GET, [this](AsyncWebServerRequest *request){
+    this->server->on("/api/calibrate", HTTP_GET, [this](AsyncWebServerRequest *request) {
         if (request->hasArg("gear")) {
             String arg = request->arg("gear");
             save_gear(arg.toInt());
             request->send(200, "text/plain", get_gear_position(arg.toInt()));
         }
-        
     });
 
     this->server->serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
