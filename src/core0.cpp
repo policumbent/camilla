@@ -33,12 +33,12 @@ void function_core_0 (void *parameters) {
 
     can_tx_msg_data.rtr = 0;
     can_tx_msg_data.id = POLICANBENT_GB_DATA_FRAME_ID;
-    can_tx_msg_data.extended = false;
+    can_tx_msg_data.extended = POLICANBENT_GB_DATA_IS_EXTENDED;
     can_tx_msg_data.length = POLICANBENT_GB_DATA_LENGTH;
 
     while (1) {
 
-        data_payload.gb_gear = g_current_gear;
+        data_payload.gb_gear = policanbent_gb_data_gb_gear_encode(g_current_gear);
 
         if (policanbent_gb_data_pack(destination_payload, &data_payload, POLICANBENT_GB_DATA_LENGTH) < 0) {
             #if DEBUG_CAN
