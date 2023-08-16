@@ -2,10 +2,6 @@
 #include "main.h"
 
 
-#define ENCODER_CONNECTED       1
-#define POTENTIOMETER_CONNECTED 0
-
-
 #define NUM_GEARS  12     // for Phoenix
 
 

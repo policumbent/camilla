@@ -1,7 +1,7 @@
 #pragma once
 #include <Arduino.h>
 
-#include "debug.h"
+#include "settings.h"
 
 #include "FeedbackStepper.h"
 #include "HR4988.h"
