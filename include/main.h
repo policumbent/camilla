@@ -28,3 +28,5 @@ extern uint8_t g_current_gear;
 extern uint8_t g_calibration_flag;
 
 void calibration();
+
+void blink_built_in_led(uint8_t n_times);

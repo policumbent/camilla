@@ -214,6 +214,8 @@ void function_core_1 (void *parameters) {
         #endif
     #endif
 
+    blink_built_in_led(4);
+
     digitalWrite(BUILT_IN_LED_PIN, HIGH);
 
     shift_down_pressed = shift_up_pressed = calibration_button_pressed = 0;
@@ -304,31 +306,6 @@ void function_core_1 (void *parameters) {
 }
 
 
-void IRAM_ATTR limit_switch_begin_isr() {
-    switch_begin_pressed = button_interrupt_service_routine(&limit_switch_begin_parameters);
-}
-
-
-void IRAM_ATTR limit_switch_end_isr() {
-    switch_end_pressed = button_interrupt_service_routine(&limit_switch_end_parameters);
-}
-
-
-void IRAM_ATTR shift_up_button_isr() {
-    shift_up_pressed = button_interrupt_service_routine(&shift_up_button_parameters);
-}
-
-
-void IRAM_ATTR shift_down_button_isr() {
-    shift_down_pressed = button_interrupt_service_routine(&shift_down_button_parameters);
-}
-
-
-void IRAM_ATTR calibration_button_isr() {
-    calibration_button_pressed = button_interrupt_service_routine(&calibration_button_parameters);
-}
-
-
 void shift(uint8_t next_gear) {
 
     if (next_gear < 1 || next_gear > NUM_GEARS) {
@@ -392,4 +369,29 @@ void test_mode() {
         delay(10);
 
     }
+}
+
+
+void IRAM_ATTR limit_switch_begin_isr() {
+    switch_begin_pressed = button_interrupt_service_routine(&limit_switch_begin_parameters);
+}
+
+
+void IRAM_ATTR limit_switch_end_isr() {
+    switch_end_pressed = button_interrupt_service_routine(&limit_switch_end_parameters);
+}
+
+
+void IRAM_ATTR shift_up_button_isr() {
+    shift_up_pressed = button_interrupt_service_routine(&shift_up_button_parameters);
+}
+
+
+void IRAM_ATTR shift_down_button_isr() {
+    shift_down_pressed = button_interrupt_service_routine(&shift_down_button_parameters);
+}
+
+
+void IRAM_ATTR calibration_button_isr() {
+    calibration_button_pressed = button_interrupt_service_routine(&calibration_button_parameters);
 }

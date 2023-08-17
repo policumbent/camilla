@@ -36,3 +36,13 @@ void setup() {
 void loop() {
     delay(10000);
 }
+
+
+void blink_built_in_led(uint8_t n_times) {
+    for (uint8_t i=0; i<n_times; i++) {
+        digitalWrite(BUILT_IN_LED_PIN, HIGH);
+        delay(125);
+        digitalWrite(BUILT_IN_LED_PIN, LOW);
+        delay(125);
+    }
+}

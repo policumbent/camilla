@@ -1,4 +1,4 @@
-function gear(){
+function gear() {
     let gear = document.getElementById("gear").value;
     var xhr = new XMLHttpRequest();
             xhr.open("GET", "/api/get_gear?gear=" + gear, true);
@@ -16,7 +16,10 @@ function gear(){
             xhr.send();
 }
 
-function calibrate(){
+
+function calibrate() {
+    position();
+    
     let gear = document.getElementById("gear").value;
     var xhr = new XMLHttpRequest();
             xhr.open("GET", "/api/calibrate?gear=" + gear, true);
@@ -34,7 +37,8 @@ function calibrate(){
             xhr.send();
 }
 
-function position(){
+
+function position() {
     var xhr = new XMLHttpRequest();
             xhr.open("GET", "/api/position", true);
             xhr.onreadystatechange = function() {

@@ -22,8 +22,8 @@
 #define LIMIT_SWITCH_END_PIN    18
 #define LIMIT_SWITCH_BEGIN_PIN   5
 
-#define SHIFT_UP_BUTTON_PIN     16        // yellow
-#define SHIFT_DOWN_BUTTON_PIN   17        // green
+#define SHIFT_UP_BUTTON_PIN     16        // green
+#define SHIFT_DOWN_BUTTON_PIN   17        // yellow
 
 #define CALIBRATION_BUTTON_PIN 4
 

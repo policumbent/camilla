@@ -23,11 +23,33 @@ WebServer :: ~ WebServer() {
 
 
 void WebServer :: init_webserver() {
+    
+    WiFi.softAP(WEBSERVER_AP_SSID, WEBSERVER_AP_PASSWORD);
+    
+    for (uint8_t i=0; i<1; i++) {
+        digitalWrite(2, HIGH);
+        delay(125);
+        digitalWrite(2, LOW);
+        delay(125);
+    }
+
     SPIFFS.begin();
 
-    WiFi.softAP(WEBSERVER_AP_SSID, WEBSERVER_AP_PASSWORD);
+    for (uint8_t i=0; i<1; i++) {
+        digitalWrite(2, HIGH);
+        delay(125);
+        digitalWrite(2, LOW);
+        delay(125);
+    }
 
     this->server = new AsyncWebServer(80);
+
+    for (uint8_t i=0; i<1; i++) {
+        digitalWrite(2, HIGH);
+        delay(125);
+        digitalWrite(2, LOW);
+        delay(125);
+    }
 
     this->server->onNotFound([](AsyncWebServerRequest *request) {
         request->send(404, "text/plain", "API Not Found");
@@ -51,9 +73,30 @@ void WebServer :: init_webserver() {
         }
     });
 
+    for (uint8_t i=0; i<1; i++) {
+        digitalWrite(2, HIGH);
+        delay(125);
+        digitalWrite(2, LOW);
+        delay(125);
+    }
+
     this->server->serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
 
+    for (uint8_t i=0; i<1; i++) {
+        digitalWrite(2, HIGH);
+        delay(125);
+        digitalWrite(2, LOW);
+        delay(125);
+    }
+
     this->server->begin();
+
+    for (uint8_t i=0; i<1; i++) {
+        digitalWrite(2, HIGH);
+        delay(125);
+        digitalWrite(2, LOW);
+        delay(125);
+    }
 }
 
 
