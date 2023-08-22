@@ -66,8 +66,6 @@ void webserver_calibration() {
 
     while (!calibration_button_pressed) delay(100);
 
-    delete &webserver;
-
     flash.write_array(gears_memory_key, (void *) gears, NUM_GEARS, sizeof(int));
     flash.write_array(gears_lin_memory_key, (void *) gears_lin, NUM_GEARS, sizeof(int));
 
