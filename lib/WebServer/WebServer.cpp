@@ -17,7 +17,7 @@ WebServer :: ~ WebServer() {
     server->end();
     server->reset();
     SPIFFS.end(); // this may cause problems TODO: test
-    WiFi.softAPdisconnect();
+    WiFi.softAPdisconnect(true);
     delete server;
 }
 
