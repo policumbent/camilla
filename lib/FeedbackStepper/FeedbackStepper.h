@@ -40,6 +40,7 @@ class FeedbackStepper : public HR4988 {
 
 
     private:
+        void _shift_overshoot(int delta_pos);
         void _shift_linear_correction(int next_gear);
 
 
