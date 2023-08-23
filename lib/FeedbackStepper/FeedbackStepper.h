@@ -33,12 +33,14 @@ class FeedbackStepper : public HR4988 {
         uint8_t *limit_end_reached;
         button_parameters *switch_end_parameters;
 
+        uint8_t dummy_limit_reached;
+
         int *gears;
         int *gears_lin;
 
 
     private:
-        void _shift_linear_correction(int next_gear, uint8_t *ptr_limit_begin_reached, uint8_t *ptr_limit_end_reached);
+        void _shift_linear_correction(int next_gear);
 
 
     public:

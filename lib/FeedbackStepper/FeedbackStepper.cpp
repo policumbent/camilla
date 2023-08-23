@@ -47,12 +47,15 @@ FeedbackStepper :: FeedbackStepper (uint8_t step_pin, uint8_t direction_pin,
 void FeedbackStepper :: setup() {
     rotative_encoder = NULL;
     linear_potentiometer = NULL;
-    limit_begin_reached = NULL;
-    limit_end_reached = NULL;
     gears = NULL;
     gears_lin = NULL;
     increase_potentiometer_direction_sign = 0;
     increase_encoder_direction_sign = 0;
+
+    // If the limit switch is not connected use a dummy variable to have the limit reached condition never triggered
+    dummy_limit_reached = 0;
+    limit_begin_reached = &dummy_limit_reached;
+    limit_end_reached = &dummy_limit_reached;
 }
 
 
@@ -109,19 +112,6 @@ void FeedbackStepper :: shift(int next_gear) {
         int16_t delta_pos_array[ARRAY_SIZE], delta_angle_array[ARRAY_SIZE], error_array[ARRAY_SIZE];
         int array_pos = 0;
     #endif
-
-    // If the limit switch is not connected create a dummy variable to have the limit reached condition never triggered
-    uint8_t dummy_limit_begin_reached = 0;
-    uint8_t *ptr_limit_begin_reached = limit_begin_reached;
-    if (ptr_limit_begin_reached == NULL) {
-        ptr_limit_begin_reached = &dummy_limit_begin_reached;
-    }
-
-    uint8_t dummy_limit_end_reached = 0;
-    uint8_t *ptr_limit_end_reached = limit_end_reached;
-    if (ptr_limit_end_reached == NULL) {
-        ptr_limit_end_reached = &dummy_limit_end_reached;
-    }
     
     delta_pos = 0;
     delta_angle = 0;
@@ -129,7 +119,7 @@ void FeedbackStepper :: shift(int next_gear) {
 
     if (rotative_encoder != NULL) rotative_encoder->read_angle();
 
-    while (position_sixteenth != target_pos && !(*ptr_limit_begin_reached) && !(*ptr_limit_end_reached)) {
+    while (position_sixteenth != target_pos && !(*limit_begin_reached) && !(*limit_end_reached)) {
 
         portDISABLE_INTERRUPTS();
         elapsed_time = micros();
@@ -235,12 +225,12 @@ void FeedbackStepper :: shift(int next_gear) {
 
     // If the linear position is not correct, correct the shift
     if (linear_potentiometer != NULL) {
-        _shift_linear_correction(next_gear, ptr_limit_begin_reached, ptr_limit_end_reached);
+        _shift_linear_correction(next_gear);
     }
 }
 
 
-void FeedbackStepper :: _shift_linear_correction(int next_gear, uint8_t *ptr_limit_begin_reached, uint8_t *ptr_limit_end_reached) {
+void FeedbackStepper :: _shift_linear_correction(int next_gear) {
     uint16_t ACCEPTABLE_ERROR = 5;
     uint16_t pot_read;
     int8_t dir = 2;
@@ -248,7 +238,7 @@ void FeedbackStepper :: _shift_linear_correction(int next_gear, uint8_t *ptr_lim
 
     set_speed(HR4988_MIN_MOVE_RPM);
     
-    while (dir != 0 && !(*ptr_limit_begin_reached) && !(*ptr_limit_end_reached)) {
+    while (dir != 0 && !(*limit_begin_reached) && !(*limit_end_reached)) {
 
         portDISABLE_INTERRUPTS();
         elapsed_time = micros();
