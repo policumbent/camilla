@@ -139,7 +139,8 @@ void FeedbackStepper :: shift(int next_gear) {
 
         _step_no_delay_off();
 
-
+        // The correction of the position with the encoder is not done in a proper function since the code
+        //  in the debug code in the #if statements cannot be easily done in another function
         if (rotative_encoder != NULL && abs(delta_pos) >= 2 * 16) {
             delta_angle = rotative_encoder->get_angle();
             read_angle = rotative_encoder->read_angle();        // USES INTERRUPTS (!!!!)
@@ -178,18 +179,18 @@ void FeedbackStepper :: shift(int next_gear) {
                 }
                 
             
-                #if FEEDBACKSTEPPER_DEBUG >= 2
-                    delta_pos_array[array_pos] = delta_pos;
-                    delta_angle_array[array_pos] = delta_angle;
-                    error_array[array_pos] = error;
-                    array_pos++;
-                #endif
-
                 #if FEEDBACKSTEPPER_DEBUG
                     tot_angle += delta_angle;
                     avg_error += error;
                     read_cnt++;
                     if (error >= 8) tot_correction += error;
+                #endif
+
+                #if FEEDBACKSTEPPER_DEBUG >= 2
+                    delta_pos_array[array_pos] = delta_pos;
+                    delta_angle_array[array_pos] = delta_angle;
+                    error_array[array_pos] = error;
+                    array_pos++;
                 #endif
             }
 
@@ -233,14 +234,21 @@ void FeedbackStepper :: shift(int next_gear) {
 
 
     // If the linear position is not correct, correct the shift
+    if (linear_potentiometer != NULL) {
+        _shift_linear_correction(next_gear, ptr_limit_begin_reached, ptr_limit_end_reached);
+    }
+}
+
+
+void FeedbackStepper :: _shift_linear_correction(int next_gear, uint8_t *ptr_limit_begin_reached, uint8_t *ptr_limit_end_reached) {
     uint16_t ACCEPTABLE_ERROR = 5;
     uint16_t pot_read;
     int8_t dir = 2;
+    long int elapsed_time, delay;
 
     set_speed(HR4988_MIN_MOVE_RPM);
-
     
-    while (linear_potentiometer != NULL && dir != 0 && !(*ptr_limit_begin_reached) && !(*ptr_limit_end_reached)) {
+    while (dir != 0 && !(*ptr_limit_begin_reached) && !(*ptr_limit_end_reached)) {
 
         portDISABLE_INTERRUPTS();
         elapsed_time = micros();

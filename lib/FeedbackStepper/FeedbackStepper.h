@@ -37,6 +37,10 @@ class FeedbackStepper : public HR4988 {
         int *gears_lin;
 
 
+    private:
+        void _shift_linear_correction(int next_gear, uint8_t *ptr_limit_begin_reached, uint8_t *ptr_limit_end_reached);
+
+
     public:
         FeedbackStepper (uint8_t step_pin, uint8_t direction_pin,
                          uint8_t ms1_pin, uint8_t ms2_pin, uint8_t ms3_pin,
