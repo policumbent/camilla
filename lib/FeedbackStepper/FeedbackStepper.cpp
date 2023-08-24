@@ -241,16 +241,16 @@ void FeedbackStepper :: _shift_overshoot(int delta_pos, float speed) {
     // Two different index are used to return to correct set point in case of limit reached
 
     i = j = 0;
-    while (i < delta_pos/microstepping && !(*limit_begin_reached) && !(*limit_end_reached)) {
+    while (i < delta_pos && !(*limit_begin_reached) && !(*limit_end_reached)) {
         step();
-        i++;
+        i += position_change;
     }
 
     change_direction();
 
     while (j < i && !(*limit_begin_reached) && !(*limit_end_reached)) {
         step();
-        j++;
+        j += position_change;
     }
 }
 
