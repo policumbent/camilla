@@ -72,6 +72,6 @@ class FeedbackStepper : public HR4988 {
         void set_gears_lin(int *gears_lin);
         
         void shift(int next_gear);
-        void move_while_button_pressed(float speed, uint8_t *button_pressed, button_parameters *bp);
+        void move_while_button_pressed(float speed, int8_t dir, uint8_t *button_pressed, button_parameters *bp);
         void go_to_limit_switch(uint8_t limit_switch_type);
 };

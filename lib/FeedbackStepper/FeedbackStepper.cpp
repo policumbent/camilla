@@ -296,9 +296,16 @@ void FeedbackStepper :: _shift_linear_correction(int next_gear) {
 }
 
 
-void FeedbackStepper :: move_while_button_pressed(float speed, uint8_t *button_pressed, button_parameters *bp) {
+void FeedbackStepper :: move_while_button_pressed(float speed, int8_t dir, uint8_t *button_pressed, button_parameters *bp) {
     uint8_t end = 0;
     long int elapsed_time, delay;
+
+    if (dir == HR4988_CHANGE_DIR) {
+        change_direction();
+    }
+
+    int start_pos = position_sixteenth;
+    int target_pos = (dir == HR4988_POSITIVE_DIR) ? INT_MAX : INT_MIN;
 
     set_speed(speed);
 
@@ -341,8 +348,7 @@ void FeedbackStepper :: go_to_limit_switch(uint8_t limit_switch_type) {
             set_speed(SPEED);
             while (!(*limit_begin_reached)) step();
 
-            change_direction();
-            move_while_button_pressed(SPEED, limit_begin_reached, switch_begin_paramters);
+            move_while_button_pressed(SPEED, HR4988_CHANGE_DIR, limit_begin_reached, switch_begin_paramters);
 
             break;
 
@@ -355,7 +361,7 @@ void FeedbackStepper :: go_to_limit_switch(uint8_t limit_switch_type) {
             while (!(*limit_end_reached)) step();
 
             change_direction();
-            move_while_button_pressed(SPEED, limit_end_reached, switch_end_parameters);
+            move_while_button_pressed(SPEED, HR4988_CHANGE_DIR, limit_end_reached, switch_end_parameters);
 
             break;
 

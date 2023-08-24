@@ -31,8 +31,9 @@
 #define HR4988_CW  0
 #define HR4988_CCW 1
 
-#define HR4988_POSITIVE_DIR 1
-#define HR4988_NEGATIVE_DIR -1
+#define HR4988_POSITIVE_DIR     1
+#define HR4988_NEGATIVE_DIR     -1
+#define HR4988_CHANGE_DIR       0
 
 #define HR4988_DELAY_CHANGE_DIRECTION 1e4
 
@@ -62,7 +63,7 @@ class HR4988 {
         const uint8_t delay_on = 10;
         int delay_off;
 
-        uint8_t direction;
+        int8_t direction;
         uint8_t microstepping;
         uint8_t microstepping_on;
         uint8_t position_change;
@@ -109,7 +110,7 @@ class HR4988 {
         float get_speed();
 
         void change_direction ();
-        void set_direction(uint8_t dir);
+        void set_direction(int8_t dir);
         uint8_t get_direction();
 
         void set_microstepping(uint8_t mode);

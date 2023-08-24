@@ -317,7 +317,7 @@ void HR4988 :: change_direction() {
 }
 
 
-void HR4988 :: set_direction(uint8_t dir) {
+void HR4988 :: set_direction(int8_t dir) {
     if (direction == dir)
         return;
     
@@ -468,15 +468,17 @@ void HR4988 :: print_status() {
 void HR4988 :: driver_calibration() {
     uint8_t end;
 
-    // To calibrate the driver, measure the voltage on the top of the potentiometer screw on the driver
-    //  w.r.t. any of the two ground of the board, the voltage measured Vref must be
-    // Vref = Imax * 8 * Rs
-    //  Imax: maximum current per coil of the motor
-    //  Rs: resistor close to the potentiometer (usually 0.1 Ohm (or 0.05 Ohm))
-    // If microstepping is enabled the voltage must be lower, according to the following formula
-    // Vref_ms = 0.7 * Vref
-
     Serial.println("Driver calibration (set the encoder potentiometer) ('e' to end): ");
+
+    Serial.println("\
+        To calibrate the driver, measure the voltage on the top of the potentiometer screw on the driver\
+            w.r.t. any of the two ground of the board, the voltage measured Vref must be\
+        \n\tVref = Imax * 8 * Rs\
+        \n\t\tImax: maximum current per coil of the motor\
+        \n\t\tRs: resistor close to the potentiometer (usually 0.1 Ohm (or 0.05 Ohm))\
+        \nIf microstepping is enabled the voltage must be lower, according to the following formula\
+        \n\tVref_ms = 0.7 * Vref\
+    ");
 
     end = 0;
     while (!end) {

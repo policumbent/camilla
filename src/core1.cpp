@@ -214,7 +214,7 @@ void function_core_1 (void *parameters) {
         #endif
     #endif
 
-    blink_built_in_led(4);
+    blink_built_in_led(2);
 
     digitalWrite(BUILT_IN_LED_PIN, HIGH);
 
@@ -251,7 +251,6 @@ void function_core_1 (void *parameters) {
     stepper_motor.go_to_limit_switch(FEEDBACKSTEPPER_LIMIT_SWITCH_BEGIN_TYPE);
     stepper_motor.set_position(0);
 
-    
     #if DEBUG_MOTOR >= 2
         stepper_motor.debug_serial_control();
     #endif
@@ -287,8 +286,7 @@ void function_core_1 (void *parameters) {
                 Serial.println("Begin limit reached");
             #endif
 
-            stepper_motor.change_direction();
-            stepper_motor.move_while_button_pressed(100, &switch_begin_pressed, &limit_switch_begin_parameters);
+            stepper_motor.move_while_button_pressed(100, HR4988_CHANGE_DIR, &switch_begin_pressed, &limit_switch_begin_parameters);
         }
 
         if (switch_end_pressed) {
@@ -296,8 +294,7 @@ void function_core_1 (void *parameters) {
                 Serial.println("End limit reached");
             #endif
 
-            stepper_motor.change_direction();
-            stepper_motor.move_while_button_pressed(100, &switch_end_pressed, &limit_switch_end_parameters);
+            stepper_motor.move_while_button_pressed(100, HR4988_CHANGE_DIR, &switch_end_pressed, &limit_switch_end_parameters);
         }
 
         delay(10);
@@ -343,22 +340,22 @@ void test_mode() {
 
         if (shift_up_pressed) {
             stepper_motor.set_direction(HR4988_POSITIVE_DIR);
-            stepper_motor.move_while_button_pressed(SPEED, &shift_up_pressed, &shift_up_button_parameters);
+            stepper_motor.move_while_button_pressed(SPEED, HR4988_POSITIVE_DIR, &shift_up_pressed, &shift_up_button_parameters);
         }
 
         if (shift_down_pressed) {
             stepper_motor.set_direction(HR4988_NEGATIVE_DIR);
-            stepper_motor.move_while_button_pressed(SPEED, &shift_down_pressed, &shift_down_button_parameters);
+            stepper_motor.move_while_button_pressed(SPEED, HR4988_NEGATIVE_DIR, &shift_down_pressed, &shift_down_button_parameters);
         }
 
         if (switch_begin_pressed) {
             stepper_motor.change_direction();
-            stepper_motor.move_while_button_pressed(SPEED, &switch_begin_pressed, &limit_switch_begin_parameters);
+            stepper_motor.move_while_button_pressed(SPEED, HR4988_CHANGE_DIR, &switch_begin_pressed, &limit_switch_begin_parameters);
         }
 
         if (switch_end_pressed) {
             stepper_motor.change_direction();
-            stepper_motor.move_while_button_pressed(SPEED, &switch_end_pressed, &limit_switch_end_parameters);
+            stepper_motor.move_while_button_pressed(SPEED,HR4988_CHANGE_DIR,  &switch_end_pressed, &limit_switch_end_parameters);
         }
 
         if (calibration_button_pressed) {
