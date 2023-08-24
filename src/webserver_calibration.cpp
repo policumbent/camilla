@@ -19,7 +19,7 @@ void calibration() {
     stepper_motor.go_to_limit_switch(FEEDBACKSTEPPER_LIMIT_SWITCH_BEGIN_TYPE);
     stepper_motor.set_position(0);
 
-    shift_up_pressed = shift_down_pressed = calibration_button_pressed = 0;
+    shift_up_pressed = shift_down_pressed = 0;
 
     end = 0;
 
@@ -59,6 +59,8 @@ void webserver_calibration() {
     int *gears_ptr = gears;
     int *gears_lin_ptr = gears_lin;
     WebServer webserver = WebServer(&stepper_motor, &linear_potentiometer, gears_ptr, gears_lin_ptr, NUM_GEARS, &g_semaphore);
+
+    blink_built_in_led(4);
 
     while (!calibration_button_pressed) delay(100);
 

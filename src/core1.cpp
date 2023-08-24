@@ -285,6 +285,7 @@ void gears_mode() {
             #if DEBUG_BUTTONS
                 Serial.println("Shifting up");
             #endif
+
             shift(g_current_gear + 1);
 
             while ((shift_up_pressed = button_read_attach_interrupt(&shift_up_button_parameters)));
@@ -294,6 +295,7 @@ void gears_mode() {
             #if DEBUG_BUTTONS
                 Serial.println("Shifting down");
             #endif
+            
             shift(g_current_gear - 1);
 
             while ((shift_down_pressed = button_read_attach_interrupt(&shift_down_button_parameters)));
