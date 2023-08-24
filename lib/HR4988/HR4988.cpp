@@ -105,7 +105,7 @@ void HR4988 :: setup() {
 
 void HR4988 :: move_const_speed(int target_pos, float rpm) {
     int start_pos = position_sixteenth;
-    uint8_t dir;
+    int8_t dir;
 
     set_speed(rpm);
 
@@ -173,7 +173,7 @@ void HR4988 :: move(int target_pos) {
 
 
 void HR4988 :: _move_set_speed_direction(int start_pos, int target_pos) {
-    uint8_t dir;
+    int8_t dir;
     float speed;
     int accel_steps;
 
