@@ -62,6 +62,7 @@ extern button_parameters shift_down_button_parameters;
 extern button_parameters calibration_button_parameters;
 
 
-void shift(uint8_t next_gear);
-
+void gears_mode();
 void test_mode();
+
+void shift(uint8_t next_gear);

@@ -221,30 +221,45 @@ void function_core_1 (void *parameters) {
     digitalWrite(BUILT_IN_LED_PIN, HIGH);
 
     shift_down_pressed = shift_up_pressed = calibration_button_pressed = 0;
-    while (!(shift_down_pressed || shift_up_pressed || calibration_button_pressed)) delay(10);
+    while (1) {
 
-    if (shift_down_pressed) {
-        while ((shift_down_pressed = button_read_attach_interrupt(&shift_down_button_parameters)));
-        digitalWrite(BUILT_IN_LED_PIN, LOW);
+        if (shift_up_pressed) {
+            while ((shift_up_pressed = button_read_attach_interrupt(&shift_up_button_parameters)));
+            digitalWrite(BUILT_IN_LED_PIN, LOW);
 
-        test_mode();
+            gears_mode();
+
+            digitalWrite(BUILT_IN_LED_PIN, HIGH);
+        }
+
+        if (shift_down_pressed) {
+            while ((shift_down_pressed = button_read_attach_interrupt(&shift_down_button_parameters)));
+            digitalWrite(BUILT_IN_LED_PIN, LOW);
+
+            test_mode();
+
+            digitalWrite(BUILT_IN_LED_PIN, HIGH);
+        }
+
+        if (calibration_button_pressed) {
+            while ((calibration_button_pressed = button_read_attach_interrupt(&calibration_button_parameters)));
+            digitalWrite(BUILT_IN_LED_PIN, LOW);
+
+            g_calibration_flag = 1;
+            calibration();
+            while ((calibration_button_pressed = button_read_attach_interrupt(&calibration_button_parameters)));
+
+            digitalWrite(BUILT_IN_LED_PIN, HIGH);
+        }
+
+        delay(10);
     }
 
-    if (calibration_button_pressed) {
-        while ((calibration_button_pressed = button_read_attach_interrupt(&calibration_button_parameters)));
-        digitalWrite(BUILT_IN_LED_PIN, LOW);
+}
 
-        g_calibration_flag = 1;
-        calibration();
-        while ((calibration_button_pressed = button_read_attach_interrupt(&calibration_button_parameters)));
-    }
 
-    digitalWrite(BUILT_IN_LED_PIN, HIGH);
-
-    while (!shift_up_pressed) delay(10);
-    while ((shift_up_pressed = button_read_attach_interrupt(&shift_up_button_parameters)));
-
-    digitalWrite(BUILT_IN_LED_PIN, LOW);
+void gears_mode() {
+    uint8_t end;
 
     #if DEBUG
         Serial.println("GEARS MODE");
@@ -263,7 +278,8 @@ void function_core_1 (void *parameters) {
 
     shift(1);
 
-    while (1) {
+    end = 0;
+    while (!end) {
 
         if (shift_up_pressed) {
             #if DEBUG_BUTTONS
@@ -297,6 +313,16 @@ void function_core_1 (void *parameters) {
             #endif
 
             stepper_motor.move_while_button_pressed(100, HR4988_CHANGE_DIR, &switch_end_pressed, &limit_switch_end_parameters);
+        }
+
+        if (calibration_button_pressed) {
+            int elapsed_time = millis();
+            while ((calibration_button_pressed = button_read_attach_interrupt(&calibration_button_parameters)));
+            elapsed_time = millis() - elapsed_time;
+
+            if (elapsed_time > 3000) {
+                end = 1;
+            }
         }
 
         delay(10);
@@ -354,8 +380,8 @@ void test_mode() {
         }
 
         if (calibration_button_pressed) {
-            end = 1;
             while ((calibration_button_pressed = button_read_attach_interrupt(&calibration_button_parameters)));
+            end = 1;
         }
 
         delay(10);
