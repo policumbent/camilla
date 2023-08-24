@@ -93,6 +93,8 @@ void function_core_1 (void *parameters) {
     int *gears_lin_ptr = gears_lin;
     stepper_motor.set_gears_lin(gears_lin_ptr);
 
+    //stepper_motor.disable_microstepping();
+
     #if DEBUG_MEMORY >= 2
         for (int i=0; i<NUM_GEARS; i++) {
             gears[i] = 4 * stepper_motor.get_delta_position_360_degrees_rotation() * (i+1);
