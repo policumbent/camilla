@@ -223,7 +223,7 @@ void FeedbackStepper :: shift(int next_gear) {
     #endif
 
     
-    _shift_overshoot(1600, 200);
+    _shift_overshoot(3200, 200);
 
 
     // If the linear position is not correct, correct the shift
@@ -234,23 +234,23 @@ void FeedbackStepper :: shift(int next_gear) {
 
 
 void FeedbackStepper :: _shift_overshoot(int delta_pos, float speed) {
-    int i, j;
+    int forward, backward;
 
     set_speed(speed);
 
     // Two different index are used to return to correct set point in case of limit reached
 
-    i = j = 0;
-    while (i < delta_pos && !(*limit_begin_reached) && !(*limit_end_reached)) {
+    forward = backward = 0;
+    while (forward < delta_pos && !(*limit_begin_reached) && !(*limit_end_reached)) {
         step();
-        i += position_change;
+        forward += position_change;
     }
 
     change_direction();
 
-    while (j < i && !(*limit_begin_reached) && !(*limit_end_reached)) {
+    while (backward < forward && !(*limit_begin_reached) && !(*limit_end_reached)) {
         step();
-        j += position_change;
+        backward += position_change;
     }
 }
 

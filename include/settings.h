@@ -2,7 +2,7 @@
 
 #define SERIAL_CALIBRATION  0
 
-#define ENCODER_CONNECTED       1
+#define ENCODER_CONNECTED       0
 #define POTENTIOMETER_CONNECTED 0
 
 #define DEBUG 1
