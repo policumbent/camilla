@@ -223,8 +223,7 @@ void FeedbackStepper :: shift(int next_gear) {
     #endif
 
     
-    set_speed(100);
-    _shift_overshoot(1600);
+    _shift_overshoot(1600, 200);
 
 
     // If the linear position is not correct, correct the shift
@@ -234,20 +233,22 @@ void FeedbackStepper :: shift(int next_gear) {
 }
 
 
-void FeedbackStepper :: _shift_overshoot(int delta_pos) {
+void FeedbackStepper :: _shift_overshoot(int delta_pos, float speed) {
     int i, j;
+
+    set_speed(speed);
 
     // Two different index are used to return to correct set point in case of limit reached
 
     i = j = 0;
-    while (i<delta_pos && !(*limit_begin_reached) && !(*limit_end_reached)) {
+    while (i < delta_pos/microstepping && !(*limit_begin_reached) && !(*limit_end_reached)) {
         step();
         i++;
     }
 
     change_direction();
 
-    while (j<i && !(*limit_begin_reached) && !(*limit_end_reached)) {
+    while (j < i && !(*limit_begin_reached) && !(*limit_end_reached)) {
         step();
         j++;
     }
