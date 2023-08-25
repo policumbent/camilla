@@ -16,6 +16,9 @@ void calibration() {
         Serial.println("WEBSERVER CALIBRATION");
     #endif
 
+    while (!shift_down_pressed) delay(10);
+    while ((shift_down_pressed = button_read_attach_interrupt(&shift_down_button_parameters)));
+
     stepper_motor.go_to_limit_switch(FEEDBACKSTEPPER_LIMIT_SWITCH_BEGIN_TYPE);
     stepper_motor.set_position(0);
 

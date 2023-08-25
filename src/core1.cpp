@@ -22,7 +22,7 @@ int gears[NUM_GEARS];
 int gears_lin[NUM_GEARS];
 
 
-Memory flash = Memory();
+Memory flash = Memory ();
 
 
 
