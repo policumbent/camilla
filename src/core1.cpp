@@ -25,6 +25,9 @@ int gears_lin[NUM_GEARS];
 Memory flash = Memory ();
 
 
+uint8_t zero_reference_limit_switch_type;
+
+
 
 void function_core_1 (void *parameters) {
 
@@ -36,6 +39,10 @@ void function_core_1 (void *parameters) {
     delay(1000);
 
 
+#if !MICROSTEPPING_ENABLED
+    stepper_motor.disable_microstepping();
+#endif
+
 #if ENCODER_CONNECTED
     stepper_motor.set_rotative_encoder(&rotative_encoder, increase_encoder_direction_sign);
 #endif
@@ -43,15 +50,24 @@ void function_core_1 (void *parameters) {
     stepper_motor.set_linear_potentiometer(&linear_potentiometer, increase_potentiometer_direction_sign);
 #endif
 
+#if LIMIT_SWITCH_BEGIN_CONNECTED
     stepper_motor.set_limit_switch_begin(&switch_begin_pressed, &limit_switch_begin_parameters);
+#endif
+#if LIMIT_SWITCH_END_CONNECTED
     stepper_motor.set_limit_switch_end(&switch_end_pressed, &limit_switch_end_parameters);
+#endif
     
     int *gears_ptr = gears;
     stepper_motor.set_gears(gears_ptr);
     int *gears_lin_ptr = gears_lin;
     stepper_motor.set_gears_lin(gears_lin_ptr);
 
-    stepper_motor.disable_microstepping();
+#if ZERO_POSITION_AT_BEGIN
+    zero_reference_limit_switch_type = FEEDBACKSTEPPER_LIMIT_SWITCH_BEGIN_TYPE;
+#else
+    zero_reference_limit_switch_type = FEEDBACKSTEPPER_LIMIT_SWITCH_END_TYPE;
+#endif
+
 
     #if DEBUG_MEMORY >= 2
         for (int i=0; i<NUM_GEARS; i++) {
@@ -174,6 +190,7 @@ void function_core_1 (void *parameters) {
         #endif
     #endif
 
+
     blink_built_in_led(2);
 
     digitalWrite(BUILT_IN_LED_PIN, HIGH);
@@ -224,7 +241,7 @@ void gears_mode() {
         Serial.println("GEARS MODE");
     #endif
 
-    stepper_motor.go_to_limit_switch(FEEDBACKSTEPPER_LIMIT_SWITCH_BEGIN_TYPE);
+    stepper_motor.go_to_limit_switch(zero_reference_limit_switch_type);
     stepper_motor.set_position(0);
 
     #if DEBUG_MOTOR >= 2
@@ -275,7 +292,7 @@ void gears_mode() {
                 Serial.println("Begin limit reached");
             #endif
 
-            stepper_motor.move_while_button_pressed(100, HR4988_CHANGE_DIR, &switch_begin_pressed, &limit_switch_begin_parameters);
+            stepper_motor.move_while_button_pressed(LIMIT_SWITCH_PRESSED_SPEED, HR4988_CHANGE_DIR, &switch_begin_pressed, &limit_switch_begin_parameters);
         }
 
         if (switch_end_pressed) {
@@ -283,7 +300,7 @@ void gears_mode() {
                 Serial.println("End limit reached");
             #endif
 
-            stepper_motor.move_while_button_pressed(100, HR4988_CHANGE_DIR, &switch_end_pressed, &limit_switch_end_parameters);
+            stepper_motor.move_while_button_pressed(LIMIT_SWITCH_PRESSED_SPEED, HR4988_CHANGE_DIR, &switch_end_pressed, &limit_switch_end_parameters);
         }
 
         if (calibration_button_pressed) {

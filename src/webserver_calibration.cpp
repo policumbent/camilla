@@ -9,7 +9,6 @@
 
 
 void calibration() {
-    const int SPEED = 100;
     uint8_t end;
 
     #if DEBUG_CALIBRATION
@@ -19,7 +18,7 @@ void calibration() {
     while (!shift_down_pressed) delay(10);
     while ((shift_down_pressed = button_read_attach_interrupt(&shift_down_button_parameters)));
 
-    stepper_motor.go_to_limit_switch(FEEDBACKSTEPPER_LIMIT_SWITCH_BEGIN_TYPE);
+    stepper_motor.go_to_limit_switch(zero_reference_limit_switch_type);
     stepper_motor.set_position(0);
 
     shift_up_pressed = shift_down_pressed = 0;
@@ -31,19 +30,19 @@ void calibration() {
         xSemaphoreTake(g_semaphore, portMAX_DELAY);
 
         if (shift_up_pressed) {
-            stepper_motor.move_while_button_pressed(SPEED, HR4988_POSITIVE_DIR, &shift_up_pressed, &shift_up_button_parameters);
+            stepper_motor.move_while_button_pressed(CALIBRATION_SPEED, HR4988_POSITIVE_DIR, &shift_up_pressed, &shift_up_button_parameters);
         }
 
         if (shift_down_pressed) {
-            stepper_motor.move_while_button_pressed(SPEED, HR4988_NEGATIVE_DIR, &shift_down_pressed, &shift_down_button_parameters);
+            stepper_motor.move_while_button_pressed(CALIBRATION_SPEED, HR4988_NEGATIVE_DIR, &shift_down_pressed, &shift_down_button_parameters);
         }
 
         if (switch_begin_pressed) {
-            stepper_motor.move_while_button_pressed(SPEED, HR4988_CHANGE_DIR, &switch_begin_pressed, &limit_switch_begin_parameters);
+            stepper_motor.move_while_button_pressed(LIMIT_SWITCH_PRESSED_SPEED, HR4988_CHANGE_DIR, &switch_begin_pressed, &limit_switch_begin_parameters);
         }
 
         if (switch_end_pressed) {
-            stepper_motor.move_while_button_pressed(SPEED, HR4988_CHANGE_DIR, &switch_end_pressed, &limit_switch_end_parameters);
+            stepper_motor.move_while_button_pressed(LIMIT_SWITCH_PRESSED_SPEED, HR4988_CHANGE_DIR, &switch_end_pressed, &limit_switch_end_parameters);
         }
 
         if (calibration_button_pressed) {

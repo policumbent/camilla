@@ -1,9 +1,15 @@
 #pragma once
 
+
+#define MICROSTEPPING_ENABLED        0
+#define ENCODER_CONNECTED            0
+#define POTENTIOMETER_CONNECTED      0
+#define LIMIT_SWITCH_BEGIN_CONNECTED 1
+#define LIMIT_SWITCH_END_CONNECTED   1
+#define ZERO_POSITION_AT_BEGIN       0
+
 #define SERIAL_CALIBRATION  0
 
-#define ENCODER_CONNECTED       0
-#define POTENTIOMETER_CONNECTED 0
 
 #define DEBUG 1
 
