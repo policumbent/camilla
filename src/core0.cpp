@@ -10,6 +10,16 @@ void function_core_0 (void *parameters) {
 
     delay(1000);
 
+
+    button_setup(&limit_switch_begin_parameters);
+    button_setup(&limit_switch_end_parameters);
+
+    button_setup(&shift_up_button_parameters);
+    button_setup(&shift_down_button_parameters);
+
+    button_setup(&calibration_button_parameters);
+
+
     CAN0.setCANPins(CAN_RX_PIN, CAN_TX_PIN);
     while (!CAN0.begin(500000)) {
         #if DEBUG_CAN
@@ -64,4 +74,29 @@ void function_core_0 (void *parameters) {
     
         delay(1000);
     }
+}
+
+
+void IRAM_ATTR limit_switch_begin_isr() {
+    switch_begin_pressed = button_interrupt_service_routine(&limit_switch_begin_parameters);
+}
+
+
+void IRAM_ATTR limit_switch_end_isr() {
+    switch_end_pressed = button_interrupt_service_routine(&limit_switch_end_parameters);
+}
+
+
+void IRAM_ATTR shift_up_button_isr() {
+    shift_up_pressed = button_interrupt_service_routine(&shift_up_button_parameters);
+}
+
+
+void IRAM_ATTR shift_down_button_isr() {
+    shift_down_pressed = button_interrupt_service_routine(&shift_down_button_parameters);
+}
+
+
+void IRAM_ATTR calibration_button_isr() {
+    calibration_button_pressed = button_interrupt_service_routine(&calibration_button_parameters);
 }

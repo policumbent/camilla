@@ -22,40 +22,6 @@ int gears[NUM_GEARS];
 int gears_lin[NUM_GEARS];
 
 
-uint8_t switch_begin_pressed = 0;
-uint8_t switch_end_pressed = 0;
-void IRAM_ATTR limit_switch_begin_isr();
-void IRAM_ATTR limit_switch_end_isr();
-
-button_parameters limit_switch_begin_parameters = {
-    LIMIT_SWITCH_BEGIN_PIN, INPUT_PULLUP, LOW, limit_switch_begin_isr, FALLING
-};
-button_parameters limit_switch_end_parameters = {
-    LIMIT_SWITCH_END_PIN, INPUT_PULLUP, LOW, limit_switch_end_isr, FALLING
-};
-
-
-uint8_t shift_up_pressed = 0;
-uint8_t shift_down_pressed = 0;
-void IRAM_ATTR shift_up_button_isr();
-void IRAM_ATTR shift_down_button_isr();
-
-button_parameters shift_up_button_parameters = {
-    SHIFT_UP_BUTTON_PIN, INPUT_PULLUP, LOW, shift_up_button_isr, FALLING
-};
-button_parameters shift_down_button_parameters = {
-    SHIFT_DOWN_BUTTON_PIN, INPUT_PULLUP, LOW, shift_down_button_isr, FALLING
-};
-
-
-uint8_t calibration_button_pressed = 0;
-void IRAM_ATTR calibration_button_isr();
-
-button_parameters calibration_button_parameters = {
-    CALIBRATION_BUTTON_PIN, INPUT_PULLUP, LOW, calibration_button_isr, FALLING
-};
-
-
 Memory flash = Memory();
 
 
@@ -68,14 +34,6 @@ void function_core_1 (void *parameters) {
     #endif
 
     delay(1000);
-
-    button_setup(&limit_switch_begin_parameters);
-    button_setup(&limit_switch_end_parameters);
-
-    button_setup(&shift_up_button_parameters);
-    button_setup(&shift_down_button_parameters);
-
-    button_setup(&calibration_button_parameters);
 
 
 #if ENCODER_CONNECTED
@@ -400,29 +358,4 @@ void test_mode() {
         delay(10);
 
     }
-}
-
-
-void IRAM_ATTR limit_switch_begin_isr() {
-    switch_begin_pressed = button_interrupt_service_routine(&limit_switch_begin_parameters);
-}
-
-
-void IRAM_ATTR limit_switch_end_isr() {
-    switch_end_pressed = button_interrupt_service_routine(&limit_switch_end_parameters);
-}
-
-
-void IRAM_ATTR shift_up_button_isr() {
-    shift_up_pressed = button_interrupt_service_routine(&shift_up_button_parameters);
-}
-
-
-void IRAM_ATTR shift_down_button_isr() {
-    shift_down_pressed = button_interrupt_service_routine(&shift_down_button_parameters);
-}
-
-
-void IRAM_ATTR calibration_button_isr() {
-    calibration_button_pressed = button_interrupt_service_routine(&calibration_button_parameters);
 }
