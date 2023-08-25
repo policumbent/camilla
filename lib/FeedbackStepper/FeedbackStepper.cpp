@@ -94,7 +94,17 @@ void FeedbackStepper :: set_gears_lin(int *gears_lin) {
 
 
 void FeedbackStepper :: shift(int next_gear) {
-    int target_pos = gears[next_gear-1];
+    
+    move(gears[next_gear-1]);
+
+    // If the linear position is not correct, correct the shift
+    if (linear_potentiometer != NULL) {
+        _shift_linear_correction(next_gear);
+    }
+}
+
+
+void FeedbackStepper :: move(int target_pos) {
     int start_pos = position_sixteenth;
 
     long int elapsed_time, delay;
@@ -221,42 +231,20 @@ void FeedbackStepper :: shift(int next_gear) {
             Serial.print(error_array[i]); Serial.print("\n");
         }
     #endif
-
-    
-    _shift_overshoot(3200, 200);
-
-
-    // If the linear position is not correct, correct the shift
-    if (linear_potentiometer != NULL) {
-        _shift_linear_correction(next_gear);
-    }
 }
 
 
-void FeedbackStepper :: _shift_overshoot(int delta_pos, float speed) {
-    int forward, backward;
+void FeedbackStepper :: shift_overshoot() {
 
-    set_speed(speed);
-
-    // Two different index are used to return to correct set point in case of limit reached
-
-    forward = backward = 0;
-    while (forward < delta_pos && !(*limit_begin_reached) && !(*limit_end_reached)) {
-        step();
-        forward += position_change;
-    }
+    move(position_sixteenth + direction * FEEDBACKSTEPPER_SHIFT_OVERSHOOT_STEPS);
 
     change_direction();
 
-    while (backward < forward && !(*limit_begin_reached) && !(*limit_end_reached)) {
-        step();
-        backward += position_change;
-    }
+    move(position_sixteenth + direction * FEEDBACKSTEPPER_SHIFT_OVERSHOOT_STEPS);
 }
 
 
 void FeedbackStepper :: _shift_linear_correction(int next_gear) {
-    uint16_t ACCEPTABLE_ERROR = 5;
     uint16_t pot_read;
     int8_t dir = 2;
     long int elapsed_time, delay;
@@ -271,9 +259,9 @@ void FeedbackStepper :: _shift_linear_correction(int next_gear) {
 
         pot_read = linear_potentiometer->read_position();
 
-        if (pot_read < gears_lin[next_gear-1] - ACCEPTABLE_ERROR) {
+        if (pot_read < gears_lin[next_gear-1] - FEEDBACKSTEPPER_SHIFT_LINEAR_CORRECTION_ACCEPTABLE_ERROR) {
             dir = (increase_potentiometer_direction_sign == 1) ? HR4988_POSITIVE_DIR : HR4988_NEGATIVE_DIR;
-        } else if (pot_read > gears_lin[next_gear-1] + ACCEPTABLE_ERROR) {
+        } else if (pot_read > gears_lin[next_gear-1] + FEEDBACKSTEPPER_SHIFT_LINEAR_CORRECTION_ACCEPTABLE_ERROR) {
             dir = (increase_potentiometer_direction_sign == 1) ? HR4988_NEGATIVE_DIR : HR4988_POSITIVE_DIR;
         }
 
@@ -309,7 +297,7 @@ void FeedbackStepper :: move_while_button_pressed(float speed, int8_t dir, uint8
     set_direction(dir);
 
     int start_pos = position_sixteenth;
-    int target_pos = (dir == HR4988_POSITIVE_DIR) ? INT_MAX : INT_MIN;
+    int dummy_target_pos = (dir == HR4988_POSITIVE_DIR) ? INT_MAX : INT_MIN;
 
     if (speed != -1) {
         set_speed(speed);
@@ -328,7 +316,7 @@ void FeedbackStepper :: move_while_button_pressed(float speed, int8_t dir, uint8
         }
         else {
             if (speed == -1) {
-                _move_set_speed_direction(start_pos, target_pos);
+                _move_set_speed_direction(start_pos, dummy_target_pos);
             }
 
             _step_no_delay_off();
@@ -346,7 +334,6 @@ void FeedbackStepper :: move_while_button_pressed(float speed, int8_t dir, uint8
 
 
 void FeedbackStepper :: go_to_limit_switch(uint8_t limit_switch_type) {
-    const uint8_t SPEED = 100;
 
     switch (limit_switch_type) {
 
@@ -355,10 +342,10 @@ void FeedbackStepper :: go_to_limit_switch(uint8_t limit_switch_type) {
             if (limit_begin_reached == NULL) break;
 
             set_direction(HR4988_NEGATIVE_DIR);
-            set_speed(SPEED);
+            set_speed(FEEDBACKSTEPPER_GO_TO_LIMIT_SWITCH_SPEED);
             while (!(*limit_begin_reached)) step();
 
-            move_while_button_pressed(SPEED, HR4988_CHANGE_DIR, limit_begin_reached, switch_begin_paramters);
+            move_while_button_pressed(FEEDBACKSTEPPER_GO_TO_LIMIT_SWITCH_SPEED, HR4988_CHANGE_DIR, limit_begin_reached, switch_begin_paramters);
 
             break;
 
@@ -367,11 +354,11 @@ void FeedbackStepper :: go_to_limit_switch(uint8_t limit_switch_type) {
             if (limit_end_reached == NULL) break;
 
             set_direction(HR4988_POSITIVE_DIR);
-            set_speed(SPEED);
+            set_speed(FEEDBACKSTEPPER_GO_TO_LIMIT_SWITCH_SPEED);
             while (!(*limit_end_reached)) step();
 
             change_direction();
-            move_while_button_pressed(SPEED, HR4988_CHANGE_DIR, limit_end_reached, switch_end_parameters);
+            move_while_button_pressed(FEEDBACKSTEPPER_GO_TO_LIMIT_SWITCH_SPEED, HR4988_CHANGE_DIR, limit_end_reached, switch_end_parameters);
 
             break;
 

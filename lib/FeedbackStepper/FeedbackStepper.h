@@ -10,6 +10,10 @@
 #define FEEDBACKSTEPPER_LIMIT_SWITCH_BEGIN_TYPE 0
 #define FEEDBACKSTEPPER_LIMIT_SWITCH_END_TYPE   1
 
+#define FEEDBACKSTEPPER_SHIFT_OVERSHOOT_STEPS                    3200
+#define FEEDBACKSTEPPER_SHIFT_LINEAR_CORRECTION_ACCEPTABLE_ERROR    5
+#define FEEDBACKSTEPPER_GO_TO_LIMIT_SWITCH_SPEED                  200
+
 
 class AS5600;
 class Potentiometer;
@@ -40,7 +44,6 @@ class FeedbackStepper : public HR4988 {
 
 
     private:
-        void _shift_overshoot(int delta_pos, float speed);
         void _shift_linear_correction(int next_gear);
 
 
@@ -72,6 +75,8 @@ class FeedbackStepper : public HR4988 {
         void set_gears_lin(int *gears_lin);
         
         void shift(int next_gear);
+        void shift_overshoot();
+        void move(int target_pos);
         void move_while_button_pressed(int8_t dir, uint8_t *button_pressed, button_parameters *bp);
         void move_while_button_pressed(float speed, int8_t dir, uint8_t *button_pressed, button_parameters *bp);
         void go_to_limit_switch(uint8_t limit_switch_type);

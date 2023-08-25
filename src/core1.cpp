@@ -259,7 +259,8 @@ void function_core_1 (void *parameters) {
 
 
 void gears_mode() {
-    uint8_t end;
+    uint8_t end, overshoot_flag;
+    int elapsed_time;
 
     #if DEBUG
         Serial.println("GEARS MODE");
@@ -286,9 +287,19 @@ void gears_mode() {
                 Serial.println("Shifting up");
             #endif
 
-            shift(g_current_gear + 1);
+            while ((shift_up_pressed = button_read_attach_interrupt(&shift_up_button_parameters))) {
+                if (shift_down_pressed) {
+                    while ((shift_down_pressed = button_read_attach_interrupt(&shift_down_button_parameters)));
+                    stepper_motor.shift_overshoot();
+                    overshoot_flag = 1;
+                }
+            }
 
-            while ((shift_up_pressed = button_read_attach_interrupt(&shift_up_button_parameters)));
+            if (!overshoot_flag) {
+                shift(g_current_gear + 1);
+            }
+
+            overshoot_flag = 0;
         }
 
         if (shift_down_pressed) {
@@ -296,9 +307,9 @@ void gears_mode() {
                 Serial.println("Shifting down");
             #endif
 
-            shift(g_current_gear - 1);
-
             while ((shift_down_pressed = button_read_attach_interrupt(&shift_down_button_parameters)));
+
+            shift(g_current_gear - 1);
         }
 
         if (switch_begin_pressed) {
@@ -318,7 +329,7 @@ void gears_mode() {
         }
 
         if (calibration_button_pressed) {
-            int elapsed_time = millis();
+            elapsed_time = millis();
             while ((calibration_button_pressed = button_read_attach_interrupt(&calibration_button_parameters)));
             elapsed_time = millis() - elapsed_time;
 
