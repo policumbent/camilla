@@ -239,6 +239,7 @@ void FeedbackStepper :: shift_overshoot() {
     move(position_sixteenth + direction * FEEDBACKSTEPPER_SHIFT_OVERSHOOT_STEPS);
 
     change_direction();
+    delay(FEEDBACKSTEPPER_SHIFT_OVERSHOOT_DELAY);
 
     move(position_sixteenth + direction * FEEDBACKSTEPPER_SHIFT_OVERSHOOT_STEPS);
 }
