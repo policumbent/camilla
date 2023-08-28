@@ -39,6 +39,11 @@ void function_core_1 (void *parameters) {
     delay(1000);
 
 
+    // Limit switches are managed by core1, since their pressure must stop the motor asap
+    button_setup(&limit_switch_begin_parameters);
+    button_setup(&limit_switch_end_parameters);
+
+
 #if !MICROSTEPPING_ENABLED
     stepper_motor.disable_microstepping();
 #endif
@@ -375,4 +380,15 @@ void test_mode() {
         delay(10);
 
     }
+}
+
+
+
+void IRAM_ATTR limit_switch_begin_isr() {
+    switch_begin_pressed = button_interrupt_service_routine(&limit_switch_begin_parameters);
+}
+
+
+void IRAM_ATTR limit_switch_end_isr() {
+    switch_end_pressed = button_interrupt_service_routine(&limit_switch_end_parameters);
 }

@@ -11,11 +11,8 @@ void function_core_0 (void *parameters) {
     delay(1000);
 
 
-    // button_setup are called here s.t. attachToInterrupt is called in core0 s.t.
+    // Buttons' button_setup are called here s.t. attachToInterrupt is called in core0 s.t.
     //  the management of interrupts and debouncing will be done by core0
-
-    button_setup(&limit_switch_begin_parameters);
-    button_setup(&limit_switch_end_parameters);
 
     button_setup(&shift_up_button_parameters);
     button_setup(&shift_down_button_parameters);
@@ -79,16 +76,6 @@ void function_core_0 (void *parameters) {
     }
 }
 
-
-
-void IRAM_ATTR limit_switch_begin_isr() {
-    switch_begin_pressed = button_interrupt_service_routine(&limit_switch_begin_parameters);
-}
-
-
-void IRAM_ATTR limit_switch_end_isr() {
-    switch_end_pressed = button_interrupt_service_routine(&limit_switch_end_parameters);
-}
 
 
 void IRAM_ATTR shift_up_button_isr() {
