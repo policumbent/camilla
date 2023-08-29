@@ -170,9 +170,7 @@ void FeedbackStepper :: move(int target_pos) {
                 } else {
                     delta_angle = 4095 - prev_angle + read_angle;
                 }
-                delta_angle = (direction == HR4988_POSITIVE_DIR && increase_encoder_direction_sign == 1
-                                || direction == HR4988_NEGATIVE_DIR && increase_encoder_direction_sign == -1)
-                                ? (delta_angle) : (- delta_angle);
+                delta_angle = (direction == HR4988_POSITIVE_DIR) ? (delta_angle) : (- delta_angle);
             }
             
             // Cannot use 'continue;' statement (buggy behavior) (!!!!)
@@ -377,7 +375,6 @@ void FeedbackStepper :: go_to_limit_switch(uint8_t limit_switch_type) {
             set_speed(FEEDBACKSTEPPER_GO_TO_LIMIT_SWITCH_SPEED);
             while (!(*limit_end_reached)) step();
 
-            change_direction();
             move_while_button_pressed(FEEDBACKSTEPPER_GO_TO_LIMIT_SWITCH_SPEED, HR4988_CHANGE_DIR, limit_end_reached, switch_end_parameters);
 
             break;
