@@ -165,10 +165,10 @@ void FeedbackStepper :: move(int target_pos) {
                 delta_angle = read_angle - prev_angle;
                 delta_angle = (increase_encoder_direction_sign == 1) ? (delta_angle) : (- delta_angle);
             } else {
-                if (read_angle > delta_angle) {
-                    delta_angle = 4095 - read_angle + delta_angle;
+                if (read_angle > prev_angle) {
+                    delta_angle = 4095 - read_angle + prev_angle;
                 } else {
-                    delta_angle = 4095 - delta_angle + read_angle;
+                    delta_angle = 4095 - prev_angle + read_angle;
                 }
                 delta_angle = (direction == HR4988_POSITIVE_DIR && increase_encoder_direction_sign == 1
                                 || direction == HR4988_NEGATIVE_DIR && increase_encoder_direction_sign == -1)
