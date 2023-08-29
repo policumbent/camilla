@@ -109,7 +109,9 @@ void FeedbackStepper :: move(int target_pos) {
 
     long int elapsed_time, delay;
 
-    int delta_pos, delta_angle, read_angle, error;
+    int delta_pos, prev_angle, delta_angle, read_angle, error;
+
+    bool faulty_reading;
     
     #if FEEDBACKSTEPPER_DEBUG
         Serial.print("[FeedbackStepper] Shift from "); Serial.print(start_pos); Serial.print(" to "); Serial.println(target_pos);
@@ -124,8 +126,10 @@ void FeedbackStepper :: move(int target_pos) {
     #endif
     
     delta_pos = 0;
+    prev_angle = 0;
     delta_angle = 0;
     error = 0;
+    faulty_reading = false;
 
     if (rotative_encoder != NULL) rotative_encoder->read_angle();
 
@@ -141,13 +145,24 @@ void FeedbackStepper :: move(int target_pos) {
 
         // The correction of the position with the encoder is not done in a proper function since the code
         //  in the debug code in the #if statements cannot be easily done in another function
-        if (rotative_encoder != NULL && abs(delta_pos) >= 2 * 16) {
-            delta_angle = rotative_encoder->get_angle();
+
+        // Correct with the encoder after a proper delta_pos or if a faulty reading was detected
+        if (rotative_encoder != NULL && (abs(delta_pos) >= 5 * 16 || faulty_reading)) {
+
+            // If previous reading is faulty, do not take angle with get_angle, since the faulty reading will be
+            //  retrieved, but instead keep the previous one
+            if (!faulty_reading) {
+                prev_angle = rotative_encoder->get_angle();
+            }
+            else {
+                faulty_reading = false;
+            }
+            
             read_angle = rotative_encoder->read_angle();        // USES INTERRUPTS (!!!!)
 
             // Calculate the difference between previous and current angle measurements
-            if (abs(read_angle - delta_angle) < 3000) {
-                delta_angle = read_angle - delta_angle;
+            if (abs(read_angle - prev_angle) < 3000) {
+                delta_angle = read_angle - prev_angle;
                 delta_angle = (increase_encoder_direction_sign == 1) ? (delta_angle) : (- delta_angle);
             } else {
                 if (read_angle > delta_angle) {
@@ -163,12 +178,14 @@ void FeedbackStepper :: move(int target_pos) {
             // Cannot use 'continue;' statement (buggy behavior) (!!!!)
 
             // Remove faulty readings (see spikes in encoder_reasings.py in docs)
-            if (abs(delta_angle) < 150) {
-                
+            if (abs(delta_angle) > 200) {
+                faulty_reading = true;
+            }
+            else {
                 error = delta_pos - ((float) delta_angle) * 0.7814;      // angle / 4095 * 200 * 16
 
                 
-                if (error >= 8) {
+                if (error >= 16) {
                     error = round((float) error / (float) microstepping) * microstepping;
                     position_sixteenth -= error;
                 }
@@ -183,18 +200,20 @@ void FeedbackStepper :: move(int target_pos) {
                     tot_angle += delta_angle;
                     avg_error += error;
                     read_cnt++;
-                    if (error >= 8) tot_correction += error;
+                    if (error >= 16) tot_correction += error;
                 #endif
 
                 #if FEEDBACKSTEPPER_DEBUG >= 2
-                    delta_pos_array[array_pos] = delta_pos;
-                    delta_angle_array[array_pos] = delta_angle;
-                    error_array[array_pos] = error;
-                    array_pos++;
+                    if (array_pos < ARRAY_SIZE) {
+                        delta_pos_array[array_pos] = delta_pos;
+                        delta_angle_array[array_pos] = delta_angle;
+                        error_array[array_pos] = error;
+                        array_pos++;
+                    }
                 #endif
-            }
 
-            delta_pos = 0;
+                delta_pos = 0;
+            }
         }
         
 

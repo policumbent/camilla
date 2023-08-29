@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from scipy.fft import fft
 
 
-FILENAME = "rotative_feedback_data_32_espi2c_spikes.txt"
+FILENAME = "./docs/rotative_feedback_data_32_espi2c_case.txt"
 REMOVE_SPIKES = False
 
 
@@ -28,6 +28,12 @@ def main():
             delta_angle.append(ang)
             error.append(err)
 
+
+    print("DELTA ANGLE STATISTICS")
+    print("Mean: ", np.mean(delta_angle))
+    print("Standard deviation: ", np.std(delta_angle))
+    print("Variance: ", np.var(delta_angle))
+    print("Maximum: ", np.max(delta_angle))
 
     print("ERROR STATISTICS")
     print("Mean: ", np.mean(error))

@@ -193,6 +193,6 @@ int8_t AS5600 :: get_magnet_distance() {
         return -1;
     }
 
-    return -128;
+    return status_byte;
 }
 #endif
