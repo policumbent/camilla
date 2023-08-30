@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-FILENAME = "encoder_readings_data_1.txt"
+FILENAME = "./docs/data/encoder_readings_data_1.txt"
 
 
 SIXTEENTH_MAX_RPM = 120

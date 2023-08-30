@@ -1,10 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.fft import fft
+from scipy.fft import fft, fftfreq
 import re
 
 
-FILENAME = "./docs/rotative_feedback_data_64_espi2c_case.txt"
+FILENAME = "./docs/data/rotative_feedback_data_64_espi2c_case_2.txt"
 REMOVE_SPIKES = False
 
 
@@ -14,7 +14,7 @@ def main():
     error = []
 
     with open(FILENAME) as file:
-        
+
         for line in file:
 
             if line.strip() == "" or line[0] not in "0123456789-":
@@ -59,14 +59,21 @@ def main():
     plt.plot(index, error, label="Error")
 
     
-    x = np.array(delta_angle)
-    y = fft(x)
+    x = np.array(error)
+    N = len(x)
+    normalize = N/2
+    sampling_rate = 500
+    
+    fourier = fft(x)
+
+    yf = np.abs(fourier) / normalize
+    xf = fftfreq(N, 1/sampling_rate)
     
     plt.figure(2)
-    plt.title("Delta angle fft")
+    plt.title("Error fft")
     plt.grid('both', 'both')
 
-    plt.plot(abs(y))
+    plt.plot(xf, yf)
 
 
     plt.legend()
