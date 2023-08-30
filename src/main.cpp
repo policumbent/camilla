@@ -58,6 +58,7 @@ void setup() {
     g_semaphore = xSemaphoreCreateBinary();
     xSemaphoreGive(g_semaphore);
 
+    g_current_gear = 0;
     g_calibration_flag = 0;
 
     xTaskCreatePinnedToCore(function_core_1, "Core_1", 20000, NULL, configMAX_PRIORITIES-1, &task_core_1, 1);

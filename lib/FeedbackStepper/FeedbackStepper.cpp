@@ -147,7 +147,7 @@ void FeedbackStepper :: move(int target_pos) {
         //  in the debug code in the #if statements cannot be easily done in another function
 
         // Correct with the encoder after a proper delta_pos or if a faulty reading was detected
-        if (rotative_encoder != NULL && (abs(delta_pos) >= 5 * 16 || faulty_reading)) {
+        if (rotative_encoder != NULL && abs(delta_pos) >= 4 * 16) {
 
             // If previous reading is faulty, do not take angle with get_angle, since the faulty reading will be
             //  retrieved, but instead keep the previous one
@@ -183,7 +183,7 @@ void FeedbackStepper :: move(int target_pos) {
                 error = delta_pos - ((float) delta_angle) * 0.7814;      // angle / 4095 * 200 * 16
 
                 
-                if (error >= 16) {
+                if (error >= 8) {
                     error = round((float) error / (float) microstepping) * microstepping;
                     position_sixteenth -= error;
                 }
@@ -198,7 +198,7 @@ void FeedbackStepper :: move(int target_pos) {
                     tot_angle += delta_angle;
                     avg_error += error;
                     read_cnt++;
-                    if (error >= 16) tot_correction += error;
+                    if (error >= 8) tot_correction += error;
                 #endif
 
                 #if FEEDBACKSTEPPER_DEBUG >= 2
@@ -243,8 +243,8 @@ void FeedbackStepper :: move(int target_pos) {
 
     #if FEEDBACKSTEPPER_DEBUG >= 2
         for (int i=0; i<array_pos; i++) {
-            Serial.print(delta_pos_array[i]); Serial.print("\t");
-            Serial.print(delta_angle_array[i]); Serial.print("\t");
+            Serial.print(delta_pos_array[i]); Serial.print("  ");
+            Serial.print(delta_angle_array[i]); Serial.print("  ");
             Serial.print(error_array[i]); Serial.print("\n");
         }
     #endif

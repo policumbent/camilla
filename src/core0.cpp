@@ -61,11 +61,16 @@ void function_core_0 (void *parameters) {
             }
 
             CAN0.sendFrame(can_tx_msg_data);
+
+
+            #if DEBUG_CAN >= 2
+                Serial.print("CAN status:");
+                Serial.print("      Current gear: "); Serial.print(g_current_gear);
+                Serial.print("    Transmitted payload: "); Serial.print(data_payload.gb_gear);
+                Serial.print("    Destination payload[0]: "); Serial.println(destination_payload[0]);
+            #endif
         }
 
-        #if DEBUG_CAN >= 2
-            Serial.println("CAN still running");
-        #endif
 
         if (g_calibration_flag) {
             webserver_calibration();

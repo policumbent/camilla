@@ -1,9 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.fft import fft
+import re
 
 
-FILENAME = "./docs/rotative_feedback_data_32_espi2c_case.txt"
+FILENAME = "./docs/rotative_feedback_data_64_espi2c_case.txt"
 REMOVE_SPIKES = False
 
 
@@ -13,10 +14,15 @@ def main():
     error = []
 
     with open(FILENAME) as file:
+        
         for line in file:
+
             if line.strip() == "" or line[0] not in "0123456789-":
                 continue
-            elem = line.strip().split("\t")
+
+            line = re.sub('\s+', ' ', line)
+            elem = line.strip().split(" ")
+
             pos = abs(int(elem[0]))
             ang = abs(int(elem[1]) / 4095 * 3200)
             err = int(elem[2])

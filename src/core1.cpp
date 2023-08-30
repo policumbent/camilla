@@ -205,6 +205,8 @@ void function_core_1 (void *parameters) {
 
             gears_mode();
 
+            g_current_gear = 0;
+
             digitalWrite(BUILT_IN_LED_PIN, HIGH);
         }
 
