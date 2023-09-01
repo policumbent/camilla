@@ -261,19 +261,26 @@ void gears_mode() {
     while (!end) {
 
         if (shift_up_pressed) {
-            #if DEBUG_BUTTONS
-                Serial.println("Shifting up");
-            #endif
 
             while ((shift_up_pressed = button_read_attach_interrupt(&shift_up_button_parameters))) {
                 if (shift_down_pressed) {
                     while ((shift_down_pressed = button_read_attach_interrupt(&shift_down_button_parameters)));
+                    
+                    #if DEBUG_BUTTONS
+                        Serial.println("Overshooting");
+                    #endif
+                    
                     stepper_motor.shift_overshoot();
                     overshoot_flag = 1;
+
                 }
             }
 
             if (!overshoot_flag) {
+                #if DEBUG_BUTTONS
+                    Serial.println("Shifting up");
+                #endif
+
                 shift(g_current_gear + 1);
             }
 

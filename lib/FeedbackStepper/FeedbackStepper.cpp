@@ -126,12 +126,13 @@ void FeedbackStepper :: move(int target_pos) {
     #endif
     
     delta_pos = 0;
-    prev_angle = 0;
     delta_angle = 0;
     error = 0;
     faulty_reading = false;
 
-    if (rotative_encoder != NULL) rotative_encoder->read_angle();
+    if (rotative_encoder != NULL) {
+        prev_angle = rotative_encoder->read_angle();
+    }
 
     while (position_sixteenth != target_pos && !(*limit_begin_reached) && !(*limit_end_reached)) {
 
@@ -182,10 +183,9 @@ void FeedbackStepper :: move(int target_pos) {
             else {
                 error = delta_pos - ((float) delta_angle) * 0.7814;      // angle / 4095 * 200 * 16
 
-                
                 if (error >= 8) {
                     error = round((float) error / (float) microstepping) * microstepping;
-                    position_sixteenth -= error;
+                    position_sixteenth += (direction == HR4988_POSITIVE_DIR) ? (- error) : (error);
                 }
                 
                 // If motor is blocked, restart acceleration
