@@ -105,12 +105,9 @@ void FeedbackStepper :: shift(int next_gear) {
 
 
 void FeedbackStepper :: move(int target_pos) {
-    int start_pos = position_sixteenth;
-
+    int start_pos;
     long int elapsed_time, delay;
-
     int delta_pos, prev_angle, delta_angle, read_angle, error;
-
     bool faulty_reading;
     
     #if FEEDBACKSTEPPER_DEBUG
@@ -129,6 +126,8 @@ void FeedbackStepper :: move(int target_pos) {
     delta_angle = 0;
     error = 0;
     faulty_reading = false;
+
+    start_pos = position_sixteenth;
 
     if (rotative_encoder != NULL) {
         prev_angle = rotative_encoder->read_angle();
