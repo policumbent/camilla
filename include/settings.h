@@ -1,6 +1,8 @@
 #pragma once
 
 
+#define NEVADA_MODE 1
+
 #define MICROSTEPPING_ENABLED        0
 #define ENCODER_CONNECTED            0
 #define POTENTIOMETER_CONNECTED      0

@@ -163,14 +163,14 @@ void FeedbackStepper :: move(int target_pos) {
             // Calculate the difference between previous and current angle measurements
             if (abs(read_angle - prev_angle) < 3000) {
                 delta_angle = read_angle - prev_angle;
-                delta_angle = (increase_encoder_direction_sign == 1) ? (delta_angle) : (- delta_angle);
+                delta_angle = increase_encoder_direction_sign * delta_angle;
             } else {
                 if (read_angle > prev_angle) {
                     delta_angle = 4095 - read_angle + prev_angle;
                 } else {
                     delta_angle = 4095 - prev_angle + read_angle;
                 }
-                delta_angle = (direction == HR4988_POSITIVE_DIR) ? (delta_angle) : (- delta_angle);
+                delta_angle = direction * delta_angle;
             }
             
             // Cannot use 'continue;' statement (buggy behavior) (!!!!)
@@ -184,7 +184,7 @@ void FeedbackStepper :: move(int target_pos) {
 
                 if (error >= 8) {
                     error = round((float) error / (float) microstepping) * microstepping;
-                    position_sixteenth += (direction == HR4988_POSITIVE_DIR) ? (- error) : (error);
+                    position_sixteenth += direction * (- error);
                 }
                 
                 // If motor is blocked, restart acceleration

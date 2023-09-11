@@ -233,7 +233,7 @@ void HR4988 :: _move_set_speed_direction(int start_pos, int target_pos) {
 int HR4988 :: _update_position() {
     int delta;
 
-    delta = (direction == HR4988_POSITIVE_DIR) ? (position_change) : (- position_change);
+    delta = direction * position_change;
     position_sixteenth += delta;
 
     return delta;
