@@ -73,7 +73,7 @@ void FeedbackStepper :: set_linear_potentiometer(Potentiometer *linear_potentiom
 
 void FeedbackStepper :: set_limit_switch_begin(uint8_t *limit_begin_reached, button_parameters *switch_begin_parameters) {
     this->limit_begin_reached = limit_begin_reached;
-    this->switch_begin_paramters = switch_begin_parameters;
+    this->switch_begin_parameters = switch_begin_parameters;
 }
 
 
@@ -346,7 +346,54 @@ void FeedbackStepper :: move_while_button_pressed(float speed, int8_t dir, uint8
 
             _update_position();
         }
-    }    
+    }
+}
+
+
+void FeedbackStepper :: move_while_button_pressed_limit_switches(int8_t dir, uint8_t *button_pressed, button_parameters *bp) {
+    uint8_t end = 0;
+    long int elapsed_time, delay;
+
+    set_direction(dir);
+
+    int start_pos = position_sixteenth;
+    int dummy_target_pos = (dir == HR4988_POSITIVE_DIR) ? INT_MAX : INT_MIN;
+
+    while (!end && !(*limit_begin_reached) && !(*limit_end_reached)) {
+
+        portDISABLE_INTERRUPTS();
+        elapsed_time = micros();
+
+        *button_pressed = button_read_attach_interrupt(bp);
+
+        if (!(*button_pressed)) {
+            end = 1;
+            portENABLE_INTERRUPTS();
+        }
+        else {
+            _move_set_speed_direction(start_pos, dummy_target_pos);
+
+            _step_no_delay_off();
+
+            elapsed_time = micros() - elapsed_time;
+            delay = (delay_off - elapsed_time > 0) ? (delay_off - elapsed_time) : (1);
+            portENABLE_INTERRUPTS();
+
+            delayMicroseconds(delay);
+
+            _update_position();
+        }
+    }
+
+    if (*limit_begin_reached) {
+        move_while_button_pressed(FEEDBACKSTEPPER_GO_TO_LIMIT_SWITCH_SPEED, HR4988_CHANGE_DIR, limit_begin_reached, switch_begin_parameters);
+    }
+
+    if (*limit_end_reached) {
+        move_while_button_pressed(FEEDBACKSTEPPER_GO_TO_LIMIT_SWITCH_SPEED, HR4988_CHANGE_DIR, limit_end_reached, switch_end_parameters);
+    }
+
+    while ((*button_pressed = button_read_attach_interrupt(bp)));
 }
 
 
@@ -362,7 +409,7 @@ void FeedbackStepper :: go_to_limit_switch(uint8_t limit_switch_type) {
             set_speed(FEEDBACKSTEPPER_GO_TO_LIMIT_SWITCH_SPEED);
             while (!(*limit_begin_reached)) step();
 
-            move_while_button_pressed(FEEDBACKSTEPPER_GO_TO_LIMIT_SWITCH_SPEED, HR4988_CHANGE_DIR, limit_begin_reached, switch_begin_paramters);
+            move_while_button_pressed(FEEDBACKSTEPPER_GO_TO_LIMIT_SWITCH_SPEED, HR4988_CHANGE_DIR, limit_begin_reached, switch_begin_parameters);
 
             break;
 

@@ -4,7 +4,7 @@
 #include "HR4988.h"
 
 
-#define FEEDBACKSTEPPER_DEBUG 1
+#define FEEDBACKSTEPPER_DEBUG 2
 
 
 #define FEEDBACKSTEPPER_LIMIT_SWITCH_BEGIN_TYPE 0
@@ -34,7 +34,7 @@ class FeedbackStepper : public HR4988 {
         int8_t increase_potentiometer_direction_sign;
 
         uint8_t *limit_begin_reached;
-        button_parameters *switch_begin_paramters;
+        button_parameters *switch_begin_parameters;
         uint8_t *limit_end_reached;
         button_parameters *switch_end_parameters;
 
@@ -70,7 +70,7 @@ class FeedbackStepper : public HR4988 {
         
         void set_rotative_encoder(AS5600 *rotative_encoder, int8_t increase_encoder_direction_sign);
         void set_linear_potentiometer(Potentiometer *linear_potentiometer, int8_t increase_potentiometer_direction_sign);
-        void set_limit_switch_begin(uint8_t *limit_begin_reached, button_parameters *switch_begin_paramters);
+        void set_limit_switch_begin(uint8_t *limit_begin_reached, button_parameters *switch_begin_parameters);
         void set_limit_switch_end(uint8_t *limit_end_reached, button_parameters *switch_end_parameters);
         void set_gears(int *gears);
         void set_gears_lin(int *gears_lin);
@@ -80,5 +80,6 @@ class FeedbackStepper : public HR4988 {
         void move(int target_pos);
         void move_while_button_pressed(int8_t dir, uint8_t *button_pressed, button_parameters *bp);
         void move_while_button_pressed(float speed, int8_t dir, uint8_t *button_pressed, button_parameters *bp);
+        void move_while_button_pressed_limit_switches(int8_t dir, uint8_t *button_pressed, button_parameters *bp);
         void go_to_limit_switch(uint8_t limit_switch_type);
 };

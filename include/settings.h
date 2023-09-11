@@ -1,8 +1,8 @@
 #pragma once
 
 
-#define MICROSTEPPING_ENABLED        1
-#define ENCODER_CONNECTED            1
+#define MICROSTEPPING_ENABLED        0
+#define ENCODER_CONNECTED            0
 #define POTENTIOMETER_CONNECTED      0
 #define LIMIT_SWITCH_BEGIN_CONNECTED 1
 #define LIMIT_SWITCH_END_CONNECTED   1
