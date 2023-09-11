@@ -236,6 +236,7 @@ void function_core_1 (void *parameters) {
 }
 
 
+#if NEVADA_MODE
 void gears_mode() {
     uint8_t end;
     int elapsed_time;
@@ -269,9 +270,7 @@ void gears_mode() {
 
             shift(g_current_gear + 1);
 
-#if NEVADA_MODE
             stepper_motor.shift_overshoot();
-#endif
         }
 
         if (shift_down_pressed) {
@@ -283,9 +282,7 @@ void gears_mode() {
 
             shift(g_current_gear - 1);
 
-#if NEVADA_MODE
             stepper_motor.shift_overshoot();
-#endif
         }
 
         if (switch_begin_pressed) {
@@ -319,6 +316,84 @@ void gears_mode() {
     }
 }
 
+#else
+
+void gears_mode() {
+    uint8_t end;
+    int elapsed_time;
+
+    #if DEBUG
+        Serial.println("GEARS MODE");
+    #endif
+
+    stepper_motor.go_to_limit_switch(zero_reference_limit_switch_type);
+    stepper_motor.set_position(0);
+
+    #if DEBUG_MOTOR >= 2
+        stepper_motor.debug_serial_control();
+    #endif
+
+
+    shift_up_pressed = shift_down_pressed = calibration_button_pressed = 0;
+    switch_begin_pressed = switch_end_pressed = 0;
+
+    shift(1);
+
+    end = 0;
+    while (!end) {
+
+        if (shift_up_pressed) {
+            #if DEBUG_BUTTONS
+                Serial.println("Shifting up");
+            #endif
+
+            while ((shift_up_pressed = button_read_attach_interrupt(&shift_up_button_parameters)));
+
+            shift(g_current_gear + 1);
+        }
+
+        if (shift_down_pressed) {
+            #if DEBUG_BUTTONS
+                Serial.println("Shifting down");
+            #endif
+
+            while ((shift_down_pressed = button_read_attach_interrupt(&shift_down_button_parameters)));
+
+            shift(g_current_gear - 1);
+        }
+
+        if (switch_begin_pressed) {
+            #if DEBUG_LIMIT_SWITCH
+                Serial.println("Begin limit reached");
+            #endif
+
+            stepper_motor.move_while_button_pressed(LIMIT_SWITCH_PRESSED_SPEED, HR4988_CHANGE_DIR, &switch_begin_pressed, &limit_switch_begin_parameters);
+        }
+
+        if (switch_end_pressed) {
+            #if DEBUG_LIMIT_SWITCH
+                Serial.println("End limit reached");
+            #endif
+
+            stepper_motor.move_while_button_pressed(LIMIT_SWITCH_PRESSED_SPEED, HR4988_CHANGE_DIR, &switch_end_pressed, &limit_switch_end_parameters);
+        }
+
+        if (calibration_button_pressed) {
+            elapsed_time = millis();
+            while ((calibration_button_pressed = button_read_attach_interrupt(&calibration_button_parameters)));
+            elapsed_time = millis() - elapsed_time;
+
+            if (elapsed_time > 3000) {
+                end = 1;
+            }
+        }
+
+        delay(10);
+
+    }
+}
+#endif
+
 
 void shift(uint8_t next_gear) {
 
@@ -342,6 +417,7 @@ void shift(uint8_t next_gear) {
 
 void test_mode() {
     uint8_t end;
+    int elapsed_time;
 
     #if DEBUG
         Serial.println("TEST MODE");
@@ -369,8 +445,13 @@ void test_mode() {
         }
 
         if (calibration_button_pressed) {
+            elapsed_time = millis();
             while ((calibration_button_pressed = button_read_attach_interrupt(&calibration_button_parameters)));
-            end = 1;
+            elapsed_time = millis() - elapsed_time;
+
+            if (elapsed_time > 3000) {
+                end = 1;
+            }
         }
 
         delay(10);

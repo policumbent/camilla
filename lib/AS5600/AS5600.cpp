@@ -34,9 +34,9 @@ void AS5600 :: setup() {
         pinMode(analog_pin, INPUT);
     }
 }
-#endif
 
-#if !AS5600_I2C_ESP
+#else
+
 void AS5600 :: setup() {
     Wire.begin();
     Wire.setClock(8000000);
@@ -118,9 +118,9 @@ int AS5600 :: read_angle() {
 
     return angle;
 }
-#endif
 
-#if !AS5600_I2C_ESP
+#else
+
 int AS5600 :: read_angle() {
     int lowbyte, highbyte;
 
