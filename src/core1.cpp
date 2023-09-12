@@ -236,10 +236,19 @@ void function_core_1 (void *parameters) {
 }
 
 
+
+// The Nevada gears mode has the overshoot and the possibility of manual shifting
+//  this is to compensate the errors in feedback or the absence of it
+//  the driver can force a manual shifting by keeping the button pressed till the gear changes
+//  the delta manual position will be added to all gears assuming that the stepper has lost steps
+//      and so after manual moving the correct position of the gear is reached, so the relative
+//      distance of the following gears does not change
+
 #if NEVADA_MODE
+
 void gears_mode() {
-    uint8_t end;
-    int elapsed_time;
+    uint8_t end, manual_moving;
+    int elapsed_time, delta_manual;
 
     #if DEBUG
         Serial.println("GEARS MODE");
@@ -252,37 +261,72 @@ void gears_mode() {
         stepper_motor.debug_serial_control();
     #endif
 
+    delta_manual = manual_moving = 0;
 
     shift_up_pressed = shift_down_pressed = calibration_button_pressed = 0;
     switch_begin_pressed = switch_end_pressed = 0;
 
-    shift(1);
+    shift(1, delta_manual);
 
     end = 0;
     while (!end) {
 
         if (shift_up_pressed) {
-            #if DEBUG_BUTTONS
-                Serial.println("Shifting up");
-            #endif
 
-            while ((shift_up_pressed = button_read_attach_interrupt(&shift_up_button_parameters)));
+            elapsed_time = millis();
+            while ((shift_up_pressed = button_read_attach_interrupt(&shift_up_button_parameters))) {
+                if (millis() - elapsed_time > 2000) {
+                    #if DEBUG_BUTTONS
+                        Serial.println("Manual shifting up");
+                    #endif
 
-            shift(g_current_gear + 1);
+                    int current_delta = stepper_motor.get_position();
+                    stepper_motor.move_while_button_pressed_limit_switches(200, HR4988_POSITIVE_DIR, &shift_up_pressed, &shift_up_button_parameters);
+                    current_delta = stepper_motor.get_position() - current_delta;
+                    delta_manual += current_delta; 
+                    manual_moving = 1;
+                }
+            }
 
-            stepper_motor.shift_overshoot();
+            if (!manual_moving) {
+                #if DEBUG_BUTTONS
+                    Serial.println("Shifting up");
+                #endif
+
+                shift(g_current_gear + 1, delta_manual);
+                stepper_motor.shift_overshoot();
+            }
+
+            manual_moving = 0;
         }
 
         if (shift_down_pressed) {
-            #if DEBUG_BUTTONS
-                Serial.println("Shifting down");
-            #endif
 
-            while ((shift_down_pressed = button_read_attach_interrupt(&shift_down_button_parameters)));
+            elapsed_time = millis();
+            while ((shift_down_pressed = button_read_attach_interrupt(&shift_down_button_parameters))) {
+                if (millis() - elapsed_time > 2000) {
+                    #if DEBUG_BUTTONS
+                        Serial.println("Manual shifting up");
+                    #endif
 
-            shift(g_current_gear - 1);
+                    int current_delta = stepper_motor.get_position();
+                    stepper_motor.move_while_button_pressed_limit_switches(200, HR4988_POSITIVE_DIR, &shift_down_pressed, &shift_down_button_parameters);
+                    current_delta = stepper_motor.get_position() - current_delta;
+                    delta_manual += current_delta; 
+                    manual_moving = 1;
+                }
+            }
 
-            stepper_motor.shift_overshoot();
+            if (!manual_moving) {
+                #if DEBUG_BUTTONS
+                    Serial.println("Shifting down");
+                #endif
+
+                shift(g_current_gear - 1, delta_manual);
+                stepper_motor.shift_overshoot();
+            }
+
+            manual_moving = 0;
         }
 
         if (switch_begin_pressed) {
@@ -315,9 +359,33 @@ void gears_mode() {
 
     }
 }
+
+
+void shift(uint8_t next_gear, int delta_manual) {
+
+    if (next_gear < 1 || next_gear > NUM_GEARS) {
+        #if DEBUG_GEARS
+            Serial.println("Maximum or minimum gear already reached");
+        #endif
+
+        return;
+    }
+
+    stepper_motor.move(gears[next_gear-1] + delta_manual);
+
+    g_current_gear = next_gear;
+
+    #if DEBUG_GEARS
+        Serial.print("Gear: "); Serial.println(g_current_gear);
+        Serial.print("Delta manual: "); Serial.println(delta_manual);
+        Serial.println();
+    #endif
+}
+
 
 #else
 
+
 void gears_mode() {
     uint8_t end;
     int elapsed_time;
@@ -392,7 +460,6 @@ void gears_mode() {
 
     }
 }
-#endif
 
 
 void shift(uint8_t next_gear) {
@@ -411,8 +478,12 @@ void shift(uint8_t next_gear) {
 
     #if DEBUG_GEARS
         Serial.print("Gear: "); Serial.println(g_current_gear);
+        Serial.println();
     #endif
 }
+
+#endif
+
 
 
 void test_mode() {

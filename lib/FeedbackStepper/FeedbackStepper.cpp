@@ -111,7 +111,7 @@ void FeedbackStepper :: move(int target_pos) {
     bool faulty_reading;
     
     #if FEEDBACKSTEPPER_DEBUG
-        Serial.print("[FeedbackStepper] Shift from "); Serial.print(start_pos); Serial.print(" to "); Serial.println(target_pos);
+        Serial.print("[FeedbackStepper] Shift from "); Serial.print(position_sixteenth); Serial.print(" to "); Serial.println(target_pos);
         long int debug_t = micros();
         int expected_delay = 0, tot_angle = 0, step_cnt = 0, avg_error = 0, read_cnt = 0, tot_correction = 0;
     #endif
@@ -251,6 +251,9 @@ void FeedbackStepper :: move(int target_pos) {
 
 
 void FeedbackStepper :: shift_overshoot() {
+    #if FEEDBACKSTEPPER_DEBUG
+        Serial.println("Overshoot");
+    #endif
 
     move(position_sixteenth + direction * FEEDBACKSTEPPER_SHIFT_OVERSHOOT_STEPS);
 
@@ -351,6 +354,12 @@ void FeedbackStepper :: move_while_button_pressed(float speed, int8_t dir, uint8
 
 
 void FeedbackStepper :: move_while_button_pressed_limit_switches(int8_t dir, uint8_t *button_pressed, button_parameters *bp) {
+    // -1 as speed is used to have acceleration till MAX_SPEED
+    move_while_button_pressed_limit_switches(-1, dir, button_pressed, bp);
+}
+
+
+void FeedbackStepper :: move_while_button_pressed_limit_switches(float speed, int8_t dir, uint8_t *button_pressed, button_parameters *bp) {
     uint8_t end = 0;
     long int elapsed_time, delay;
 
@@ -358,6 +367,10 @@ void FeedbackStepper :: move_while_button_pressed_limit_switches(int8_t dir, uin
 
     int start_pos = position_sixteenth;
     int dummy_target_pos = (dir == HR4988_POSITIVE_DIR) ? INT_MAX : INT_MIN;
+
+    if (speed != -1) {
+        set_speed(speed);
+    }
 
     while (!end && !(*limit_begin_reached) && !(*limit_end_reached)) {
 
@@ -371,7 +384,9 @@ void FeedbackStepper :: move_while_button_pressed_limit_switches(int8_t dir, uin
             portENABLE_INTERRUPTS();
         }
         else {
-            _move_set_speed_direction(start_pos, dummy_target_pos);
+            if (speed == -1) {
+                _move_set_speed_direction(start_pos, dummy_target_pos);
+            }
 
             _step_no_delay_off();
 

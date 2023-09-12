@@ -11,7 +11,7 @@
 #define FEEDBACKSTEPPER_LIMIT_SWITCH_END_TYPE   1
 
 #define FEEDBACKSTEPPER_SHIFT_OVERSHOOT_STEPS                    3200
-#define FEEDBACKSTEPPER_SHIFT_OVERSHOOT_DELAY                     500
+#define FEEDBACKSTEPPER_SHIFT_OVERSHOOT_DELAY                     200
 #define FEEDBACKSTEPPER_SHIFT_LINEAR_CORRECTION_ACCEPTABLE_ERROR    5
 #define FEEDBACKSTEPPER_GO_TO_LIMIT_SWITCH_SPEED                  200
 
@@ -81,5 +81,6 @@ class FeedbackStepper : public HR4988 {
         void move_while_button_pressed(int8_t dir, uint8_t *button_pressed, button_parameters *bp);
         void move_while_button_pressed(float speed, int8_t dir, uint8_t *button_pressed, button_parameters *bp);
         void move_while_button_pressed_limit_switches(int8_t dir, uint8_t *button_pressed, button_parameters *bp);
+        void move_while_button_pressed_limit_switches(float speed, int8_t dir, uint8_t *button_pressed, button_parameters *bp);
         void go_to_limit_switch(uint8_t limit_switch_type);
 };
