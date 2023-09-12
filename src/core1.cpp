@@ -18,8 +18,16 @@ Potentiometer linear_potentiometer = Potentiometer (
 );
 
 
+// Estimated total length 92000, estimated distance from limit switch 2000
+//  (9200 - 2064) / 11 / 16 = 511
+//  so starting from 0 at the end, 12 gears from -2064 to -92000, each distant 511 * 16
+#if GEARS_SETUP
+int gears[NUM_GEARS] = {-92000, -83824, -75648, -67472, -59296, -51120, -42944, -34768, -26592, -18416, -10240, -2064};
+int gears_lin[NUM_GEARS] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+#else
 int gears[NUM_GEARS];
 int gears_lin[NUM_GEARS];
+#endif
 
 
 Memory flash = Memory ();
@@ -70,15 +78,9 @@ void function_core_1 (void *parameters) {
 #endif
 
 
-    #if DEBUG_MEMORY >= 2
-        for (int i=0; i<NUM_GEARS; i++) {
-            gears[i] = 4 * stepper_motor.get_delta_position_360_degrees_rotation() * (i+1);
-            gears_lin[i] = 0;
-        }
+    #if GEARS_SETUP
         flash.write_array(gears_memory_key, (void *) gears, NUM_GEARS, sizeof(int));
         flash.write_array(gears_lin_memory_key, (void *) gears_lin, NUM_GEARS, sizeof(int));
-        for (int i=0; i<NUM_GEARS; i++)
-            gears[i] = 0;
     #endif    
 
     flash.read_array(gears_memory_key, (void *) gears, NUM_GEARS, sizeof(int));

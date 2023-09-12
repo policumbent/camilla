@@ -3,6 +3,8 @@
 
 #define NEVADA_MODE 1
 
+#define GEARS_SETUP 0
+
 #define MICROSTEPPING_ENABLED        0
 #define ENCODER_CONNECTED            0
 #define POTENTIOMETER_CONNECTED      0
@@ -18,7 +20,7 @@
 #if DEBUG
     #define DEBUG_CORES         1
     #define DEBUG_MOTOR         0
-    #define DEBUG_MEMORY        0
+    #define DEBUG_MEMORY        1
     #define DEBUG_BUTTONS       1
     #define DEBUG_LIMIT_SWITCH  1
     #define DEBUG_GEARS         1
