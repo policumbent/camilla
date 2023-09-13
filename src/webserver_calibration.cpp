@@ -37,6 +37,14 @@ void calibration() {
             stepper_motor.move_while_button_pressed_check_limit_switches(HR4988_NEGATIVE_DIR, &shift_down_pressed, &shift_down_button_parameters);
         }
 
+        if (switch_begin_pressed) {
+            stepper_motor.move_while_button_pressed(HR4988_POSITIVE_DIR, &switch_begin_pressed, &limit_switch_begin_parameters, DISTANCE_FROM_LIMIT_SWITCHES);
+        }
+
+        if (switch_end_pressed) {
+            stepper_motor.move_while_button_pressed(HR4988_NEGATIVE_DIR, &switch_end_pressed, &limit_switch_end_parameters, DISTANCE_FROM_LIMIT_SWITCHES);
+        }
+
         if (calibration_button_pressed) {
             end = 1;
         }
