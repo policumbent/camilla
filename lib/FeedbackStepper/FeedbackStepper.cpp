@@ -304,16 +304,16 @@ void FeedbackStepper :: _shift_linear_correction(int next_gear) {
 }
 
 
-void FeedbackStepper :: move_while_button_pressed(int8_t dir, uint8_t *button_pressed, button_parameters *bp, int additional_steps) {
+void FeedbackStepper :: move_while_button_pressed(int8_t dir, uint8_t *button_pressed, button_parameters *bp, int additional_delta_pos) {
     // -1 as speed is used to have acceleration till MAX_SPEED
-    move_while_button_pressed(-1, dir, button_pressed, bp, additional_steps);
+    move_while_button_pressed(-1, dir, button_pressed, bp, additional_delta_pos);
 }
 
 
-void FeedbackStepper :: move_while_button_pressed(float speed, int8_t dir, uint8_t *button_pressed, button_parameters *bp, int additional_steps) {
+void FeedbackStepper :: move_while_button_pressed(float speed, int8_t dir, uint8_t *button_pressed, button_parameters *bp, int additional_delta_pos) {
     uint8_t end = 0;
     long int elapsed_time, delay;
-    int steps_cnt;
+    int delta_pos;
 
     set_direction(dir);
 
@@ -352,9 +352,9 @@ void FeedbackStepper :: move_while_button_pressed(float speed, int8_t dir, uint8
         }
     }
 
-    steps_cnt = 0;
-    while (abs(steps_cnt) < additional_steps) {
-        steps_cnt += step();
+    delta_pos = 0;
+    while (abs(delta_pos) < additional_delta_pos) {
+        delta_pos += step();
     }
 }
 

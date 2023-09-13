@@ -38,11 +38,11 @@ void calibration() {
         }
 
         if (switch_begin_pressed) {
-            stepper_motor.move_while_button_pressed(HR4988_POSITIVE_DIR, &switch_begin_pressed, &limit_switch_begin_parameters, DISTANCE_FROM_LIMIT_SWITCHES);
+            stepper_motor.move_while_button_pressed(LIMIT_SWITCH_PRESSED_SPEED, HR4988_POSITIVE_DIR, &switch_begin_pressed, &limit_switch_begin_parameters, DISTANCE_FROM_LIMIT_SWITCHES);
         }
 
         if (switch_end_pressed) {
-            stepper_motor.move_while_button_pressed(HR4988_NEGATIVE_DIR, &switch_end_pressed, &limit_switch_end_parameters, DISTANCE_FROM_LIMIT_SWITCHES);
+            stepper_motor.move_while_button_pressed(LIMIT_SWITCH_PRESSED_SPEED, HR4988_NEGATIVE_DIR, &switch_end_pressed, &limit_switch_end_parameters, DISTANCE_FROM_LIMIT_SWITCHES);
         }
 
         if (calibration_button_pressed) {

@@ -18,11 +18,11 @@ Potentiometer linear_potentiometer = Potentiometer (
 );
 
 
-// Estimated total length 92000, estimated distance from limit switch 2000
-//  (9200 - 2064) / 11 / 16 = 511
-//  so starting from 0 at the end, 12 gears from -2064 to -92000, each distant 511 * 16
+// Estimated total length 184976
+//  184976 / 11 / 16 = 1051
+//  so starting from 0 at the end, 12 gears from 0 to -184976, each distant 1051 * 16
 #if GEARS_SETUP
-int gears[NUM_GEARS] = {-92000, -83824, -75648, -67472, -59296, -51120, -42944, -34768, -26592, -18416, -10240, -2064};
+int gears[NUM_GEARS] = {-184976, -168160, -151344, -134528, -117712, -100896, -84080, - 67264, -50448, -33632, -16816, 0};
 int gears_lin[NUM_GEARS] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 #else
 int gears[NUM_GEARS];
@@ -277,7 +277,7 @@ void gears_mode() {
 
             elapsed_time = millis();
             while ((shift_up_pressed = button_read_attach_interrupt(&shift_up_button_parameters))) {
-                if (millis() - elapsed_time > 2000) {
+                if (millis() - elapsed_time > 1500) {
                     #if DEBUG_BUTTONS
                         Serial.println("Manual shifting up");
                     #endif
@@ -306,13 +306,13 @@ void gears_mode() {
 
             elapsed_time = millis();
             while ((shift_down_pressed = button_read_attach_interrupt(&shift_down_button_parameters))) {
-                if (millis() - elapsed_time > 2000) {
+                if (millis() - elapsed_time > 1500) {
                     #if DEBUG_BUTTONS
                         Serial.println("Manual shifting up");
                     #endif
 
                     int current_delta = stepper_motor.get_position();
-                    stepper_motor.move_while_button_pressed_check_limit_switches(200, HR4988_POSITIVE_DIR, &shift_down_pressed, &shift_down_button_parameters);
+                    stepper_motor.move_while_button_pressed_check_limit_switches(200, HR4988_NEGATIVE_DIR, &shift_down_pressed, &shift_down_button_parameters);
                     current_delta = stepper_motor.get_position() - current_delta;
                     delta_manual += current_delta; 
                     manual_moving = 1;
@@ -510,11 +510,11 @@ void test_mode() {
         }
 
         if (switch_begin_pressed) {
-            stepper_motor.move_while_button_pressed(HR4988_POSITIVE_DIR, &switch_begin_pressed, &limit_switch_begin_parameters, DISTANCE_FROM_LIMIT_SWITCHES);
+            stepper_motor.move_while_button_pressed(LIMIT_SWITCH_PRESSED_SPEED, HR4988_POSITIVE_DIR, &switch_begin_pressed, &limit_switch_begin_parameters, DISTANCE_FROM_LIMIT_SWITCHES);
         }
 
         if (switch_end_pressed) {
-            stepper_motor.move_while_button_pressed(HR4988_NEGATIVE_DIR, &switch_end_pressed, &limit_switch_end_parameters, DISTANCE_FROM_LIMIT_SWITCHES);
+            stepper_motor.move_while_button_pressed(LIMIT_SWITCH_PRESSED_SPEED, HR4988_NEGATIVE_DIR, &switch_end_pressed, &limit_switch_end_parameters, DISTANCE_FROM_LIMIT_SWITCHES);
         }
 
         if (calibration_button_pressed) {

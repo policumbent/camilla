@@ -71,11 +71,11 @@ void gears_calibration() {
         }
 
         if (switch_begin_pressed) {
-            stepper_motor.move_while_button_pressed(HR4988_POSITIVE_DIR, &switch_begin_pressed, &limit_switch_begin_parameters, DISTANCE_FROM_LIMIT_SWITCHES);
+            stepper_motor.move_while_button_pressed(LIMIT_SWITCH_PRESSED_SPEED, HR4988_POSITIVE_DIR, &switch_begin_pressed, &limit_switch_begin_parameters, DISTANCE_FROM_LIMIT_SWITCHES);
         }
 
         if (switch_end_pressed) {
-            stepper_motor.move_while_button_pressed(HR4988_NEGATIVE_DIR, &switch_end_pressed, &limit_switch_end_parameters, DISTANCE_FROM_LIMIT_SWITCHES);
+            stepper_motor.move_while_button_pressed(LIMIT_SWITCH_PRESSED_SPEED, HR4988_NEGATIVE_DIR, &switch_end_pressed, &limit_switch_end_parameters, DISTANCE_FROM_LIMIT_SWITCHES);
         }
 
         if (calibration_button_pressed) {
@@ -125,12 +125,19 @@ void gears_calibration() {
                 case 'g': case 'G':
                     Serial.println("Enter the number of the gear to shift to: ");
                     gear = read_int_serial();
-                    shift(gear);
+                    #if NEVADA_MODE
+                        shift(gear, 0);
+                    #else
+                        shift(gear);
+                    #endif
                     Serial.print("Shifted to gear: "); Serial.println(gear);
                     break;
 
                 case 'e': case 'E':
                     end = 1; break;
+
+                case 'p':
+                    Serial.print("Current position: "); Serial.println(stepper_motor.get_position());
 
                 default:
                     break;

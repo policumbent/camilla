@@ -5,8 +5,8 @@
 #define NUM_GEARS  12     // for Phoenix
 
 #define CALIBRATION_SPEED             200
-#define LIMIT_SWITCH_PRESSED_SPEED    100
-#define DISTANCE_FROM_LIMIT_SWITCHES 1600
+#define LIMIT_SWITCH_PRESSED_SPEED    200
+#define DISTANCE_FROM_LIMIT_SWITCHES 6400
 
 
 // Stepper pins
