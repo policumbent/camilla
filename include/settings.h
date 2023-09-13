@@ -3,7 +3,7 @@
 
 #define NEVADA_MODE 1
 
-#define GEARS_SETUP 0
+#define GEARS_SETUP 1
 
 #define MICROSTEPPING_ENABLED        0
 #define ENCODER_CONNECTED            0

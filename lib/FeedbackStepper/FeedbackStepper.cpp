@@ -304,15 +304,16 @@ void FeedbackStepper :: _shift_linear_correction(int next_gear) {
 }
 
 
-void FeedbackStepper :: move_while_button_pressed(int8_t dir, uint8_t *button_pressed, button_parameters *bp) {
+void FeedbackStepper :: move_while_button_pressed(int8_t dir, uint8_t *button_pressed, button_parameters *bp, int additional_steps) {
     // -1 as speed is used to have acceleration till MAX_SPEED
-    move_while_button_pressed(-1, dir, button_pressed, bp);
+    move_while_button_pressed(-1, dir, button_pressed, bp, additional_steps);
 }
 
 
-void FeedbackStepper :: move_while_button_pressed(float speed, int8_t dir, uint8_t *button_pressed, button_parameters *bp) {
+void FeedbackStepper :: move_while_button_pressed(float speed, int8_t dir, uint8_t *button_pressed, button_parameters *bp, int additional_steps) {
     uint8_t end = 0;
     long int elapsed_time, delay;
+    int steps_cnt;
 
     set_direction(dir);
 
@@ -350,16 +351,21 @@ void FeedbackStepper :: move_while_button_pressed(float speed, int8_t dir, uint8
             _update_position();
         }
     }
+
+    steps_cnt = 0;
+    while (abs(steps_cnt) < additional_steps) {
+        steps_cnt += step();
+    }
 }
 
 
-void FeedbackStepper :: move_while_button_pressed_limit_switches(int8_t dir, uint8_t *button_pressed, button_parameters *bp) {
+void FeedbackStepper :: move_while_button_pressed_check_limit_switches(int8_t dir, uint8_t *button_pressed, button_parameters *bp) {
     // -1 as speed is used to have acceleration till MAX_SPEED
-    move_while_button_pressed_limit_switches(-1, dir, button_pressed, bp);
+    move_while_button_pressed_check_limit_switches(-1, dir, button_pressed, bp);
 }
 
 
-void FeedbackStepper :: move_while_button_pressed_limit_switches(float speed, int8_t dir, uint8_t *button_pressed, button_parameters *bp) {
+void FeedbackStepper :: move_while_button_pressed_check_limit_switches(float speed, int8_t dir, uint8_t *button_pressed, button_parameters *bp) {
     uint8_t end = 0;
     long int elapsed_time, delay;
 
@@ -401,11 +407,11 @@ void FeedbackStepper :: move_while_button_pressed_limit_switches(float speed, in
     }
 
     if (*limit_begin_reached) {
-        move_while_button_pressed(FEEDBACKSTEPPER_GO_TO_LIMIT_SWITCH_SPEED, HR4988_CHANGE_DIR, limit_begin_reached, switch_begin_parameters);
+        move_while_button_pressed(FEEDBACKSTEPPER_GO_TO_LIMIT_SWITCH_SPEED, HR4988_CHANGE_DIR, limit_begin_reached, switch_begin_parameters, FEEDBACKSTEPPER_DISTANCE_FROM_LIMIT_SWITCHES);
     }
 
     if (*limit_end_reached) {
-        move_while_button_pressed(FEEDBACKSTEPPER_GO_TO_LIMIT_SWITCH_SPEED, HR4988_CHANGE_DIR, limit_end_reached, switch_end_parameters);
+        move_while_button_pressed(FEEDBACKSTEPPER_GO_TO_LIMIT_SWITCH_SPEED, HR4988_CHANGE_DIR, limit_end_reached, switch_end_parameters, FEEDBACKSTEPPER_DISTANCE_FROM_LIMIT_SWITCHES);
     }
 
     while ((*button_pressed = button_read_attach_interrupt(bp)));
@@ -424,7 +430,7 @@ void FeedbackStepper :: go_to_limit_switch(uint8_t limit_switch_type) {
             set_speed(FEEDBACKSTEPPER_GO_TO_LIMIT_SWITCH_SPEED);
             while (!(*limit_begin_reached)) step();
 
-            move_while_button_pressed(FEEDBACKSTEPPER_GO_TO_LIMIT_SWITCH_SPEED, HR4988_CHANGE_DIR, limit_begin_reached, switch_begin_parameters);
+            move_while_button_pressed(FEEDBACKSTEPPER_GO_TO_LIMIT_SWITCH_SPEED, HR4988_CHANGE_DIR, limit_begin_reached, switch_begin_parameters, FEEDBACKSTEPPER_DISTANCE_FROM_LIMIT_SWITCHES);
 
             break;
 
@@ -436,7 +442,7 @@ void FeedbackStepper :: go_to_limit_switch(uint8_t limit_switch_type) {
             set_speed(FEEDBACKSTEPPER_GO_TO_LIMIT_SWITCH_SPEED);
             while (!(*limit_end_reached)) step();
 
-            move_while_button_pressed(FEEDBACKSTEPPER_GO_TO_LIMIT_SWITCH_SPEED, HR4988_CHANGE_DIR, limit_end_reached, switch_end_parameters);
+            move_while_button_pressed(FEEDBACKSTEPPER_GO_TO_LIMIT_SWITCH_SPEED, HR4988_CHANGE_DIR, limit_end_reached, switch_end_parameters, FEEDBACKSTEPPER_DISTANCE_FROM_LIMIT_SWITCHES);
 
             break;
 

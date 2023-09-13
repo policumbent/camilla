@@ -283,7 +283,7 @@ void gears_mode() {
                     #endif
 
                     int current_delta = stepper_motor.get_position();
-                    stepper_motor.move_while_button_pressed_limit_switches(200, HR4988_POSITIVE_DIR, &shift_up_pressed, &shift_up_button_parameters);
+                    stepper_motor.move_while_button_pressed_check_limit_switches(200, HR4988_POSITIVE_DIR, &shift_up_pressed, &shift_up_button_parameters);
                     current_delta = stepper_motor.get_position() - current_delta;
                     delta_manual += current_delta; 
                     manual_moving = 1;
@@ -312,7 +312,7 @@ void gears_mode() {
                     #endif
 
                     int current_delta = stepper_motor.get_position();
-                    stepper_motor.move_while_button_pressed_limit_switches(200, HR4988_POSITIVE_DIR, &shift_down_pressed, &shift_down_button_parameters);
+                    stepper_motor.move_while_button_pressed_check_limit_switches(200, HR4988_POSITIVE_DIR, &shift_down_pressed, &shift_down_button_parameters);
                     current_delta = stepper_motor.get_position() - current_delta;
                     delta_manual += current_delta; 
                     manual_moving = 1;
@@ -336,7 +336,7 @@ void gears_mode() {
                 Serial.println("Begin limit reached");
             #endif
 
-            stepper_motor.move_while_button_pressed(LIMIT_SWITCH_PRESSED_SPEED, HR4988_CHANGE_DIR, &switch_begin_pressed, &limit_switch_begin_parameters);
+            stepper_motor.move_while_button_pressed(LIMIT_SWITCH_PRESSED_SPEED, HR4988_CHANGE_DIR, &switch_begin_pressed, &limit_switch_begin_parameters, DISTANCE_FROM_LIMIT_SWITCHES);
         }
 
         if (switch_end_pressed) {
@@ -344,7 +344,7 @@ void gears_mode() {
                 Serial.println("End limit reached");
             #endif
 
-            stepper_motor.move_while_button_pressed(LIMIT_SWITCH_PRESSED_SPEED, HR4988_CHANGE_DIR, &switch_end_pressed, &limit_switch_end_parameters);
+            stepper_motor.move_while_button_pressed(LIMIT_SWITCH_PRESSED_SPEED, HR4988_CHANGE_DIR, &switch_end_pressed, &limit_switch_end_parameters, DISTANCE_FROM_LIMIT_SWITCHES);
         }
 
         if (calibration_button_pressed) {
@@ -437,7 +437,7 @@ void gears_mode() {
                 Serial.println("Begin limit reached");
             #endif
 
-            stepper_motor.move_while_button_pressed(LIMIT_SWITCH_PRESSED_SPEED, HR4988_CHANGE_DIR, &switch_begin_pressed, &limit_switch_begin_parameters);
+            stepper_motor.move_while_button_pressed(LIMIT_SWITCH_PRESSED_SPEED, HR4988_CHANGE_DIR, &switch_begin_pressed, &limit_switch_begin_parameters, DISTANCE_FROM_LIMIT_SWITCHES);
         }
 
         if (switch_end_pressed) {
@@ -445,7 +445,7 @@ void gears_mode() {
                 Serial.println("End limit reached");
             #endif
 
-            stepper_motor.move_while_button_pressed(LIMIT_SWITCH_PRESSED_SPEED, HR4988_CHANGE_DIR, &switch_end_pressed, &limit_switch_end_parameters);
+            stepper_motor.move_while_button_pressed(LIMIT_SWITCH_PRESSED_SPEED, HR4988_CHANGE_DIR, &switch_end_pressed, &limit_switch_end_parameters, DISTANCE_FROM_LIMIT_SWITCHES);
         }
 
         if (calibration_button_pressed) {
@@ -502,19 +502,11 @@ void test_mode() {
     while (!end) {
 
         if (shift_up_pressed) {
-            stepper_motor.move_while_button_pressed_limit_switches(HR4988_POSITIVE_DIR, &shift_up_pressed, &shift_up_button_parameters);
+            stepper_motor.move_while_button_pressed_check_limit_switches(HR4988_POSITIVE_DIR, &shift_up_pressed, &shift_up_button_parameters);
         }
 
         if (shift_down_pressed) {
-            stepper_motor.move_while_button_pressed_limit_switches(HR4988_NEGATIVE_DIR, &shift_down_pressed, &shift_down_button_parameters);
-        }
-
-        if (switch_begin_pressed) {
-            stepper_motor.move_while_button_pressed(HR4988_POSITIVE_DIR, &switch_begin_pressed, &limit_switch_begin_parameters);
-        }
-
-        if (switch_end_pressed) {
-            stepper_motor.move_while_button_pressed(HR4988_NEGATIVE_DIR, &switch_end_pressed, &limit_switch_end_parameters);
+            stepper_motor.move_while_button_pressed_check_limit_switches(HR4988_NEGATIVE_DIR, &shift_down_pressed, &shift_down_button_parameters);
         }
 
         if (calibration_button_pressed) {

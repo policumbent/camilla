@@ -14,6 +14,7 @@
 #define FEEDBACKSTEPPER_SHIFT_OVERSHOOT_DELAY                     200
 #define FEEDBACKSTEPPER_SHIFT_LINEAR_CORRECTION_ACCEPTABLE_ERROR    5
 #define FEEDBACKSTEPPER_GO_TO_LIMIT_SWITCH_SPEED                  200
+#define FEEDBACKSTEPPER_DISTANCE_FROM_LIMIT_SWITCHES             1600
 
 
 class AS5600;
@@ -78,9 +79,9 @@ class FeedbackStepper : public HR4988 {
         void shift(int next_gear);
         void shift_overshoot();
         void move(int target_pos);
-        void move_while_button_pressed(int8_t dir, uint8_t *button_pressed, button_parameters *bp);
-        void move_while_button_pressed(float speed, int8_t dir, uint8_t *button_pressed, button_parameters *bp);
-        void move_while_button_pressed_limit_switches(int8_t dir, uint8_t *button_pressed, button_parameters *bp);
-        void move_while_button_pressed_limit_switches(float speed, int8_t dir, uint8_t *button_pressed, button_parameters *bp);
+        void move_while_button_pressed(int8_t dir, uint8_t *button_pressed, button_parameters *bp, int additional_steps);
+        void move_while_button_pressed(float speed, int8_t dir, uint8_t *button_pressed, button_parameters *bp, int additional_steps);
+        void move_while_button_pressed_check_limit_switches(int8_t dir, uint8_t *button_pressed, button_parameters *bp);
+        void move_while_button_pressed_check_limit_switches(float speed, int8_t dir, uint8_t *button_pressed, button_parameters *bp);
         void go_to_limit_switch(uint8_t limit_switch_type);
 };

@@ -101,7 +101,7 @@ class HR4988 {
         
         void move_const_speed(int target_pos, float speed);
         void move(int target_pos);
-        void step();
+        int step();
 
         void set_position(int position);
         int get_position();

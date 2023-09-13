@@ -247,11 +247,11 @@ void HR4988 :: _step_no_delay_off() {
 }
 
 
-void HR4988 :: step() {
+int HR4988 :: step() {
     _step_no_delay_off();
     delayMicroseconds(delay_off);
 
-    _update_position();
+    return _update_position();
 }
 
 
