@@ -18,15 +18,19 @@ Potentiometer linear_potentiometer = Potentiometer (
 );
 
 
-// Estimated total length 184976
+// Measured total length 184976
 //  184976 / 11 / 16 = 1051
 //  so starting from 0 at the end, 12 gears from 0 to -184976, each distant 1051 * 16
 #if GEARS_SETUP
-int gears[NUM_GEARS] = {-184976, -168160, -151344, -134528, -117712, -100896, -84080, - 67264, -50448, -33632, -16816, 0};
-int gears_lin[NUM_GEARS] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    #if (LIMIT_SWITCH_AS_REFERENCE && ZERO_POSITION_AT_BEGIN) || (!LIMIT_SWITCH_AS_REFERENCE)
+        int gears[NUM_GEARS] = {0, 16816, 33632, 50448, 67264, 84080, 100896, 117712, 134528, 151344, 168160, 184976};
+    #else
+        int gears[NUM_GEARS] = {-184976, -168160, -151344, -134528, -117712, -100896, -84080, -67264, -50448, -33632, -16816, 0};
+    #endif
+    int gears_lin[NUM_GEARS] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 #else
-int gears[NUM_GEARS];
-int gears_lin[NUM_GEARS];
+    int gears[NUM_GEARS];
+    int gears_lin[NUM_GEARS];
 #endif
 
 
@@ -256,8 +260,7 @@ void gears_mode() {
         Serial.println("GEARS MODE");
     #endif
 
-    stepper_motor.go_to_limit_switch(zero_reference_limit_switch_type);
-    stepper_motor.set_position(0);
+    initialize_position();
 
     #if DEBUG_MOTOR >= 2
         stepper_motor.debug_serial_control();
@@ -352,7 +355,7 @@ void gears_mode() {
             while ((calibration_button_pressed = button_read_attach_interrupt(&calibration_button_parameters)));
             elapsed_time = millis() - elapsed_time;
 
-            if (elapsed_time > 3000) {
+            if (elapsed_time > TIME_BUTTON_LONG_PRESS) {
                 end = 1;
             }
         }
@@ -453,7 +456,7 @@ void gears_mode() {
             while ((calibration_button_pressed = button_read_attach_interrupt(&calibration_button_parameters)));
             elapsed_time = millis() - elapsed_time;
 
-            if (elapsed_time > 3000) {
+            if (elapsed_time > TIME_BUTTON_LONG_PRESS) {
                 end = 1;
             }
         }
@@ -501,28 +504,14 @@ void test_mode() {
     end = 0;
     while (!end) {
 
-        if (shift_up_pressed) {
-            stepper_motor.move_while_button_pressed_check_limit_switches(HR4988_POSITIVE_DIR, &shift_up_pressed, &shift_up_button_parameters);
-        }
-
-        if (shift_down_pressed) {
-            stepper_motor.move_while_button_pressed_check_limit_switches(HR4988_NEGATIVE_DIR, &shift_down_pressed, &shift_down_button_parameters);
-        }
-
-        if (switch_begin_pressed) {
-            stepper_motor.move_while_button_pressed(LIMIT_SWITCH_PRESSED_SPEED, HR4988_POSITIVE_DIR, &switch_begin_pressed, &limit_switch_begin_parameters, DISTANCE_FROM_LIMIT_SWITCHES);
-        }
-
-        if (switch_end_pressed) {
-            stepper_motor.move_while_button_pressed(LIMIT_SWITCH_PRESSED_SPEED, HR4988_NEGATIVE_DIR, &switch_end_pressed, &limit_switch_end_parameters, DISTANCE_FROM_LIMIT_SWITCHES);
-        }
+        move_while_pressed_buttons_control();
 
         if (calibration_button_pressed) {
             elapsed_time = millis();
             while ((calibration_button_pressed = button_read_attach_interrupt(&calibration_button_parameters)));
             elapsed_time = millis() - elapsed_time;
 
-            if (elapsed_time > 3000) {
+            if (elapsed_time > TIME_BUTTON_LONG_PRESS) {
                 end = 1;
             }
         }
@@ -530,4 +519,54 @@ void test_mode() {
         delay(10);
 
     }
+}
+
+
+void move_while_pressed_buttons_control() {
+    if (shift_up_pressed) {
+        stepper_motor.move_while_button_pressed_check_limit_switches(HR4988_POSITIVE_DIR, &shift_up_pressed, &shift_up_button_parameters);
+    }
+
+    if (shift_down_pressed) {
+        stepper_motor.move_while_button_pressed_check_limit_switches(HR4988_NEGATIVE_DIR, &shift_down_pressed, &shift_down_button_parameters);
+    }
+
+    if (switch_begin_pressed) {
+        stepper_motor.move_while_button_pressed(LIMIT_SWITCH_PRESSED_SPEED, HR4988_POSITIVE_DIR, &switch_begin_pressed, &limit_switch_begin_parameters, DISTANCE_FROM_LIMIT_SWITCHES);
+    }
+
+    if (switch_end_pressed) {
+        stepper_motor.move_while_button_pressed(LIMIT_SWITCH_PRESSED_SPEED, HR4988_NEGATIVE_DIR, &switch_end_pressed, &limit_switch_end_parameters, DISTANCE_FROM_LIMIT_SWITCHES);
+    }
+}
+
+
+void initialize_position() {
+    
+    #if LIMIT_SWITCH_AS_REFERENCE
+        stepper_motor.go_to_limit_switch(zero_reference_limit_switch_type);
+    #else
+        uint8_t end;
+
+        #if DEBUG
+            Serial.println("Move manually the gear to first gear, then press the calibration button");
+        #endif
+
+        shift_up_pressed = shift_down_pressed = calibration_button_pressed = 0;
+
+        end = 0;
+        while (!end) {
+
+            move_while_pressed_buttons_control();
+
+            if (calibration_button_pressed) {
+                end = 1;
+            }
+
+            delay(10);
+
+        }
+    #endif
+
+    stepper_motor.set_position(0);
 }

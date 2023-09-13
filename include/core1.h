@@ -4,9 +4,12 @@
 
 #define NUM_GEARS  12     // for Phoenix
 
-#define CALIBRATION_SPEED             200
-#define LIMIT_SWITCH_PRESSED_SPEED    200
+#define CALIBRATION_SPEED          200
+#define LIMIT_SWITCH_PRESSED_SPEED 200
+
 #define DISTANCE_FROM_LIMIT_SWITCHES 6400
+
+#define TIME_BUTTON_LONG_PRESS 2000
 
 
 // Stepper pins
@@ -56,3 +59,6 @@ void test_mode();
 #else
     void shift(uint8_t next_gear);
 #endif
+
+void move_while_pressed_buttons_control();
+void initialize_position();
