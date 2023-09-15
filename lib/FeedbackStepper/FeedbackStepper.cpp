@@ -315,6 +315,8 @@ void FeedbackStepper :: move_while_button_pressed(float speed, int8_t dir, uint8
     long int elapsed_time, delay;
     int delta_pos;
 
+    digitalWrite(BUILTIN_LED, HIGH);
+
     set_direction(dir);
 
     int start_pos = position_sixteenth;
@@ -356,6 +358,8 @@ void FeedbackStepper :: move_while_button_pressed(float speed, int8_t dir, uint8
     while (abs(delta_pos) < additional_delta_pos) {
         delta_pos += step();
     }
+
+    digitalWrite(BUILTIN_LED, LOW);
 }
 
 
@@ -368,6 +372,8 @@ void FeedbackStepper :: move_while_button_pressed_check_limit_switches(int8_t di
 void FeedbackStepper :: move_while_button_pressed_check_limit_switches(float speed, int8_t dir, uint8_t *button_pressed, button_parameters *bp) {
     uint8_t end = 0;
     long int elapsed_time, delay;
+
+    digitalWrite(BUILTIN_LED, HIGH);
 
     set_direction(dir);
 
@@ -415,6 +421,8 @@ void FeedbackStepper :: move_while_button_pressed_check_limit_switches(float spe
     }
 
     while ((*button_pressed = button_read_attach_interrupt(bp)));
+
+    digitalWrite(BUILTIN_LED, LOW);
 }
 
 

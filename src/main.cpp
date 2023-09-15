@@ -52,8 +52,8 @@ void setup() {
         Serial.println("Serial initialized");
     #endif
 
-    pinMode(BUILT_IN_LED_PIN, OUTPUT);
-    digitalWrite(BUILT_IN_LED_PIN, LOW);
+    pinMode(BUILTIN_LED, OUTPUT);
+    digitalWrite(BUILTIN_LED, LOW);
 
     g_semaphore = xSemaphoreCreateBinary();
     xSemaphoreGive(g_semaphore);
@@ -75,9 +75,9 @@ void loop() {
 
 void blink_built_in_led(uint8_t n_times) {
     for (uint8_t i=0; i<n_times; i++) {
-        digitalWrite(BUILT_IN_LED_PIN, HIGH);
+        digitalWrite(BUILTIN_LED, HIGH);
         delay(125);
-        digitalWrite(BUILT_IN_LED_PIN, LOW);
+        digitalWrite(BUILTIN_LED, LOW);
         delay(125);
     }
 }

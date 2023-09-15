@@ -47,7 +47,7 @@ void webserver_calibration() {
     int *gears_lin_ptr = gears_lin;
     WebServer webserver = WebServer(&stepper_motor, &linear_potentiometer, gears_ptr, gears_lin_ptr, NUM_GEARS, &g_semaphore);
 
-    blink_built_in_led(4);
+    blink_built_in_led(2);
 
     while (!calibration_button_pressed) delay(100);
 

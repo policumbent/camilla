@@ -52,7 +52,7 @@ extern uint8_t zero_reference_limit_switch_type;
 
 
 void gears_mode();
-void test_mode();
+void while_pressed_mode();
 
 #if NEVADA_MODE
     void shift(uint8_t next_gear, int delta_manual);

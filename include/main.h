@@ -11,9 +11,6 @@
 #include "Memory.h"
 
 
-#define BUILT_IN_LED_PIN 2
-
-
 #define LIMIT_SWITCH_END_PIN    18
 #define LIMIT_SWITCH_BEGIN_PIN   5
 
