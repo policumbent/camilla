@@ -1,6 +1,9 @@
 #pragma once
 
 
+#define NUM_GEARS  12     // for Phoenix
+
+
 #define DEFAULT_MODE_DISABLED      0
 #define DEFAULT_MODE_GEARS         1
 #define DEFAULT_MODE_WHILE_PRESSED 2

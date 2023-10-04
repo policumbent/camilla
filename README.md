@@ -1,13 +1,18 @@
 # Camilla - CAMbio Intrinsicamente LAborioso
 
-Software for the Phoenix translating gearbox, using a stepper motor.
+Software for the Phoenix translating gearbox, using a stepper motor
+
+
+## Settings
+
+The main settings and debug options can be configured by changing values of constants defined in `include/settings.h`
 
 
 ## Cores
 
-The main funcitonalities are split between the two ESP32's cores, contained in two files in the `src/` folder
-- `core1`: manages the stepper motor and the buttons
-- `core0`: manages CAN and the webserver
+The main functionalities are split between the two ESP32's cores, contained in two files in the `src/` folder
+- `core1`: manages the stepper motor, the buttons and limit switches
+- `core0`: manages CAN, the webserver and the interrupts
 
 
 ## Libraries

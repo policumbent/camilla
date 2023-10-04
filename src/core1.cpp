@@ -18,6 +18,9 @@ Potentiometer linear_potentiometer = Potentiometer (
 );
 
 
+Memory flash = Memory ();
+
+
 // Measured total length 184976
 //  184976 / 11 / 16 = 1051
 //  so starting from 0 at the end, 12 gears from 0 to -184976, each distant 1051 * 16
@@ -32,9 +35,6 @@ Potentiometer linear_potentiometer = Potentiometer (
     int gears[NUM_GEARS];
     int gears_lin[NUM_GEARS];
 #endif
-
-
-Memory flash = Memory ();
 
 
 uint8_t zero_reference_limit_switch_type;
@@ -252,10 +252,10 @@ void function_core_1 (void *parameters) {
 
 // The Nevada gears mode has the overshoot and the possibility of manual shifting
 //  this is to compensate the errors in feedback or the absence of it
-//  the driver can force a manual shifting by keeping the button pressed till the gear changes
-//  the delta manual position will be added to all gears assuming that the stepper has lost steps
-//      and so after manual moving the correct position of the gear is reached, so the relative
-//      distance of the following gears does not change
+// The driver can force a manual shifting by keeping the button pressed till the gear changes
+// The delta manual position will be added to all gears assuming that the stepper has lost steps
+//  and so after manual moving the correct position of the gear is reached, so the relative
+//  distance of the following gears does not change
 
 #if NEVADA_MODE
 

@@ -2,8 +2,6 @@
 #include "main.h"
 
 
-#define NUM_GEARS  12     // for Phoenix
-
 #define CALIBRATION_SPEED          200
 #define LIMIT_SWITCH_PRESSED_SPEED 200
 
