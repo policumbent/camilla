@@ -47,7 +47,7 @@
         #define DEBUG_POTENTIOMETER 1
     #endif
 
-    #define DEBUG_CAN 1
+    #define DEBUG_CAN 2
 
     #define DEBUG_CALIBRATION   1
 #endif
