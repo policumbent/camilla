@@ -10,7 +10,7 @@
 #define DEFAULT_MODE_GEARS         1    // first mode encountered: gears
 #define DEFAULT_MODE_WHILE_PRESSED 2    // first mode encountered: while_pressed
 
-#define DEFAULT_MODE 2
+#define DEFAULT_MODE               DEFAULT_MODE_WHILE_PRESSED
 
 /* if 1, uses manual overshoot version of gears;
  * if 0, uses no overshoot version of gears */

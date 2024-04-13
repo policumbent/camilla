@@ -46,7 +46,7 @@ button_parameters calibration_button_parameters = {
 
 void setup() {
     #if DEBUG
-        Serial.begin(9600);
+        Serial.begin(115200);
         while (!Serial) delay(10);
         delay(2000);
         Serial.println("Serial initialized");
