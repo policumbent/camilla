@@ -60,3 +60,5 @@ void while_pressed_mode();
 
 void move_while_pressed_buttons_control();
 void initialize_position();
+
+void debug();
