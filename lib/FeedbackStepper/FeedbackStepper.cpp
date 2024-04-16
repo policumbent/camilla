@@ -362,6 +362,8 @@ void FeedbackStepper :: move_while_button_pressed(float speed, int8_t dir, uint8
     digitalWrite(BUILTIN_LED, LOW);
 }
 
+extern uint8_t shift_up_pressed;
+extern uint8_t shift_down_pressed;
 
 void FeedbackStepper :: move_while_button_pressed_check_limit_switches(int8_t dir, uint8_t *button_pressed, button_parameters *bp) {
     // -1 as speed is used to have acceleration till MAX_SPEED
@@ -386,14 +388,27 @@ void FeedbackStepper :: move_while_button_pressed_check_limit_switches(float spe
 
     while (!end && !(*limit_begin_reached) && !(*limit_end_reached)) {
 
-        portDISABLE_INTERRUPTS();
+        #if !BUTTONS_DISABLED
+            portDISABLE_INTERRUPTS();
+        #endif
         elapsed_time = micros();
 
-        *button_pressed = button_read_attach_interrupt(bp);
+        #if BUTTONS_DISABLED
+            if (bp->pin == 16) {
+                *button_pressed = shift_up_pressed;
+            } else if (bp->pin == 17) {
+                *button_pressed = shift_down_pressed;
+            }
+        #else
+            *button_pressed = button_read_attach_interrupt(bp);
+        #endif
 
         if (!(*button_pressed)) {
             end = 1;
-            portENABLE_INTERRUPTS();
+
+            #if !BUTTONS_DISABLED
+                portENABLE_INTERRUPTS();
+            #endif
         }
         else {
             if (speed == -1) {
@@ -404,12 +419,16 @@ void FeedbackStepper :: move_while_button_pressed_check_limit_switches(float spe
 
             elapsed_time = micros() - elapsed_time;
             delay = (delay_off - elapsed_time > 0) ? (delay_off - elapsed_time) : (1);
-            portENABLE_INTERRUPTS();
+            #if !BUTTONS_DISABLED
+                portENABLE_INTERRUPTS();
+            #endif
 
             delayMicroseconds(delay);
 
             _update_position();
         }
+        
+        Serial.println("stuck");
     }
 
     if (*limit_begin_reached) {
@@ -420,7 +439,21 @@ void FeedbackStepper :: move_while_button_pressed_check_limit_switches(float spe
         move_while_button_pressed(FEEDBACKSTEPPER_GO_TO_LIMIT_SWITCH_SPEED, HR4988_CHANGE_DIR, limit_end_reached, switch_end_parameters, FEEDBACKSTEPPER_DISTANCE_FROM_LIMIT_SWITCHES);
     }
 
-    while ((*button_pressed = button_read_attach_interrupt(bp)));
+    #if BUTTONS_DISABLED
+        if (bp->pin == 16) {
+            while((*button_pressed = shift_up_pressed)) {
+                Serial.println("stuck upshift");
+                delayMicroseconds(10000);
+            }
+        } else if (bp->pin == 17) {
+            while((*button_pressed = shift_down_pressed)) {
+                Serial.println("stuck downshift");
+                delayMicroseconds(10000);
+            }
+        }
+    #else
+        while ((*button_pressed = button_read_attach_interrupt(bp)));
+    #endif
 
     digitalWrite(BUILTIN_LED, LOW);
 }

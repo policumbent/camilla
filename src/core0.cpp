@@ -1,6 +1,14 @@
 #include "core0.h"
 
 
+#define TIME_POLL_CAN_SEND 1000
+#define TIME_POLL_CAN_RX   10
+
+
+static void can_greta_rx_callback(CAN_FRAME *frame);
+static void cast_payload(uint8_t *casted_payload, BytesUnion pl, uint8_t length);
+
+
 void function_core_0 (void *parameters) {
 
 #if DEBUG_CORES
@@ -47,38 +55,43 @@ void function_core_0 (void *parameters) {
     can_tx_msg_data.extended = POLICANBENT_GB_DATA_IS_EXTENDED;
     can_tx_msg_data.length = POLICANBENT_GB_DATA_LENGTH;
 
+    uint64_t time_can_sending = millis();
+    uint64_t time_can_receiving = millis();
+
     while (1) {
+        if (millis() - time_can_sending >= TIME_POLL_CAN_SEND) {
+            data_payload.gb_gear = policanbent_gb_data_gb_gear_encode(g_current_gear);
 
-        data_payload.gb_gear = policanbent_gb_data_gb_gear_encode(g_current_gear);
+            if (policanbent_gb_data_pack(destination_payload, &data_payload, POLICANBENT_GB_DATA_LENGTH) < 0) {
+                #if DEBUG_CAN
+                    Serial.println("Error in creating CAN data payload");
+                #endif
+            }
+            else {
+                for (i=0; i<POLICANBENT_GB_DATA_LENGTH; i++) {
+                    can_tx_msg_data.data.uint8[i] = destination_payload[i];
+                }
 
-        if (policanbent_gb_data_pack(destination_payload, &data_payload, POLICANBENT_GB_DATA_LENGTH) < 0) {
-            #if DEBUG_CAN
-                Serial.println("Error in creating CAN data payload");
-            #endif
-        }
-        else {
-            for (i=0; i<POLICANBENT_GB_DATA_LENGTH; i++) {
-                can_tx_msg_data.data.uint8[i] = destination_payload[i];
+                CAN0.sendFrame(can_tx_msg_data);
+
+
+                #if DEBUG_CAN >= 2
+                    Serial.print("CAN status:");
+                    Serial.print("      Current gear: "); Serial.print(g_current_gear);
+                    Serial.print("    Transmitted payload: "); Serial.print(data_payload.gb_gear);
+                    Serial.print("    Destination payload[0]: "); Serial.println(destination_payload[0]);
+                #endif
             }
 
-            CAN0.sendFrame(can_tx_msg_data);
+            if (g_calibration_flag) {
+                webserver_calibration();
+                g_calibration_flag = 0;
+            }
 
-
-            #if DEBUG_CAN >= 2
-                Serial.print("CAN status:");
-                Serial.print("      Current gear: "); Serial.print(g_current_gear);
-                Serial.print("    Transmitted payload: "); Serial.print(data_payload.gb_gear);
-                Serial.print("    Destination payload[0]: "); Serial.println(destination_payload[0]);
-            #endif
+            time_can_sending = millis();
         }
 
-
-        if (g_calibration_flag) {
-            webserver_calibration();
-            g_calibration_flag = 0;
-        }
-    
-        delay(1000);
+        delay(10);
     }
 }
 
@@ -101,7 +114,7 @@ void can_greta_rx_callback(CAN_FRAME *frame) {
             struct policanbent_greta_data_t d;
             int ret = policanbent_greta_data_unpack(&d, pl, frame->length);
 
-            #if CAN_DEBUG
+            #if DEBUG_CAN
                 if (ret) {
                     Serial.println("CAN frame unpacking failed.");
                 }
@@ -120,8 +133,8 @@ void can_greta_rx_callback(CAN_FRAME *frame) {
             char buf[30];
             sprintf(buf, "%d", d.rx_shifting);
 
-            #if CAN_DEBUG
-                Serial.print("Received payload GEAR ERROR ");
+            #if DEBUG_CAN
+                Serial.print("Received payload GRETA DATA: ");
                 Serial.println(buf);
             #endif
         }

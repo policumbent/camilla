@@ -24,14 +24,7 @@ int IRAM_ATTR button_interrupt_service_routine(button_parameters *bp) {
     return 1;
 }
 
-
 int button_read_attach_interrupt(button_parameters *bp) {
-#if BUTTONS_DISABLED
-    if (bp->pin != 4) {     // calibration button pin
-        return 1;
-    }
-#endif
-
     if (digitalRead(bp->pin) == bp->pressed_state)
         return 1;
 
