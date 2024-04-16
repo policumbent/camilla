@@ -28,7 +28,8 @@ void function_core_0 (void *parameters) {
         delay(100);
     }
 
-    // CAN0.watchFor();         // initialize filters for reading (for now disabled, since reading disabled)
+    CAN0.watchFor(POLICANBENT_GRETA_DATA_FRAME_ID);         // initialize filters for reading: only greta data frame
+    CAN0.setCallback(0, can_greta_rx_callback);
 
     #if DEBUG_CAN
         Serial.println("CAN initialized");
@@ -81,6 +82,51 @@ void function_core_0 (void *parameters) {
     }
 }
 
+
+void cast_payload(uint8_t *casted_payload, BytesUnion pl, uint8_t length) {
+    for (int i = 0; i < length; i++) {
+        casted_payload[i] = pl.byte[i];
+        Serial.print(casted_payload[i]);
+    }
+    Serial.println();
+}
+
+
+void can_greta_rx_callback(CAN_FRAME *frame) {
+    uint8_t pl[8];
+    cast_payload(pl, frame->data, frame->length);
+
+    switch (frame->id) {
+        case POLICANBENT_GRETA_DATA_FRAME_ID: {
+            struct policanbent_greta_data_t d;
+            int ret = policanbent_greta_data_unpack(&d, pl, frame->length);
+
+            #if CAN_DEBUG
+                if (ret) {
+                    Serial.println("CAN frame unpacking failed.");
+                }
+            #endif
+
+            if (d.rx_shifting == 2) {
+                shift_up_pressed = 1;
+                shift_down_pressed = 0;
+            } else if (d.rx_shifting == 1) {
+                shift_up_pressed = 0;
+                shift_down_pressed = 1;
+            } else {
+                shift_up_pressed = shift_down_pressed = 0;
+            }
+
+            char buf[30];
+            sprintf(buf, "%d", d.rx_shifting);
+
+            #if CAN_DEBUG
+                Serial.print("Received payload GEAR ERROR ");
+                Serial.println(buf);
+            #endif
+        }
+    }
+}
 
 
 void IRAM_ATTR limit_switch_begin_isr() {

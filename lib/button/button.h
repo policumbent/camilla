@@ -1,6 +1,8 @@
 #pragma once
 #include <Arduino.h>
 
+#define BUTTONS_DISABLED 1
+
 #define BUTTON_DEBOUNCING_TIME 50
 
 struct button_parameters {

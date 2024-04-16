@@ -22,6 +22,8 @@
         "sstream": "cpp",
         "streambuf": "cpp",
         "tuple": "cpp",
-        "new": "cpp"
+        "new": "cpp",
+        "string_view": "cpp",
+        "regex": "cpp"
     }
 }
