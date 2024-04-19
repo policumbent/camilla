@@ -5,8 +5,8 @@
 #define TIME_POLL_CAN_RX   10
 
 
-static void can_greta_rx_callback(CAN_FRAME *frame);
-static void cast_payload(uint8_t *casted_payload, BytesUnion pl, uint8_t length);
+static void IRAM_ATTR can_greta_rx_callback(CAN_FRAME *frame);
+static void IRAM_ATTR cast_payload(uint8_t *casted_payload, BytesUnion pl, uint8_t length);
 
 
 void function_core_0 (void *parameters) {
@@ -91,12 +91,13 @@ void function_core_0 (void *parameters) {
             time_can_sending = millis();
         }
 
+        //Serial.println("core0");
         delay(10);
     }
 }
 
 
-void cast_payload(uint8_t *casted_payload, BytesUnion pl, uint8_t length) {
+void IRAM_ATTR cast_payload(uint8_t *casted_payload, BytesUnion pl, uint8_t length) {
     for (int i = 0; i < length; i++) {
         casted_payload[i] = pl.byte[i];
         Serial.print(casted_payload[i]);
@@ -105,7 +106,7 @@ void cast_payload(uint8_t *casted_payload, BytesUnion pl, uint8_t length) {
 }
 
 
-void can_greta_rx_callback(CAN_FRAME *frame) {
+void IRAM_ATTR can_greta_rx_callback(CAN_FRAME *frame) {
     uint8_t pl[8];
     cast_payload(pl, frame->data, frame->length);
 
@@ -139,6 +140,8 @@ void can_greta_rx_callback(CAN_FRAME *frame) {
             #endif
         }
     }
+
+    return;
 }
 
 

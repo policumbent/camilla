@@ -428,7 +428,8 @@ void FeedbackStepper :: move_while_button_pressed_check_limit_switches(float spe
             _update_position();
         }
         
-        Serial.println("stuck");
+        //Serial.println("stuck");
+        //delayMicroseconds(1000);
     }
 
     if (*limit_begin_reached) {
