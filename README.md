@@ -26,9 +26,3 @@ There are several libraries used by this software (capital letters libraries imp
 - `Webserver`: manages the creation and the interaction with a server hosted in the ESP to calibrate the gearshift (`js`, `css` and `html` sent to the client are inside the `data/` folder)
 - `Memory`: manages reading and writing from Flash ESP, in particular gear positions
 - `policanbent:` manages CAN communication
-
-## TODO list
-
-- Fork [esp32_can](https://github.com/collin80/esp32_can)
-    - Add core selection for `void task_LowLevelRX` in
-    `uint32_t ESP32CAN::init(uint32_t ul_baudrate)`
