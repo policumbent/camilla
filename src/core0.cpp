@@ -100,9 +100,13 @@ void function_core_0 (void *parameters) {
 void IRAM_ATTR cast_payload(uint8_t *casted_payload, BytesUnion pl, uint8_t length) {
     for (int i = 0; i < length; i++) {
         casted_payload[i] = pl.byte[i];
-        Serial.print(casted_payload[i]);
+        #if DEBUG_CAN >= 2
+            Serial.print(casted_payload[i]);
+        #endif /* DEBUG_CAN >= 2 */
     }
-    Serial.println();
+    #if DEBUG_CAN >= 2
+        Serial.println();
+    #endif /* DEBUG_CAN >= 2 */
 }
 
 

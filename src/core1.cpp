@@ -26,11 +26,11 @@ Memory flash = Memory ();
 //  so starting from 0 at the end, 12 gears from 0 to -184976, each distant 1051 * 16
 #if GEARS_SETUP
     #if (LIMIT_SWITCH_AS_REFERENCE && ZERO_POSITION_AT_BEGIN) || (!LIMIT_SWITCH_AS_REFERENCE)
-        int gears[NUM_GEARS] = {0, 16816, 33632, 50448, 67264, 84080, 100896, 117712, 134528, 151344, 168160, 184976};
+        int gears[NUM_GEARS] = {0, 57718, 83914, 104380, 125871, 147923, 171416, 198621};
     #else
         int gears[NUM_GEARS] = {-184976, -168160, -151344, -134528, -117712, -100896, -84080, -67264, -50448, -33632, -16816, 0};
     #endif
-    int gears_lin[NUM_GEARS] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    int gears_lin[NUM_GEARS] = {0, 0, 0, 0, 0, 0, 0, 0};
 #else
     int gears[NUM_GEARS];
     int gears_lin[NUM_GEARS];
@@ -297,7 +297,7 @@ void gears_mode() {
         Serial.println("GEARS MODE");
     #endif
 
-    stepper_motor.go_to_limit_switch(zero_reference_limit_switch_type);
+    //stepper_motor.go_to_limit_switch(zero_reference_limit_switch_type);
     stepper_motor.set_position(0);
 
     #if DEBUG_MOTOR >= 2

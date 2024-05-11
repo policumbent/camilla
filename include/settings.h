@@ -1,6 +1,6 @@
 #pragma once
 
-#define CERBERUS_NUM_GEARS  10
+#define CERBERUS_NUM_GEARS  8
 #define PHOENIX_NUM_GEARS   12
 
 #define NUM_GEARS CERBERUS_NUM_GEARS
@@ -14,7 +14,7 @@
 
 /* if 1, uses manual overshoot version of gears;
  * if 0, uses no overshoot version of gears */
-#define NEVADA_MODE 1
+#define NEVADA_MODE 0
 
 #define GEARS_SETUP 0
 
@@ -24,12 +24,12 @@
 #define LIMIT_SWITCH_BEGIN_CONNECTED 1
 #define LIMIT_SWITCH_END_CONNECTED   1
 
-#define LIMIT_SWITCH_AS_REFERENCE 1
+#define LIMIT_SWITCH_AS_REFERENCE 0
 #if LIMIT_SWITCH_AS_REFERENCE
     #define ZERO_POSITION_AT_BEGIN 0
 #endif
 
-#define SERIAL_CALIBRATION 0
+#define SERIAL_CALIBRATION 1
 
 
 #define DEBUG 1
@@ -50,7 +50,7 @@
         #define DEBUG_POTENTIOMETER 1
     #endif
 
-    #define DEBUG_CAN 2
+    #define DEBUG_CAN 0
 
     #define DEBUG_CALIBRATION   1
 #endif

@@ -60,7 +60,6 @@ void gears_calibration() {
     end = gear = 0;
 
     while (!end) {
-
         move_while_pressed_buttons_control();
 
         if (calibration_button_pressed) {
@@ -69,6 +68,7 @@ void gears_calibration() {
 
         if (Serial.available()) {
             c = Serial.read();
+            Serial.println(c);
 
             switch (c) {
 
