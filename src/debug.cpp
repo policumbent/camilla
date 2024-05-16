@@ -9,6 +9,7 @@ void debug() {
         sprintf(str_mem, "Gear: %d \tPosition: %d \tLinear position: %d", i+1, gears[i], gears_lin[i]);
         Serial.println(str_mem);
     }
+    Serial.print("Direction change offset: "); Serial.println(dir_change_offset[0]);
 #endif
 
 #if DEBUG_MOTOR

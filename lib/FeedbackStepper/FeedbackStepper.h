@@ -43,6 +43,7 @@ class FeedbackStepper : public HR4988 {
 
         int *gears;
         int *gears_lin;
+        int *dir_change_offset;
 
 
     private:
@@ -75,8 +76,9 @@ class FeedbackStepper : public HR4988 {
         void set_limit_switch_end(uint8_t *limit_end_reached, button_parameters *switch_end_parameters);
         void set_gears(int *gears);
         void set_gears_lin(int *gears_lin);
+        void set_dir_change_offset(int *dir_change_offset);
         
-        void shift(int next_gear);
+        void shift(int curr_gear, int next_gear);
         void shift_overshoot();
         void move(int target_pos);
         void move_while_button_pressed(int8_t dir, uint8_t *button_pressed, button_parameters *bp, int additional_delta_pos);

@@ -93,9 +93,17 @@ void FeedbackStepper :: set_gears_lin(int *gears_lin) {
 }
 
 
-void FeedbackStepper :: shift(int next_gear) {
-    
-    move(gears[next_gear-1]);
+void FeedbackStepper :: set_dir_change_offset(int *dir_change_offset) {
+    this->dir_change_offset = dir_change_offset;
+}
+
+
+void FeedbackStepper :: shift(int curr_gear, int next_gear) {
+    if (next_gear < curr_gear) {
+        move(gears[next_gear-1] - this->dir_change_offset[0]);
+    } else {
+        move(gears[next_gear-1]);
+    }
 
     // If the linear position is not correct, correct the shift
     if (linear_potentiometer != NULL) {

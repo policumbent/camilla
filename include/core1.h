@@ -36,6 +36,9 @@ const int8_t increase_potentiometer_direction_sign = 1;
 
 const char gears_memory_key[] = "gears_key";
 const char gears_lin_memory_key[] = "gears_lin_key";
+const char dir_change_offset_key[] = "dir_cng_off_key";
+
+#define NUM_DIR_CHANGE_OFFSET 1
 
 
 extern FeedbackStepper stepper_motor;
@@ -45,6 +48,7 @@ extern Memory flash;
 
 extern int gears[];
 extern int gears_lin[];
+extern int dir_change_offset[];
 
 extern uint8_t zero_reference_limit_switch_type;
 

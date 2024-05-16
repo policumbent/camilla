@@ -24,6 +24,7 @@
         "tuple": "cpp",
         "new": "cpp",
         "string_view": "cpp",
-        "regex": "cpp"
+        "regex": "cpp",
+        "bitset": "cpp"
     }
 }

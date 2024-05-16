@@ -26,14 +26,16 @@ Memory flash = Memory ();
 //  so starting from 0 at the end, 12 gears from 0 to -184976, each distant 1051 * 16
 #if GEARS_SETUP
     #if (LIMIT_SWITCH_AS_REFERENCE && ZERO_POSITION_AT_BEGIN) || (!LIMIT_SWITCH_AS_REFERENCE)
-        int gears[NUM_GEARS] = {0, 57718, 83914, 104380, 125871, 147923, 171416, 198621};
+        int gears[NUM_GEARS] = {0, 38099, 56725, 77191, 99513, 121166, 143472, 171492};
     #else
         int gears[NUM_GEARS] = {-184976, -168160, -151344, -134528, -117712, -100896, -84080, -67264, -50448, -33632, -16816, 0};
     #endif
     int gears_lin[NUM_GEARS] = {0, 0, 0, 0, 0, 0, 0, 0};
+    int dir_change_offset[NUM_DIR_CHANGE_OFFSET] = {22500};
 #else
     int gears[NUM_GEARS];
     int gears_lin[NUM_GEARS];
+    int dir_change_offset[NUM_DIR_CHANGE_OFFSET];
 #endif
 
 
@@ -74,6 +76,8 @@ void function_core_1 (void *parameters) {
     stepper_motor.set_gears(gears_ptr);
     int *gears_lin_ptr = gears_lin;
     stepper_motor.set_gears_lin(gears_lin_ptr);
+    int *dir_change_offset_ptr = dir_change_offset;
+    stepper_motor.set_dir_change_offset(dir_change_offset_ptr);
 
 #if ZERO_POSITION_AT_BEGIN
     zero_reference_limit_switch_type = FEEDBACKSTEPPER_LIMIT_SWITCH_BEGIN_TYPE;
@@ -85,10 +89,12 @@ void function_core_1 (void *parameters) {
     #if GEARS_SETUP
         flash.write_array(gears_memory_key, (void *) gears, NUM_GEARS, sizeof(int));
         flash.write_array(gears_lin_memory_key, (void *) gears_lin, NUM_GEARS, sizeof(int));
+        flash.write_array(dir_change_offset_key, (void *) dir_change_offset, NUM_DIR_CHANGE_OFFSET, sizeof(int));
     #endif    
 
     flash.read_array(gears_memory_key, (void *) gears, NUM_GEARS, sizeof(int));
     flash.read_array(gears_lin_memory_key, (void *) gears_lin, NUM_GEARS, sizeof(int));
+    flash.read_array(dir_change_offset_key, (void *) dir_change_offset, NUM_DIR_CHANGE_OFFSET, sizeof(int));
 
 #if DEBUG
     debug();
@@ -369,7 +375,7 @@ void shift(uint8_t next_gear) {
 
     digitalWrite(BUILTIN_LED, HIGH);
 
-    stepper_motor.shift(next_gear);
+    stepper_motor.shift(g_current_gear, next_gear);
     g_current_gear = next_gear;
 
     digitalWrite(BUILTIN_LED, LOW);

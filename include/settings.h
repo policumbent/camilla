@@ -16,12 +16,12 @@
  * if 0, uses no overshoot version of gears */
 #define NEVADA_MODE 0
 
-#define GEARS_SETUP 0
+#define GEARS_SETUP 1
 
 #define MICROSTEPPING_ENABLED        1
 #define ENCODER_CONNECTED            0
 #define POTENTIOMETER_CONNECTED      0
-#define LIMIT_SWITCH_BEGIN_CONNECTED 1
+#define LIMIT_SWITCH_BEGIN_CONNECTED 0
 #define LIMIT_SWITCH_END_CONNECTED   1
 
 #define LIMIT_SWITCH_AS_REFERENCE 0

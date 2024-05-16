@@ -5,6 +5,7 @@
 
 
 void gears_calibration();
+void dir_change_calibration();
 int read_int_serial();
 
 
@@ -18,7 +19,7 @@ void calibration() {
     char c;
     uint8_t end = 0;
 
-    Serial.println("Select: Gears, Encoder, Potentiometer or Driver calibration (g,G / e,E / p,P / d,D)");
+    Serial.println("Select: Gears, Encoder, Potentiometer, Driver or direction Change calibration (g,G / e,E / p,P / d,D / c,C)");
 
     while (!end) {
         while (!Serial.available()) delay(1);
@@ -36,8 +37,10 @@ void calibration() {
             case 'd': case 'D':
                 stepper_motor.driver_calibration();
                 end = 1; break;
+            case 'c': case 'C':
+                dir_change_calibration();
             default:
-                Serial.println("Unrecognized command (use: g,G / e,E / p,P / d,D)");
+                Serial.println("Unrecognized command (use: g,G / e,E / p,P / d,D / c,C)");
                 break;
         }
     }    
@@ -161,6 +164,125 @@ void gears_calibration() {
             sprintf(str_cal, "Gear: %d \tPosition: %d \tLinear position: %d", i+1, gears[i], gears_lin[i]);
             Serial.println(str_cal);
         }
+    #endif
+}
+
+
+void dir_change_calibration() {
+    uint8_t end = 0;
+    char c;
+
+    int pos_start = 0, pos_end = 0, offset = 0;
+
+    while (!end) {
+        while (!Serial.available()) delay(1);
+        Serial.println("Move the gearbox to touch one side of the screw, then press f");
+        if (Serial.available()) {
+            c = Serial.read();
+            Serial.println(c);
+
+            switch (c) {
+            case '+':
+                stepper_motor.set_direction(HR4988_POSITIVE_DIR);
+                for (int i=0; i<16; i++) stepper_motor.step();
+                break;
+
+            case '*':
+                stepper_motor.set_direction(HR4988_POSITIVE_DIR);
+                for (int i=0; i<160; i++) stepper_motor.step();
+                break;
+
+            case '-':
+                stepper_motor.set_direction(HR4988_NEGATIVE_DIR);
+                for (int i=0; i<16; i++) stepper_motor.step();
+                break;
+
+            case '/':
+                stepper_motor.set_direction(HR4988_NEGATIVE_DIR);
+                for (int i=0; i<160; i++) stepper_motor.step();
+                break;
+
+            case 'f':
+                end = 1;
+                break;
+            }
+        }
+    }
+
+    end = 0;
+    pos_start = stepper_motor.get_position();
+    #if DEBUG_CALIBRATION
+        Serial.print("Start position: "); Serial.println(pos_start);
+    #endif /* DEBUG_CALIBRATION */
+
+    Serial.println("Now move the gearbox up until it touches the other side of the screw, then press f");
+
+    while (!end) {
+        while (!Serial.available()) delay(1);
+        Serial.println("Now move the gearbox up until it touches the other side of the screw, then press f");
+        if (Serial.available()) {
+            c = Serial.read();
+            Serial.println(c);
+
+            switch (c) {
+            case '+':
+                stepper_motor.set_direction(HR4988_POSITIVE_DIR);
+                for (int i=0; i<16; i++) stepper_motor.step();
+                break;
+
+            case '*':
+                stepper_motor.set_direction(HR4988_POSITIVE_DIR);
+                for (int i=0; i<160; i++) stepper_motor.step();
+                break;
+
+            case '-':
+                stepper_motor.set_direction(HR4988_NEGATIVE_DIR);
+                for (int i=0; i<16; i++) stepper_motor.step();
+                break;
+
+            case '/':
+                stepper_motor.set_direction(HR4988_NEGATIVE_DIR);
+                for (int i=0; i<160; i++) stepper_motor.step();
+                break;
+
+            case 'f':
+                end = 1;
+                break;
+            }
+        }
+    }
+
+    pos_end = stepper_motor.get_position();
+    offset = abs(pos_end - pos_start);
+    #if DEBUG_CALIBRATION
+        Serial.print("Start position: "); Serial.println(pos_start);
+        Serial.print("Offset: "); Serial.println(offset);
+    #endif /* DEBUG_CALIBRATION */
+
+    Serial.println("Confirm changes? (y/n)");
+    end = 0;
+    while (!end) {
+        while (!Serial.available()) delay(1);
+        c = Serial.read();
+        switch (c) {
+            case 'n': case 'N':
+                Serial.println("Changes NOT saved");
+                end = 1; break;
+
+            case 'y': case 'Y':
+                flash.write_array(dir_change_offset_key, (void *) dir_change_offset, NUM_DIR_CHANGE_OFFSET, sizeof(int));
+                Serial.println("Changes saved");
+                end = 1; break;
+
+            default:
+                Serial.println("Unrecognized command (use: y,Y/n,N)"); break;
+        }
+    }
+
+    flash.read_array(dir_change_offset_key, (void *) dir_change_offset, NUM_DIR_CHANGE_OFFSET, sizeof(int));
+
+    #if DEBUG_CALIBRATION
+        Serial.print("CALIBRATION ENDED - Offset saved in memory: "); Serial.print(dir_change_offset[0]);
     #endif
 }
 
