@@ -1,6 +1,8 @@
 #pragma once
 #include <Arduino.h>
 
+#include <WiFi.h>
+
 #include "settings.h"
 
 #include "FeedbackStepper.h"

@@ -52,6 +52,10 @@ void setup() {
         Serial.println("Serial initialized");
     #endif
 
+    WiFi.disconnect();
+    WiFi.mode(WIFI_OFF);
+    btStop();
+
     pinMode(BUILTIN_LED, OUTPUT);
     digitalWrite(BUILTIN_LED, LOW);
 
